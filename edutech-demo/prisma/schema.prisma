@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  plan          String    @default("FREE")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Profile
+  gradeLevel         String?
+  curriculum         String?
+  subjects           String[]
+  gpa                Float?
+  satScore           Int?
+  actScore           Int?
+  intendedMajor      String?
+  targetUniversities String[]
+  careerInterests    String[]
+  location           String?
+  bio                String?   @db.VarChar(100)
+  coursesTaking      String[]  @default([])
+  activitiesDone     Json?
+  goals              Json?
+  customPreferences  String?   @db.Text
+  weeklyAvailability Json?
+
+  // Subscription
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  subscriptionStatus   String?
+  subscriptionEnds     DateTime?
+  trialEnds            DateTime?
+
+  accounts       Account[]
+  sessions       Session[]
+  studyMaterials StudyMaterial[]
+  worksheets     Worksheet[]
+  pastPapers     PastPaper[]
+  essays         Essay[]
+  chatMessages   ChatMessage[]
+  studySessions  StudySession[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model StudyMaterial {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  subject     String
+  level       String?
+  curriculum  String?
+  contentType String // text, pdf, url, youtube
+  content     String?  @db.Text
+  fileUrl     String?
+  summary     String?  @db.Text
+  notes       String?  @db.Text
+  flashcards  Json?
+  keyTopics   String[]
+  studyPlan   String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Worksheet {
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  subject      String
+  curriculum   String?
+  difficulty   String
+  questionType String
+  questions    Json
+  answers      Json?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PastPaper {
+  id          String    @id @default(cuid())
+  userId      String
+  subject     String
+  curriculum  String
+  year        Int?
+  duration    Int // minutes
+  questions   Json
+  answers     Json?
+  score       Float?
+  timeSpent   Int? // seconds
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Essay {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String // common-app, supplemental, personal-statement
+  university String?
+  prompt     String?  @db.Text
+  draft      String?  @db.Text
+  feedback   String?  @db.Text
+  improved   String?  @db.Text
+  wordCount  Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String // user, assistant
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudySession {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  subject     String
+  curriculum  String?
+  content     String   @db.Text
+  summary     String?  @db.Text
+  flashcards  Json?
+  studyPlan   String[] @default([])
+  keyConcepts String[] @default([])
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
