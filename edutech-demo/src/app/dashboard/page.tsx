@@ -8,15 +8,6 @@ import { BookOpen, FileText, Clock, GraduationCap, Briefcase, ArrowRight, Calend
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
-  if (status === 'loading') {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-gray-500">Loading dashboard…</p>
-        </div>
-      </DashboardLayout>
-    )
-  }
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -48,13 +39,25 @@ export default function DashboardPage() {
     { label: 'Exams Practiced', value: 0, icon: Clock },
   ]
 
+  const firstName = session?.user?.name?.split(' ')?.[0] || 'Student'
+
+  if (status === 'loading') {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-gray-500">Loading dashboard…</p>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout>
       <div className="p-6 max-w-7xl mx-auto">
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-1">
-            Welcome back, {session?.user?.name?.split(' ')[0] || 'Student'}! 👋
+            Welcome back, {firstName}! 👋
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             {profile?.curriculum ? `${profile.curriculum} Student` : 'Ready to ace your studies?'}
