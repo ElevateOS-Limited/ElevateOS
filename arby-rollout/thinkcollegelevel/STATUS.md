@@ -1,12 +1,13 @@
 # thinkcollegelevel — STATUS
 
 ## Milestone
-Homepage fully restructured with section rhythm for framework/comparison/pricing/CTA.
+Homepage upgraded with CTA event tracking hooks and FAQ/Organization structured data, while preserving the existing static IA and conversion flow.
 
 ## Phase coverage
-- Competitive: explicit contrast against generic counseling model.
-- IA: defined 6-step journey (audit → strategy → execution → proof → conversion → decision support).
-- Content: rewrote positioning and section copy for admissions-focused intent.
-- UI: modern static layout with modular cards and responsive sections.
-- Conversion: pricing cadence and repeated CTAs to appdemo trial/pricing/contact.
+- Competitive: explicit contrast against generic counseling model remains in the comparison section.
+- IA: maintained 6-step journey and added FAQ block for objection handling.
+- Content: added high-intent FAQ answers for trial, fit, and parent visibility.
+- UI: additive FAQ card section; no route/path changes.
+- Conversion: primary CTA links now include `data-track` hooks with lightweight click-event dispatch.
+- SEO: added JSON-LD FAQPage and expanded Organization contactPoint schema.
 - Implementation: concrete update to `/home/crystalcentury/thinkcollegelevel.com/index.html`.

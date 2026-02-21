@@ -10,9 +10,10 @@
 <meta property="og:description" content="From profile audit to weekly execution and proof layers for top university applications."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://thinkcollegelevel.com/"/>
-  <link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/styles.css">
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"ThinkCollegeLevel","url":"https://thinkcollegelevel.com/","description":"Admissions operating system for high-achieving students."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"ThinkCollegeLevel","url":"https://thinkcollegelevel.com/","description":"Admissions operating system for high-achieving students.","contactPoint":[{"@type":"ContactPoint","contactType":"admissions support","url":"https://thinkcollegelevel.com/contact.html","availableLanguage":["en"]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is ThinkCollegeLevel only for top 1% students?","acceptedAnswer":{"@type":"Answer","text":"No. ThinkCollegeLevel is designed for motivated students at different levels who need a structured admissions execution system."}},{"@type":"Question","name":"What is included in the free trial?","acceptedAnswer":{"@type":"Answer","text":"The free trial includes onboarding, AI planning workflows, and initial weekly execution guidance so families can evaluate fit before upgrading."}},{"@type":"Question","name":"Can parents monitor progress?","acceptedAnswer":{"@type":"Answer","text":"Yes. ThinkCollegeLevel emphasizes transparent checkpoints and proof tracking so students and parents can review progress together."}}]}</script>
 </head>
 <body>
 <div class="wrap">
@@ -28,8 +29,8 @@
     <h1>Build a <span class="grad">Top-University Ready</span> Profile with Weekly Execution</h1>
     <p class="lead">ThinkCollegeLevel helps students move from vague ambition to measurable progress: profile diagnosis, strategic roadmap, admissions-grade outputs, and proof tracking.</p>
     <div class="cta">
-      <a class="btn p" href="https://appdemo.thinkcollegelevel.com/">Try App Demo</a>
-      <a class="btn s" href="#pricing">View Plans</a>
+      <a class="btn p" href="https://appdemo.thinkcollegelevel.com/" data-track="hero_try_appdemo">Try App Demo</a>
+      <a class="btn s" href="#pricing" data-track="hero_view_plans">View Plans</a>
     </div>
   </section>
 
@@ -63,9 +64,18 @@
   <section class="section" id="pricing">
     <h2>Pricing + CTA cadence</h2>
     <div class="grid g3">
-      <article class="card"><h3>Starter</h3><p class="muted">AI planning + worksheet generation</p><p><strong>For self-driven students</strong></p><a class="btn s" href="https://appdemo.thinkcollegelevel.com/pricing">See Starter</a></article>
-      <article class="card"><h3>Pro</h3><p class="muted">Admissions strategy + milestone reviews</p><p><strong>For top-tier applicants</strong></p><a class="btn p" href="https://appdemo.thinkcollegelevel.com/pricing">Choose Pro</a></article>
-      <article class="card"><h3>Elite</h3><p class="muted">Mentor checkpoints + application sprint support</p><p><strong>For high-accountability execution</strong></p><a class="btn s" href="/contact.html">Talk to Advisor</a></article>
+      <article class="card"><h3>Starter</h3><p class="muted">AI planning + worksheet generation</p><p><strong>For self-driven students</strong></p><a class="btn s" href="https://appdemo.thinkcollegelevel.com/pricing" data-track="pricing_starter">See Starter</a></article>
+      <article class="card"><h3>Pro</h3><p class="muted">Admissions strategy + milestone reviews</p><p><strong>For top-tier applicants</strong></p><a class="btn p" href="https://appdemo.thinkcollegelevel.com/pricing" data-track="pricing_pro">Choose Pro</a></article>
+      <article class="card"><h3>Elite</h3><p class="muted">Mentor checkpoints + application sprint support</p><p><strong>For high-accountability execution</strong></p><a class="btn s" href="/contact.html" data-track="pricing_elite_contact">Talk to Advisor</a></article>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <h2>Frequently asked questions</h2>
+    <div class="grid g3">
+      <article class="card"><h3>Is this only for top 1% students?</h3><p class="muted">No. It is for motivated students who need structure, accountability, and better output quality.</p></article>
+      <article class="card"><h3>What does the free trial include?</h3><p class="muted">Onboarding, AI planning, and your first execution cycle so you can evaluate fit before upgrading.</p></article>
+      <article class="card"><h3>Can parents monitor progress?</h3><p class="muted">Yes. Shared checkpoints and proof records make progress easy to review together.</p></article>
     </div>
   </section>
 
@@ -73,7 +83,7 @@
     <div class="card">
       <h2>Final CTA</h2>
       <p class="muted">Start with a guided intake and get your first admissions execution plan in minutes.</p>
-      <a class="btn p" href="https://appdemo.thinkcollegelevel.com/auth/signup">Start Free Trial</a>
+      <a class="btn p" href="https://appdemo.thinkcollegelevel.com/auth/signup" data-track="final_start_trial">Start Free Trial</a>
     </div>
   </section>
 
@@ -81,5 +91,27 @@
     © 2026 ThinkCollegeLevel · <a href="/blog/" style="color:#d2dcff">Blog</a> · <a href="/now.html" style="color:#d2dcff">Now</a> · <a href="/contact.html" style="color:#d2dcff">Contact</a>
   </footer>
 </div>
+<script>
+(function(){
+  function dispatchTrack(eventName, payload){
+    var data = payload || {};
+    if (!window.dataLayer) { window.dataLayer = []; }
+    window.dataLayer.push(Object.assign({ event: eventName }, data));
+    if (window.gtag) {
+      window.gtag('event', eventName, data);
+    }
+  }
+
+  document.addEventListener('click', function(ev){
+    var el = ev.target.closest('[data-track]');
+    if (!el) return;
+    dispatchTrack('tcl_cta_click', {
+      cta_id: el.getAttribute('data-track'),
+      cta_text: (el.textContent || '').trim(),
+      cta_href: el.getAttribute('href') || ''
+    });
+  });
+})();
+</script>
 </body>
 </html>
