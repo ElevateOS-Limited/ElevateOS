@@ -2,11 +2,11 @@
 
 ## 1) appdemo
 - Status: ✅ Complete
-- Timestamp: 2026-02-21 21:xx HKT
 - Summary: Implemented proof-layer UX skeleton + conversion-ready homepage structure in Next.js app.
 
 ## 2) demo
-- Status: ⏳ Pending
+- Status: ✅ Complete
+- Summary: Site path was missing; scaffolded minimal deployable placeholder at `/home/crystalcentury/demo` with SEO baseline.
 
 ## 3) thinkcollegelevel
 - Status: ⏳ Pending
