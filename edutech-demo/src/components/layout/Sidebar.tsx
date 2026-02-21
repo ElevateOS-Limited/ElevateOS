@@ -22,6 +22,7 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
   const [openGroups, setOpenGroups] = useState<string[]>(['dashboard', 'learn', 'plan', 'apply'])
   const [search, setSearch] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(0)
+  const [showQuickActions, setShowQuickActions] = useState(false)
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -106,11 +107,21 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
             <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-gray-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search modules..." className="w-full pl-8 pr-2 py-2 text-sm border rounded-lg bg-transparent" />
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {QUICK_ACTIONS.map((a) => (
-              <Link key={a.href} href={a.href} className="text-xs px-2 py-1 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">{a.label}</Link>
-            ))}
+          <div className="mt-2 flex items-center justify-between">
+            <button type="button" onClick={() => setShowQuickActions((v) => !v)} className="text-xs text-gray-500 underline">
+              {showQuickActions ? 'Hide quick actions' : 'Show quick actions'}
+            </button>
+            {user.plan === 'FREE' && (
+              <Link href="/pricing" className="text-xs text-indigo-600 underline">Upgrade →</Link>
+            )}
           </div>
+          {showQuickActions && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {QUICK_ACTIONS.map((a) => (
+                <Link key={a.href} href={a.href} className="text-xs px-2 py-1 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">{a.label}</Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -134,7 +145,7 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
                         href={item.href}
                         title={item.label}
                         onClick={() => onCloseMobile?.()}
-                        className={cn('flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all', active ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800')}
+                        className={cn('flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all', active ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800')}
                       >
                         <item.icon className="w-4 h-4 flex-shrink-0" />
                         {!collapsed && (
@@ -155,7 +166,7 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
       </nav>
 
       {!collapsed && user.plan === 'FREE' && (
-        <div className="p-3">
+        <div className="p-3 hidden md:block">
           <div className="bg-gradient-to-br from-violet-600 to-indigo-700 rounded-xl p-4 text-white">
             <Crown className="w-5 h-5 mb-2" />
             <p className="text-sm font-semibold mb-1">Upgrade to Pro</p>
