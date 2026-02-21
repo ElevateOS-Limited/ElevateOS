@@ -41,6 +41,9 @@ export default function DashboardPage() {
     { label: 'Exams Practiced', value: 0, icon: Clock },
   ]
 
+  const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const availability = ((profile as any)?.weeklyAvailability || {}) as Record<string, 'busy' | 'open'>
+
   const firstName = session?.user?.name?.split(' ')?.[0] || 'Student'
 
   if (status === 'loading') {
@@ -88,6 +91,29 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-500">{stat.label}</p>
             </div>
           ))}
+        </div>
+
+        {/* My Calendar */}
+        <h2 className="text-xl font-semibold mb-4">My Calendar</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-800 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            {weekDays.map((day) => {
+              const status = availability[day] || 'busy'
+              const isOpen = status === 'open'
+              return (
+                <div key={day} className={`rounded-lg border p-3 ${isOpen ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'}`}>
+                  <p className="text-xs text-gray-500">{day}</p>
+                  <p className={`text-sm font-semibold mt-1 ${isOpen ? 'text-green-700 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {isOpen ? 'Open' : 'Busy'}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-sm text-gray-500">Update your schedule in Settings to personalize AI planning.</p>
+            <Link href="/dashboard/settings" className="text-sm text-indigo-600 hover:underline">Edit Calendar →</Link>
+          </div>
         </div>
 
         {/* Quick Actions */}
