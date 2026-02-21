@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
-  Brain, BookOpen, Trophy, GraduationCap, Briefcase, 
+  Brain, BookOpen, Trophy, GraduationCap, Briefcase, ScanLine,
   LayoutDashboard, Settings, Crown, ChevronRight
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -16,6 +16,8 @@ const navItems = [
   { href: '/dashboard/admissions', icon: GraduationCap, label: 'Admissions' },
   { href: '/dashboard/internships', icon: Briefcase, label: 'Internships' },
   { href: '/dashboard/planner', icon: BookOpen, label: 'Activity Planner' },
+  { href: '/dashboard/paper-scan', icon: ScanLine, label: 'Paper Scanner' },
+  { href: '/dashboard/extracurriculars', icon: Trophy, label: 'EC Scoring' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ]
 

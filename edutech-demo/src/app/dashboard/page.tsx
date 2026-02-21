@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { BookOpen, FileText, Clock, GraduationCap, Briefcase, ArrowRight, CalendarClock } from 'lucide-react'
+import { BookOpen, FileText, Clock, GraduationCap, Briefcase, ArrowRight, CalendarClock, ScanLine, Trophy } from 'lucide-react'
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
@@ -31,6 +31,8 @@ export default function DashboardPage() {
     { href: '/dashboard/admissions', label: 'Check Admissions', icon: GraduationCap, desc: 'AI university analysis', color: 'from-green-500 to-teal-600' },
     { href: '/dashboard/internships', label: 'Find Internships', icon: Briefcase, desc: 'Curated opportunities', color: 'from-pink-500 to-rose-600' },
     { href: '/dashboard/planner', label: 'Activity Planner', icon: CalendarClock, desc: 'Match open days to top-university activities', color: 'from-indigo-500 to-violet-600' },
+    { href: '/dashboard/paper-scan', label: 'Paper Scanner', icon: ScanLine, desc: 'Upload exam photos and mark right/wrong', color: 'from-cyan-500 to-blue-600' },
+    { href: '/dashboard/extracurriculars', label: 'EC Scoring', icon: Trophy, desc: 'Analyze extracurricular strength with points', color: 'from-amber-500 to-orange-600' },
   ]
 
   const stats = [
