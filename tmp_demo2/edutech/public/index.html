@@ -216,10 +216,7 @@
   <!-- PRICING -->
   <section class="section pricing-section" id="pricing">
     <div class="container">
-      <div class="pricing-head-row">
-        <div class="section-tag">Pricing</div>
-        <button type="button" class="pricing-close" onclick="window.scrollTo({top:0,behavior:'smooth'})">×</button>
-      </div>
+      <div class="section-tag">Pricing</div>
       <h2 class="section-h2">Invest in your future.<br/>Start free, cancel anytime.</h2>
       <p class="section-sub">Every plan starts with a 7-day free trial. No credit card required to begin.</p>
 
@@ -459,7 +456,7 @@
 <div id="page-intake" class="page">
   <div class="intake-layout">
     <aside class="intake-sidebar">
-      <button class="back-btn" onclick="goHomeFromIntake()">← Home</button>
+      <button class="back-btn" onclick="showPage('landing')">← Home</button>
       <div class="intake-logo">edu<span class="logo-accent">tech</span></div>
       <nav class="intake-steps-nav">
         <div class="isn-item active" id="isnav-1">
@@ -595,31 +592,31 @@
             </div>
           </div>
           <div class="ig">
-            <label>Participation Preferences <span style="font-weight:400;color:#6b7280;">(multi-select)</span></label>
+            <label>Participation Preferences</label>
             <div class="radio-opts">
               <label class="ropt">
-                <input type="checkbox" name="travelWillingness" value="local" />
+                <input type="radio" name="travelWillingness" value="local" />
                 <span class="ropt-box">
                   <strong>Local Only</strong>
                   <p>Within my city/region</p>
                 </span>
               </label>
               <label class="ropt">
-                <input type="checkbox" name="travelWillingness" value="regional" />
+                <input type="radio" name="travelWillingness" value="regional" />
                 <span class="ropt-box">
                   <strong>Regional / National</strong>
                   <p>Travel within my country</p>
                 </span>
               </label>
               <label class="ropt">
-                <input type="checkbox" name="travelWillingness" value="international" />
+                <input type="radio" name="travelWillingness" value="international" />
                 <span class="ropt-box">
                   <strong>International</strong>
                   <p>Open to global programs</p>
                 </span>
               </label>
               <label class="ropt">
-                <input type="checkbox" name="travelWillingness" value="online" checked />
+                <input type="radio" name="travelWillingness" value="online" checked />
                 <span class="ropt-box">
                   <strong>Online Preferred</strong>
                   <p>Remote & virtual only</p>
@@ -655,8 +652,8 @@
           <div class="ig">
             <label>When are you typically free?</label>
             <div class="time-cards">
-              <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="after-school" /><span><strong>After School</strong><em>Late afternoon on your selected days</em></span></label>
-              <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="evening" /><span><strong>Evenings</strong><em>Evening blocks on your selected days</em></span></label>
+              <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="after-school" /><span><strong>After School</strong><em>3–6 PM weekdays</em></span></label>
+              <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="evening" /><span><strong>Evenings</strong><em>6–9 PM any day</em></span></label>
               <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="weekend-morning" /><span><strong>Weekend AM</strong><em>9 AM–12 PM</em></span></label>
               <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="weekend-afternoon" /><span><strong>Weekend PM</strong><em>12–5 PM Sat/Sun</em></span></label>
               <label class="tcard-opt"><input type="checkbox" name="availableTimes" value="summer" /><span><strong>Summer</strong><em>Multi-week programs</em></span></label>
@@ -699,7 +696,7 @@
       </nav>
       <div class="dash-nav-right">
         <button class="btn-regen" onclick="regenProfile()">🔄 New Path</button>
-        <button class="btn-ghost btn-sm" onclick="startEditProfile()">Edit Profile</button>
+        <button class="btn-ghost btn-sm" onclick="showPage('intake')">Edit Profile</button>
       </div>
     </div>
   </header>

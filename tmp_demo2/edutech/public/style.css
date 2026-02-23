@@ -123,6 +123,12 @@ p { color:var(--ink-60); }
   transition:color var(--transition);
 }
 .nav-link:hover { color:#fff; }
+.nav-link-pricing {
+  border:1px solid rgba(255,255,255,0.35);
+}
+.nav-link-pricing:hover {
+  border-color:rgba(255,255,255,0.7);
+}
 .nav-cta { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .nav-signin { color:rgba(255,255,255,0.75); }
 .nav-hamburger {
