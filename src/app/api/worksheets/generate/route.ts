@@ -5,12 +5,17 @@ import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
+import { deriveOrgIdFromSession } from '@/lib/auth/org-context'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getSessionOrDemo()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (!hasRequiredRole(session.user?.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
+    if (!hasRequiredRole(session.user?.role, ['OWNER', 'ADMIN', 'TUTOR'], { allowDemoTutorFallback: true })) {
+      return forbiddenResponse()
+    }
+
+    const orgId = deriveOrgIdFromSession(session)
 
     const guard = await enforceAIDemoGuard(session, 'worksheets.generate')
     if (guard) return guard
@@ -36,6 +41,7 @@ export async function POST(request: NextRequest) {
     // Save to DB
     await prisma.worksheet.create({
       data: {
+        orgId,
         userId: session.user.id,
         title: `${subject || curriculum} — ${topic}`,
         subject,

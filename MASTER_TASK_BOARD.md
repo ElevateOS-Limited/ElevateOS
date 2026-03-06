@@ -2,9 +2,11 @@
 
 ## Section 0: Repo baseline (facts only)
 
-- Current branch: `feat/ai-integrity-vertical-slice`
-- Last commit hash: `5a517e0`
+- Current branch: `feat/rbac-org-worksheet-scoping`
+- Last commit hash: `001e40d`
 - Repo path: `/root/.openclaw/workspace/edutech-demo`
+- Canonical repo: `https://github.com/imjusthoward/elevateos-demo`
+- Canonical base branch: `main`
 
 ### Local run (currently working commands)
 ```bash
@@ -111,10 +113,10 @@ Upload → extract text → segment → score → highlight → export PDF/DOCX 
 | Funnel A quickstart vertical slice | Partial | Uses fallback class/student model; no class/student DB entities | `src/app/dashboard/quickstart/page.tsx` | Arby | `TBD-C1` |
 | Worksheet generation core | Partial | Not fully unified with class/student/assessment pipeline | `src/app/api/worksheets/generate/route.ts`, `src/app/api/worksheets/route.ts` | Arby | `TBD-C3` |
 | Assignment + score + report continuity | Partial | Event logging via feedback; no normalized attempt/report entities | `src/app/dashboard/quickstart/page.tsx`, `src/app/api/feedback/route.ts`, `src/app/api/notes/route.ts` | Arby | `TBD-C3` |
-| Multi-tenant scoping correctness | Missing | orgId-based scoping wrappers/guards absent across routes | multiple `src/app/api/**/route.ts` | Arby | `TBD-C1` |
-| RBAC API + UI gating | Partial | Some auth checks exist; role enforcement not consistent | `src/lib/auth/*`, `src/app/api/**/route.ts`, dashboard pages | Arby | `TBD-C2` |
-| AI Integrity pipeline | Missing | No production route/UI/DB pipeline integrated | N/A (new files required) | Arby | `TBD-C3` |
-| Tooling control loop files | Missing | No formal board/heartbeat/postmortem logs in repo | `MASTER_TASK_BOARD.md`, `PROGRESS_LOG.md`, `HEARTBEAT.md`, `POSTMORTEM.md` | Arby | `TBD-C1` |
+| Multi-tenant scoping correctness | Partial | Worksheet org scoping added; remaining tenant routes still not org-scoped | `src/app/api/worksheets/generate/route.ts`, `src/app/api/worksheets/route.ts`, multiple `src/app/api/**/route.ts` | Arby | `RBAC-ORG-C1` |
+| RBAC API + UI gating | Partial | Worksheet write paths now Funnel-A role guarded; broader API/UI role gating still incomplete | `src/lib/auth/*`, `src/app/api/worksheets/*.ts`, `src/app/api/**/route.ts`, dashboard pages | Arby | `RBAC-ORG-C1` |
+| AI Integrity pipeline | Missing | No production route/UI/DB pipeline integrated on this branch | N/A (new files required) | Arby | `AII-C1` |
+| Tooling control loop files | Done | Control files exist and are updated per slice cadence | `MASTER_TASK_BOARD.md`, `PROGRESS_LOG.md`, `HEARTBEAT.md`, `POSTMORTEM.md` | Arby | `DONE` |
 
 ---
 
@@ -154,18 +156,15 @@ Upload → extract text → segment → score → highlight → export PDF/DOCX 
 - **Rollback note:** revert commit if role mapping breaks demo login flow.
 
 ### Commit 3
-- **Title:** `feat(ai-integrity): ship minimal vertical slice upload-segment-score-persist`
+- **Title:** `feat(funnel-a): stitch worksheet assignment continuity with org-scoped reads`
 - **Exact files to touch:**
-  - `prisma/schema.prisma`
-  - `src/app/api/ai-integrity/analyze/route.ts` (new)
-  - `src/lib/ai-integrity/segment.ts` (new)
-  - `src/lib/ai-integrity/score.ts` (new)
-  - `src/app/dashboard/ai-integrity/page.tsx` (new)
-  - `src/app/dashboard/layout/sidebar-config.ts` (or existing sidebar source)
+  - `src/app/dashboard/quickstart/page.tsx`
+  - `src/app/api/worksheets/route.ts`
+  - `src/app/api/feedback/route.ts`
+  - `src/app/api/notes/route.ts`
 - **Acceptance tests:**
-  1. Open `/dashboard/ai-integrity`
-  2. Paste text + run analysis
-  3. Get per-segment percentage + label + rationale in UI
-  4. Job + segments persisted in DB
-  5. `npm run build` passes
-- **Rollback note:** revert commit and remove sidebar entry if schema or UI breaks dashboard.
+  1. Open `/dashboard/quickstart`
+  2. Generate worksheet, assign, record score, save report
+  3. Verify reads/writes still function with org-scoped worksheet queries
+  4. `npm run build` passes
+- **Rollback note:** revert commit if quickstart continuity is broken or history panels fail.

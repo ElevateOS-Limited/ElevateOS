@@ -1,14 +1,36 @@
-# Codex Review Instructions (AGENTS.md)
+# AGENTS.md — ElevateOS Demo Builder Governance
 
-## Blockers (must fail review)
-- Any API route missing RBAC guard
-- Any Prisma query on tenant data missing orgId filter
-- Any placeholder/TODO UI in Funnel A or Integrity module
-- Any Integrity job that is not idempotent
+## Repository Authority
+- Canonical GitHub repo: `imjusthoward/elevateos-demo`
+- Canonical base branch: `main`
+- Builder VPS working path: `/root/.openclaw/workspace/edutech-demo`
 
-## Must-check flows
-- Funnel A end-to-end click path works
-- Integrity: upload → extract → segment → score → highlight → export → persist → student linkage
+## Branch and PR Policy (soft-protection treated as hard)
+1. Never develop directly on `main`.
+2. Every slice must be implemented on a feature branch.
+3. Every completed slice must be pushed and opened as a PR into `main`.
+4. PRs must include scope, acceptance tests, rollback note, and board metadata patch note.
+5. Merge is reviewer-gated unless explicit override is provided by owner.
 
-## Exports
-- PDF/DOCX/PPTX exports are non-empty and include required headings/metadata
+## Control Loop Files (must stay truthful)
+- `MASTER_TASK_BOARD.md`
+- `PROGRESS_LOG.md`
+- `HEARTBEAT.md`
+- `POSTMORTEM.md`
+
+### Cadence
+- Every 30 minutes: heartbeat update.
+- Every 60 minutes: commit or postmortem.
+- No completion claim unless slice acceptance criteria are end-to-end satisfied.
+
+## Engineering Invariants
+1. Tenant-scoped server paths require `orgId` enforcement.
+2. Protected writes require server-side RBAC.
+3. No placeholder/TODO completion claims in shipped flow.
+4. No new surface area before prior slice is stitched.
+
+## Review Blockers (must fail review)
+- Missing orgId scoping on tenant paths.
+- Missing RBAC guard on protected API writes.
+- Control files stale relative to current branch/commit/path.
+- PR scope overclaims work not present on branch.

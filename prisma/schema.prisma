@@ -334,6 +334,7 @@ model StudyMaterial {
 
 model Worksheet {
   id           String   @id @default(cuid())
+  orgId        String?
   userId       String
   title        String
   subject      String
@@ -344,6 +345,8 @@ model Worksheet {
   answers      Json?
   createdAt    DateTime @default(now())
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, userId, createdAt])
 }
 
 model PastPaper {
