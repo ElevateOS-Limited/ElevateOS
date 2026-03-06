@@ -20,10 +20,7 @@ export async function POST(req: Request) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR'], {
-    email: session.user.email,
-    allowExplicitDemoTutorFallback: true,
-  })
+  const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR'])
   if (!allowed) return forbiddenResponse()
 
   try {
@@ -31,6 +28,13 @@ export async function POST(req: Request) {
     if (guard) return guard
 
     const orgId = getAuthoritativeOrgId(session)
+    if (!orgId) {
+      return NextResponse.json(
+        { error: 'Authoritative org membership is required for worksheet write operations.' },
+        { status: 409 }
+      )
+    }
+
     const body = await req.json()
     const data = schema.parse(body)
 
@@ -118,8 +122,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ...worksheet,
-      orgScope: orgId ? 'authoritative' : 'unscoped',
-      orgScopeNote: orgId ? undefined : 'Authoritative org membership is not yet present in session for this user.',
+      orgScope: 'authoritative',
     })
   } catch (e) {
     console.error(e)
@@ -131,10 +134,7 @@ export async function GET(req: Request) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR'], {
-    email: session.user.email,
-    allowExplicitDemoTutorFallback: true,
-  })
+  const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR'])
   if (!allowed) return forbiddenResponse()
 
   const orgId = getAuthoritativeOrgId(session)
@@ -147,6 +147,6 @@ export async function GET(req: Request) {
   return NextResponse.json({
     worksheets,
     orgScope: orgId ? 'authoritative' : 'unscoped',
-    orgScopeNote: orgId ? undefined : 'Authoritative org membership is not yet present in session for this user.',
+    orgScopeNote: orgId ? undefined : 'Authoritative org membership unavailable; response is user-scoped fallback and not tenant-authoritative.',
   })
 }
