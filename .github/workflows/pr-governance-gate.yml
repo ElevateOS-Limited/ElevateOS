@@ -3,6 +3,8 @@ name: PR Governance Gate
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, edited]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -15,6 +17,17 @@ permissions:
 
 jobs:
   gate:
+    if: >
+      github.event_name != 'issue_comment' ||
+      (
+        github.event.issue.pull_request &&
+        (
+          contains(github.event.comment.body, '/codex-review') ||
+          contains(github.event.comment.body, '/funnel-a gate') ||
+          contains(github.event.comment.body, '@codex review') ||
+          contains(github.event.comment.body, '@codex address that feedback')
+        )
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,9 +39,32 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "number=${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "issue_comment" ]; then
+            echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
           else
             echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Acknowledge command trigger
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue.number;
+            const actor = context.actor;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: `[ARBY:COMMAND_ACK]
+
+              Governance gate rerun started by @${actor}.
+              Trigger: PR comment command.
+              Action: running scripts/review-pr.ps1 with -PostReviewDecision.`
+            });
 
       - name: Run Governance Gate
         shell: pwsh
