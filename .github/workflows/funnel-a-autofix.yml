@@ -58,6 +58,12 @@ jobs:
               issue_number: pr.number,
               per_page: 100
             });
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
 
             const now = Date.now();
             const recentAutofix = comments.find((c) => {
@@ -71,15 +77,26 @@ jobs:
               return;
             }
 
-            const gateComments = comments.filter((c) => c.body && c.body.includes("merge verdict:"));
-            if (gateComments.length === 0) {
+            const gateMessages = [];
+            for (const c of comments) {
+              if (c.body && c.body.includes("merge verdict:")) {
+                gateMessages.push({ body: c.body, created_at: c.created_at });
+              }
+            }
+            for (const r of reviews) {
+              if (r.body && r.body.includes("merge verdict:")) {
+                gateMessages.push({ body: r.body, created_at: r.submitted_at || r.submittedAt || r.created_at });
+              }
+            }
+
+            if (gateMessages.length === 0) {
               core.setOutput("should_patch", "false");
               core.setOutput("reason", `No gate verdict comment found on PR #${pr.number}.`);
               return;
             }
 
-            gateComments.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
-            const latest = gateComments[0].body;
+            gateMessages.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+            const latest = gateMessages[0].body;
             const isBlocked = latest.includes("merge verdict: REQUEST_CHANGES");
             const isControlLoopBlock = latest.includes("Control-loop logging missing for this code change cycle");
 
