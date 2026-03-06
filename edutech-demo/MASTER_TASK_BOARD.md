@@ -2,8 +2,8 @@
 
 ## Section 0: Repo baseline (facts only)
 
-- Current branch: `master`
-- Last commit hash: `3f85525`
+- Current branch: `feat/rbac-funnel-a-routes`
+- Last commit hash: `1bd5713`
 - Repo path: `/root/.openclaw/workspace/edutech-demo`
 
 ### Local run (currently working commands)
