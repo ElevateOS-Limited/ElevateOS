@@ -121,6 +121,12 @@ export default function QuickstartPage() {
   }, [classId, studentId, topic, difficulty])
 
   useEffect(() => {
+    // keep quickstart outcomes consistent with current selected context
+    setAssigned(false)
+    setReportSaved(false)
+  }, [classId, studentId, topic, difficulty])
+
+  useEffect(() => {
     const loadProfileBackedClassList = async () => {
       try {
         const res = await fetch('/api/user/profile')
