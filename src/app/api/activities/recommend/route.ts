@@ -14,19 +14,42 @@ export async function GET() {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      plan: true,
-      intendedMajor: true,
-      careerInterests: true,
-      customPreferences: true,
-      weeklyAvailability: true,
-      goals: true,
-    },
-  })
+  let user: {
+    plan: string
+    intendedMajor: string | null
+    careerInterests: string[]
+    customPreferences: string | null
+    weeklyAvailability: unknown
+    goals: unknown
+  } | null = null
 
-  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        plan: true,
+        intendedMajor: true,
+        careerInterests: true,
+        customPreferences: true,
+        weeklyAvailability: true,
+        goals: true,
+      },
+    })
+  } catch {
+    // Graceful fallback when DB/SSL connectivity is temporarily broken.
+    // We still return recommendations so the activities page remains usable.
+  }
+
+  if (!user) {
+    user = {
+      plan: 'FREE',
+      intendedMajor: null,
+      careerInterests: [],
+      customPreferences: null,
+      weeklyAvailability: {},
+      goals: [],
+    }
+  }
 
   const rawAvailability = (user.weeklyAvailability as any) ?? {}
   const availability = (rawAvailability?.weekly && typeof rawAvailability.weekly === 'object'

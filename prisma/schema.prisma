@@ -403,3 +403,76 @@ model StudySession {
 
   @@index([userId])
 }
+
+model ActivityOpportunity {
+  id              String   @id @default(cuid())
+  orgId           String?
+  createdByUserId String
+  title           String
+  providerName    String?
+  description     String   @db.Text
+  category        String
+  mode            String   @default("online")
+  region          String?
+  eligibility     Json?
+  costMin         Float?
+  costMax         Float?
+  currency        String?  @default("USD")
+  hoursPerWeekMin Int?
+  hoursPerWeekMax Int?
+  durationWeeks   Int?
+  deadlineAt      DateTime?
+  sourceType      String   @default("manual")
+  sourceUrl       String?
+  status          String   @default("needs_review")
+  verifiedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tags               ActivityOpportunityTag[]
+  evidenceTemplates  ActivityEvidenceTemplate[]
+  reviewLogs         ActivityReviewLog[]
+
+  @@index([orgId, status, category])
+  @@index([createdByUserId, createdAt])
+}
+
+model ActivityOpportunityTag {
+  id          String   @id @default(cuid())
+  activityId  String
+  tag         String
+  createdAt   DateTime @default(now())
+
+  activity ActivityOpportunity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([activityId])
+  @@index([tag])
+  @@unique([activityId, tag])
+}
+
+model ActivityEvidenceTemplate {
+  id             String   @id @default(cuid())
+  activityId     String
+  title          String
+  description    String   @db.Text
+  sampleArtifact String?
+  createdAt      DateTime @default(now())
+
+  activity ActivityOpportunity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([activityId])
+}
+
+model ActivityReviewLog {
+  id            String   @id @default(cuid())
+  activityId    String
+  reviewerId    String
+  action        String
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  activity ActivityOpportunity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([activityId, createdAt])
+  @@index([reviewerId, createdAt])
+}

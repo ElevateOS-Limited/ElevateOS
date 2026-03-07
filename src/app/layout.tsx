@@ -3,7 +3,7 @@ import './globals.css'
 import { Providers } from '@/components/layout/Providers'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://demo.thinkcollegelevel.com'),
+  metadataBase: new URL('https://thinkcollegelevel.com'),
   title: 'EduTech - AI-Powered Study Platform',
   description: 'Premium AI study platform for IB, AP, SAT, ACT students and university admissions',
   applicationName: 'EduTech',
@@ -16,6 +16,10 @@ export const metadata: Metadata = {
     noarchive: true,
     nosnippet: true,
     noimageindex: true,
+  },
+  icons: {
+    icon: '/icon.jpg',
+    apple: '/apple-icon.jpg',
   },
   verification: {
     other: { 'ip-provenance': 'HOWARD-APPDEMO-20260222' },
