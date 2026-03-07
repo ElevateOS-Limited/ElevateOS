@@ -24,6 +24,7 @@ jobs:
             const marker = "[AUTOPILOT:FUNNEL_A]";
             const staleMinutes = 45;
             const cooldownMinutes = 90;
+            const noActiveCooldownMinutes = 20;
             const logOnlyGraceMinutes = 10;
             const approvalAdvanceMinutes = 30;
 
@@ -149,7 +150,7 @@ jobs:
               });
               const recentNoActivePing = recentComments.some((c) => {
                 if (!c.body || !c.body.includes(`${marker}[NO_ACTIVE_PR]`)) return false;
-                return minutesSince(toMs(c.created_at)) < cooldownMinutes;
+                return minutesSince(toMs(c.created_at)) < noActiveCooldownMinutes;
               });
               if (recentNoActivePing) {
                 core.info(`No-active reminder already posted recently on PR #${latestFunnelPr.number}.`);
