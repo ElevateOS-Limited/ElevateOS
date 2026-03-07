@@ -12,7 +12,7 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   issues: write
 
@@ -30,21 +30,78 @@ jobs:
         )
       )
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/elevateos?schema=public
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: gate-runner-secret
+      OPENAI_API_KEY: test-key
+      STRIPE_SECRET_KEY: sk_test_gate_runner
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: elevateos
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d elevateos"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Resolve PR number
+      - name: Resolve PR metadata
         id: pr
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "number=${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event_name }}" = "issue_comment" ]; then
-            echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
-          fi
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let prNumber;
+            let headSha;
+
+            if (context.eventName === "workflow_dispatch") {
+              prNumber = Number("${{ inputs.pr_number }}");
+            } else if (context.eventName === "issue_comment") {
+              prNumber = context.payload.issue.number;
+            } else {
+              prNumber = context.payload.pull_request.number;
+              headSha = context.payload.pull_request.head.sha;
+            }
+
+            if (!headSha) {
+              const pr = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: prNumber
+              });
+              headSha = pr.data.head.sha;
+            }
+
+            core.setOutput("number", String(prNumber));
+            core.setOutput("head_sha", headSha);
+
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.head_sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Push schema to gate database
+        run: npm run db:push
 
       - name: Acknowledge command trigger
         if: github.event_name == 'issue_comment'
@@ -73,7 +130,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./scripts/review-pr.ps1 -PrNumber ${{ steps.pr.outputs.number }} -RepoPath . -PostReviewDecision
+          ./scripts/review-pr.ps1 -PrNumber ${{ steps.pr.outputs.number }} -RepoPath . -RunBuild -PostReviewDecision
 
       - name: Auto handoff on approved task
         uses: actions/github-script@v7
@@ -156,3 +213,85 @@ jobs:
               2. Post Part N+1 plan (scope, file list, acceptance checks).
               3. Start implementation only after posting that plan in the new PR.`
             });
+
+      - name: Auto merge approved PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = Number("${{ steps.pr.outputs.number }}");
+            const marker = "[ARBY:AUTO_MERGED]";
+
+            const pr = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
+
+            if ((pr.data.state || "").toLowerCase() !== "open" || pr.data.draft) {
+              core.info(`PR #${prNumber} is not open/mergeable candidate.`);
+              return;
+            }
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const verdicts = [];
+            for (const c of comments) {
+              if (c.body && c.body.includes("merge verdict:")) {
+                verdicts.push({ body: c.body, ts: Date.parse(c.created_at) || 0 });
+              }
+            }
+            for (const r of reviews) {
+              if (r.body && r.body.includes("merge verdict:")) {
+                verdicts.push({ body: r.body, ts: Date.parse(r.submitted_at || r.created_at) || 0 });
+              }
+            }
+            verdicts.sort((a, b) => b.ts - a.ts);
+            const latest = verdicts[0];
+            if (!latest || !latest.body.includes("merge verdict: APPROVE")) {
+              core.info(`PR #${prNumber}: latest verdict is not APPROVE.`);
+              return;
+            }
+
+            const mergeable = pr.data.mergeable === true;
+            const mergeState = (pr.data.mergeable_state || "").toLowerCase();
+            if (!mergeable || ["dirty", "blocked", "behind", "unknown"].includes(mergeState)) {
+              core.info(`PR #${prNumber}: not mergeable now (mergeable=${pr.data.mergeable}, state=${mergeState}).`);
+              return;
+            }
+
+            const alreadyNoted = comments.some((c) => (c.body || "").includes(marker));
+            try {
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: prNumber,
+                merge_method: "squash"
+              });
+              if (!alreadyNoted) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  body: `${marker}
+
+                  Approved PR merged automatically after successful governance gate.`
+                });
+              }
+              core.info(`PR #${prNumber} merged automatically.`);
+            } catch (e) {
+              core.info(`Auto-merge skipped/failed for PR #${prNumber}: ${(e && e.message) ? e.message : "unknown"}`);
+            }
