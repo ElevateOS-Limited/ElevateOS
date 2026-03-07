@@ -22,6 +22,15 @@ export function middleware(req: NextRequest) {
     return new NextResponse('Forbidden', { status: 403 })
   }
 
+  const host = (req.headers.get('host') || '').toLowerCase()
+  if (host === 'activities.appdemo.thinkcollegelevel.com') {
+    const rewriteUrl = req.nextUrl.clone()
+    if (!rewriteUrl.pathname.startsWith('/_next') && rewriteUrl.pathname !== '/favicon.ico') {
+      rewriteUrl.pathname = '/activities'
+      return NextResponse.rewrite(rewriteUrl)
+    }
+  }
+
   return NextResponse.next()
 }
 
