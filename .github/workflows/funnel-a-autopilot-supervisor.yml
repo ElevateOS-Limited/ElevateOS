@@ -507,7 +507,7 @@ jobs:
               1. @codex address that feedback
               2. Push blocker fix commit
               3. /funnel-a gate
-              4. Post WhatsApp evidence update (part, commit, files, gate run URL, blockers, next action)
+              4. Post WhatsApp evidence update (part, commit, files changed, gate run url, merge verdict, blockers, next action (next 60 min))
 
               @codex address that feedback
               /funnel-a gate`

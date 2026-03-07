@@ -1,24 +1,33 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { execSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 
 function getGitCommit() {
-  try {
-    return execSync('git rev-parse --short HEAD', { cwd: process.cwd() }).toString().trim()
-  } catch {
+  const probe = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    stdio: 'pipe',
+    shell: false,
+  })
+  if (probe.status !== 0) {
     return 'unknown'
   }
+  return (probe.stdout || '').trim() || 'unknown'
 }
 
 export async function GET() {
   const startedAt = Date.now()
 
   let db = { ok: false, message: 'not checked' }
-  try {
-    await prisma.$queryRaw`SELECT 1`
-    db = { ok: true, message: 'ok' }
-  } catch (e: any) {
-    db = { ok: false, message: e?.message || 'db error' }
+  if (!process.env.DATABASE_URL) {
+    db = { ok: false, message: 'DATABASE_URL not set' }
+  } else {
+    try {
+      await prisma.$queryRaw`SELECT 1`
+      db = { ok: true, message: 'ok' }
+    } catch (e: any) {
+      db = { ok: false, message: e?.message || 'db error' }
+    }
   }
 
   const payload = {

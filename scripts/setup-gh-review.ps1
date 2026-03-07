@@ -10,6 +10,8 @@ if (-not $gh) {
 & $gh alias set --clobber pr-gate "!pwsh -NoProfile -File ./scripts/review-pr.ps1 -PrNumber `$1 -RepoPath ."
 & $gh alias set --clobber pr-loop "!pwsh -NoProfile -File ./scripts/review-pr.ps1 -PrNumber `$1 -RepoPath . -PostReviewDecision"
 & $gh alias set --clobber pr-loop-build "!pwsh -NoProfile -File ./scripts/review-pr.ps1 -PrNumber `$1 -RepoPath . -RunBuild -PostReviewDecision"
+& $gh alias set --clobber pr-funnel-gate "!pwsh -NoProfile -File ./scripts/funnel-a-gate.ps1 -PrNumber `$1 -RepoPath . -WaitForResult"
+& $gh alias set --clobber pr-funnel-status "!pwsh -NoProfile -File ./scripts/funnel-a-status.ps1 -PrNumber `$1 -Part `$2 -NextAction `$3 -PostToPr -RepoPath ."
 
 Write-Host "Configured aliases:"
 & $gh alias list

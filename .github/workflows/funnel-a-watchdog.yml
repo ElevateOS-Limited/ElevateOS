@@ -25,11 +25,13 @@ jobs:
             const label = "funnel-a-active";
             const marker = "[WATCHDOG:FUNNEL_A]";
             const statusTokens = [
-              "current part",
+              "part",
+              "commit",
               "files changed",
-              "gate status",
+              "gate run url",
+              "merge verdict",
               "blockers",
-              "next 60-minute action"
+              "next action (next 60 min)"
             ];
 
             function isStructuredStatusComment(body = "") {
@@ -159,7 +161,7 @@ jobs:
 
               Required now:
               1. Push a commit or post structured status update within 30 minutes.
-              2. Include: current part, files changed, gate status, blockers, next 60-minute action.
+              2. Include: part, commit, files changed, gate run url, merge verdict, blockers, next action (next 60 min).
               3. If gate is BLOCKED, patch immediately and rerun until PASS.
               4. Do not move to next part until current part is PASS.
 
