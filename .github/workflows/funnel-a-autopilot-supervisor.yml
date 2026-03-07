@@ -1,0 +1,179 @@
+name: Funnel A Autopilot Supervisor
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  supervise:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce autonomous Funnel A progress loop
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const label = "funnel-a-active";
+            const marker = "[AUTOPILOT:FUNNEL_A]";
+            const staleMinutes = 60;
+            const cooldownMinutes = 90;
+
+            const nowMs = Date.now();
+
+            function toMs(input) {
+              const ms = Date.parse(input || "");
+              return Number.isFinite(ms) ? ms : 0;
+            }
+
+            function minutesSince(ms) {
+              if (!ms) return Number.MAX_SAFE_INTEGER;
+              return Math.floor((nowMs - ms) / 60000);
+            }
+
+            function findLatestVerdict(events) {
+              const verdicts = events
+                .filter((e) => e.body && e.body.includes("merge verdict:"))
+                .map((e) => ({ body: e.body, ts: toMs(e.created_at || e.submitted_at) }))
+                .sort((a, b) => b.ts - a.ts);
+              return verdicts[0] || null;
+            }
+
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100
+            });
+
+            const active = prs.filter((pr) =>
+              (pr.labels || []).some((l) => l.name === label)
+            );
+
+            if (active.length === 0) {
+              core.info("No open PR labeled funnel-a-active.");
+              return;
+            }
+
+            // Single active PR is expected. If there are multiple, supervise the most recently updated.
+            active.sort((a, b) => toMs(b.updated_at) - toMs(a.updated_at));
+            const pr = active[0];
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: pr.number,
+              per_page: 100
+            });
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
+
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner,
+              repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
+
+            const latestCommitMs = commits
+              .map((c) => toMs(c.commit?.committer?.date || c.commit?.author?.date))
+              .sort((a, b) => b - a)[0] || 0;
+
+            const mergedEvents = [
+              ...comments.map((c) => ({ body: c.body || "", created_at: c.created_at })),
+              ...reviews.map((r) => ({ body: r.body || "", submitted_at: r.submitted_at || r.created_at }))
+            ];
+            const latestVerdict = findLatestVerdict(mergedEvents);
+            const latestVerdictMs = latestVerdict ? latestVerdict.ts : 0;
+            const latestVerdictBody = latestVerdict ? latestVerdict.body : "";
+
+            const latestSupervisorMs = comments
+              .filter((c) => c.body && c.body.includes(marker))
+              .map((c) => toMs(c.created_at))
+              .sort((a, b) => b - a)[0] || 0;
+
+            if (minutesSince(latestSupervisorMs) < cooldownMinutes) {
+              core.info(`Cooldown active (${minutesSince(latestSupervisorMs)}m since last supervisor comment).`);
+              return;
+            }
+
+            if (!latestVerdictBody) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pr.number,
+                body: `${marker}
+
+                No gate verdict found yet for this active Funnel A PR.
+
+                Required now:
+                1. Push current code state if not pushed.
+                2. Trigger gate: /funnel-a gate
+                3. If blocked, run immediate patch loop until APPROVE.
+
+                /funnel-a gate`
+              });
+              core.info(`Posted missing-verdict supervisor command on PR #${pr.number}.`);
+              return;
+            }
+
+            if (latestVerdictBody.includes("merge verdict: APPROVE")) {
+              const nextTaskSinceVerdict = comments.some((c) => {
+                if (!c.body || !c.body.includes("[ARBY:NEXT_TASK]")) return false;
+                return toMs(c.created_at) >= latestVerdictMs;
+              });
+
+              if (!nextTaskSinceVerdict) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  body: `${marker}
+
+                  Latest verdict is APPROVE.
+                  Move immediately to next Funnel A task and open the next PR now.
+                  Post Part N+1 plan and start the implementation loop.`
+                });
+                core.info(`Posted next-task reminder on PR #${pr.number}.`);
+              } else {
+                core.info(`PR #${pr.number} already approved with next-task handoff.`);
+              }
+              return;
+            }
+
+            const lastProgressMs = Math.max(latestCommitMs, latestVerdictMs);
+            const staleAge = minutesSince(lastProgressMs);
+            if (staleAge < staleMinutes) {
+              core.info(`PR #${pr.number} within active patch window (${staleAge}m).`);
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: pr.number,
+              body: `${marker}
+
+              Latest verdict is REQUEST_CHANGES and no commit landed for ${staleAge} minutes.
+
+              Execute now:
+              1. @codex address that feedback
+              2. Push blocker fix commit
+              3. /funnel-a gate
+              4. Post WhatsApp evidence update (part, commit, files, gate run URL, blockers, next action)
+
+              @codex address that feedback
+              /funnel-a gate`
+            });
+            core.info(`Posted stale-request-changes supervisor command on PR #${pr.number}.`);
