@@ -49,15 +49,30 @@ function Get-RepoFullName([string]$Gh) {
   return $repoName.Trim()
 }
 
-function Get-LatestCommitContext([string]$Gh, [string]$RepoFullName, [int]$PullRequestNumber) {
-  $commitsJson = & $Gh api "repos/$RepoFullName/pulls/$PullRequestNumber/commits?per_page=100"
-  if ($LASTEXITCODE -ne 0 -or -not $commitsJson) {
-    throw "Unable to fetch commits for PR #$PullRequestNumber."
+function Get-PaginatedItems([string]$Gh, [string]$Endpoint) {
+  $json = & $Gh api --paginate --slurp $Endpoint 2>$null
+  if ($LASTEXITCODE -ne 0 -or -not $json) { return @() }
+
+  try {
+    $pages = @($json | ConvertFrom-Json)
+  }
+  catch {
+    return @()
   }
 
-  $commits = @($commitsJson | ConvertFrom-Json)
+  $items = New-Object System.Collections.Generic.List[object]
+  foreach ($page in $pages) {
+    foreach ($item in @($page)) {
+      if ($null -ne $item) { $items.Add($item) }
+    }
+  }
+  return @($items)
+}
+
+function Get-LatestCommitContext([string]$Gh, [string]$RepoFullName, [int]$PullRequestNumber) {
+  $commits = Get-PaginatedItems -Gh $Gh -Endpoint "repos/$RepoFullName/pulls/$PullRequestNumber/commits?per_page=100"
   if ($commits.Count -eq 0) {
-    throw "PR #$PullRequestNumber has no commits."
+    throw "Unable to fetch commits for PR #$PullRequestNumber."
   }
 
   $ranked = foreach ($commit in $commits) {
@@ -92,19 +107,26 @@ function Get-LatestCommitContext([string]$Gh, [string]$RepoFullName, [int]$PullR
 
 function TryGet-LatestGateRun([string]$Gh, [string]$RepoFullName, [int]$PullRequestNumber) {
   try {
-    $runsJson = & $Gh api "repos/$RepoFullName/actions/workflows/pr-governance-gate.yml/runs?per_page=40" 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $runsJson) { return $null }
+    $matching = New-Object System.Collections.Generic.List[object]
+    $page = 1
+    while ($page -le 3) {
+      $runsJson = & $Gh api "repos/$RepoFullName/actions/workflows/pr-governance-gate.yml/runs?per_page=100&page=$page" 2>$null
+      if ($LASTEXITCODE -ne 0 -or -not $runsJson) { break }
 
-    $runsResponse = $runsJson | ConvertFrom-Json
-    $runs = @($runsResponse.workflow_runs)
-    if ($runs.Count -eq 0) { return $null }
+      $runsResponse = $runsJson | ConvertFrom-Json
+      $runs = @($runsResponse.workflow_runs)
+      if ($runs.Count -eq 0) { break }
 
-    $matching = foreach ($run in $runs) {
-      $linked = @($run.pull_requests | ForEach-Object { [int]$_.number })
-      if ($linked -contains $PullRequestNumber) { $run }
+      foreach ($run in $runs) {
+        $linked = @($run.pull_requests | ForEach-Object { [int]$_.number })
+        if ($linked -contains $PullRequestNumber) { $matching.Add($run) }
+      }
+
+      if ($runs.Count -lt 100) { break }
+      $page += 1
     }
 
-    if (-not $matching) { return $null }
+    if ($matching.Count -eq 0) { return $null }
     return @($matching | Sort-Object created_at -Descending)[0]
   }
   catch {
@@ -115,43 +137,37 @@ function TryGet-LatestGateRun([string]$Gh, [string]$RepoFullName, [int]$PullRequ
 function Get-LatestVerdict([string]$Gh, [string]$RepoFullName, [int]$PullRequestNumber) {
   $events = New-Object System.Collections.Generic.List[object]
 
-  $commentsJson = & $Gh api "repos/$RepoFullName/issues/$PullRequestNumber/comments?per_page=100"
-  if ($LASTEXITCODE -eq 0 -and $commentsJson) {
-    $comments = @($commentsJson | ConvertFrom-Json)
-    foreach ($comment in $comments) {
-      if (($comment.body -as [string]) -and $comment.body.Contains("merge verdict:")) {
-        try {
-          $ts = [DateTimeOffset]::Parse([string]$comment.created_at).ToUnixTimeMilliseconds()
-        }
-        catch {
-          $ts = 0
-        }
-        $events.Add([PSCustomObject]@{
-            body = [string]$comment.body
-            ts   = $ts
-          })
+  $comments = Get-PaginatedItems -Gh $Gh -Endpoint "repos/$RepoFullName/issues/$PullRequestNumber/comments?per_page=100&sort=created&direction=desc"
+  foreach ($comment in $comments) {
+    if (($comment.body -as [string]) -and $comment.body.Contains("merge verdict:")) {
+      try {
+        $ts = [DateTimeOffset]::Parse([string]$comment.created_at).ToUnixTimeMilliseconds()
       }
+      catch {
+        $ts = 0
+      }
+      $events.Add([PSCustomObject]@{
+          body = [string]$comment.body
+          ts   = $ts
+        })
     }
   }
 
-  $reviewsJson = & $Gh api "repos/$RepoFullName/pulls/$PullRequestNumber/reviews?per_page=100"
-  if ($LASTEXITCODE -eq 0 -and $reviewsJson) {
-    $reviews = @($reviewsJson | ConvertFrom-Json)
-    foreach ($review in $reviews) {
-      if (($review.body -as [string]) -and $review.body.Contains("merge verdict:")) {
-        $stamp = [string]$review.submitted_at
-        if (-not $stamp) { $stamp = [string]$review.created_at }
-        try {
-          $ts = [DateTimeOffset]::Parse($stamp).ToUnixTimeMilliseconds()
-        }
-        catch {
-          $ts = 0
-        }
-        $events.Add([PSCustomObject]@{
-            body = [string]$review.body
-            ts   = $ts
-          })
+  $reviews = Get-PaginatedItems -Gh $Gh -Endpoint "repos/$RepoFullName/pulls/$PullRequestNumber/reviews?per_page=100"
+  foreach ($review in $reviews) {
+    if (($review.body -as [string]) -and $review.body.Contains("merge verdict:")) {
+      $stamp = [string]$review.submitted_at
+      if (-not $stamp) { $stamp = [string]$review.created_at }
+      try {
+        $ts = [DateTimeOffset]::Parse($stamp).ToUnixTimeMilliseconds()
       }
+      catch {
+        $ts = 0
+      }
+      $events.Add([PSCustomObject]@{
+          body = [string]$review.body
+          ts   = $ts
+        })
     }
   }
 

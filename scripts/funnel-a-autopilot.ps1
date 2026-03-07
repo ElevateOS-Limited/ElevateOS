@@ -12,6 +12,8 @@ param(
 
   [int]$GateCooldownMinutes = 20,
 
+  [int]$ReviewCooldownMinutes = 20,
+
   [int]$CodexCooldownMinutes = 20,
 
   [int]$NoActiveCooldownMinutes = 30,
@@ -21,6 +23,8 @@ param(
   [bool]$AssignLabelIfMissing = $true,
 
   [bool]$NudgeWhenNoActive = $true,
+
+  [bool]$RunReviewBeforeGate = $true,
 
   [bool]$RunBuildBeforeGate = $false,
 
@@ -101,16 +105,31 @@ function Get-OpenPrs([string]$Gh) {
   return @($json | ConvertFrom-Json)
 }
 
-function Get-IssueComments([string]$Gh, [string]$RepoFullName, [int]$PrNumber) {
-  $json = & $Gh api "repos/$RepoFullName/issues/$PrNumber/comments?per_page=100"
+function Get-PaginatedItems([string]$Gh, [string]$Endpoint) {
+  $json = & $Gh api --paginate --slurp $Endpoint 2>$null
   if ($LASTEXITCODE -ne 0 -or -not $json) { return @() }
-  return @($json | ConvertFrom-Json)
+
+  try {
+    $pages = @($json | ConvertFrom-Json)
+  } catch {
+    return @()
+  }
+
+  $items = New-Object System.Collections.Generic.List[object]
+  foreach ($page in $pages) {
+    foreach ($item in @($page)) {
+      if ($null -ne $item) { $items.Add($item) }
+    }
+  }
+  return @($items)
+}
+
+function Get-IssueComments([string]$Gh, [string]$RepoFullName, [int]$PrNumber) {
+  return Get-PaginatedItems -Gh $Gh -Endpoint "repos/$RepoFullName/issues/$PrNumber/comments?per_page=100&sort=created&direction=desc"
 }
 
 function Get-Reviews([string]$Gh, [string]$RepoFullName, [int]$PrNumber) {
-  $json = & $Gh api "repos/$RepoFullName/pulls/$PrNumber/reviews?per_page=100"
-  if ($LASTEXITCODE -ne 0 -or -not $json) { return @() }
-  return @($json | ConvertFrom-Json)
+  return Get-PaginatedItems -Gh $Gh -Endpoint "repos/$RepoFullName/pulls/$PrNumber/reviews?per_page=100"
 }
 
 function Has-Label([object]$Pr, [string]$Label) {
@@ -119,9 +138,9 @@ function Has-Label([object]$Pr, [string]$Label) {
 }
 
 function Get-PullFiles([string]$Gh, [string]$RepoFullName, [int]$PrNumber) {
-  $json = & $Gh api "repos/$RepoFullName/pulls/$PrNumber/files?per_page=200"
-  if ($LASTEXITCODE -ne 0 -or -not $json) { return @() }
-  return @($json | ConvertFrom-Json | ForEach-Object { [string]$_.filename })
+  $files = Get-PaginatedItems -Gh $Gh -Endpoint "repos/$RepoFullName/pulls/$PrNumber/files?per_page=100"
+  if ($files.Count -eq 0) { return @() }
+  return @($files | ForEach-Object { [string]$_.filename } | Where-Object { $_ } | Sort-Object -Unique)
 }
 
 function Is-BackendCandidate([string[]]$Files) {
@@ -220,16 +239,25 @@ function Get-LatestVerdict([object[]]$Comments, [object[]]$Reviews) {
 
 function Try-GetLatestGateRun([string]$Gh, [string]$RepoFullName, [int]$PrNumber) {
   try {
-    $runsJson = & $Gh api "repos/$RepoFullName/actions/workflows/pr-governance-gate.yml/runs?per_page=40" 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $runsJson) { return $null }
-    $runs = @(($runsJson | ConvertFrom-Json).workflow_runs)
-    if ($runs.Count -eq 0) { return $null }
+    $matching = New-Object System.Collections.Generic.List[object]
+    $page = 1
+    while ($page -le 3) {
+      $runsJson = & $Gh api "repos/$RepoFullName/actions/workflows/pr-governance-gate.yml/runs?per_page=100&page=$page" 2>$null
+      if ($LASTEXITCODE -ne 0 -or -not $runsJson) { break }
 
-    $matching = foreach ($run in $runs) {
-      $linked = @($run.pull_requests | ForEach-Object { [int]$_.number })
-      if ($linked -contains $PrNumber) { $run }
+      $response = $runsJson | ConvertFrom-Json
+      $runs = @($response.workflow_runs)
+      if ($runs.Count -eq 0) { break }
+
+      foreach ($run in $runs) {
+        $linked = @($run.pull_requests | ForEach-Object { [int]$_.number })
+        if ($linked -contains $PrNumber) { $matching.Add($run) }
+      }
+
+      if ($runs.Count -lt 100) { break }
+      $page += 1
     }
-    if (-not $matching) { return $null }
+    if ($matching.Count -eq 0) { return $null }
     return @($matching | Sort-Object created_at -Descending)[0]
   } catch {
     return $null
@@ -260,6 +288,12 @@ function Get-LatestMergedPr([string]$Gh, [string]$Label) {
   return $items[0]
 }
 
+function Get-BlockersFromVerdict([string]$Verdict) {
+  if ($Verdict -eq "REQUEST_CHANGES") { return "merge verdict is REQUEST_CHANGES" }
+  if ($Verdict -eq "NOT_FOUND") { return "merge verdict not found yet" }
+  return "merge verdict: $Verdict"
+}
+
 $gh = Get-GhCommand
 $git = Get-GitCommand
 Ensure-GitOnPath -GitPath $git
@@ -273,6 +307,7 @@ if (-not $env:GH_TOKEN -and -not $env:GITHUB_TOKEN) {
 }
 
 $repoFullName = Get-RepoFullName -Gh $gh
+$reviewScript = (Resolve-Path ".\\scripts\\review-pr.ps1").Path
 $gateScript = (Resolve-Path ".\\scripts\\funnel-a-gate.ps1").Path
 $statusScript = (Resolve-Path ".\\scripts\\funnel-a-status.ps1").Path
 
@@ -322,13 +357,7 @@ while ($true) {
       if ($verdictInfo.verdict -eq "APPROVE") {
         $nextAction = "Await merge handoff and continue with next backend PR immediately."
       } else {
-        if ($verdictInfo.verdict -eq "REQUEST_CHANGES") {
-          $blockers = "merge verdict is REQUEST_CHANGES"
-        } elseif ($verdictInfo.verdict -eq "NOT_FOUND") {
-          $blockers = "merge verdict not found yet"
-        } else {
-          $blockers = "merge verdict: $($verdictInfo.verdict)"
-        }
+        $blockers = Get-BlockersFromVerdict -Verdict $verdictInfo.verdict
 
         if ($RunBuildBeforeGate) {
           & npm run build
@@ -350,6 +379,26 @@ while ($true) {
             "@codex address that feedback"
           ) -join "`n"
           & $gh pr comment $prNumber --body $nudgeBody | Out-Null
+        }
+
+        $shouldRunReview = $false
+        if ($RunReviewBeforeGate -and $verdictInfo.verdict -ne "APPROVE") {
+          $verdictAge = Minutes-Since $verdictInfo.ts
+          if ($verdictAge -ge $ReviewCooldownMinutes) {
+            $shouldRunReview = $true
+          }
+        }
+
+        if ($shouldRunReview) {
+          & $reviewScript -PrNumber $prNumber -RepoPath $resolvedRepo -RunBuild -PostReviewDecision -OutputDir $OutputDir
+          if ($LASTEXITCODE -ne 0) {
+            $blockers = "$blockers; local review gate failed"
+          } else {
+            $comments = Get-IssueComments -Gh $gh -RepoFullName $repoFullName -PrNumber $prNumber
+            $reviews = Get-Reviews -Gh $gh -RepoFullName $repoFullName -PrNumber $prNumber
+            $verdictInfo = Get-LatestVerdict -Comments $comments -Reviews $reviews
+            $blockers = Get-BlockersFromVerdict -Verdict $verdictInfo.verdict
+          }
         }
 
         $shouldTriggerGate = $true
