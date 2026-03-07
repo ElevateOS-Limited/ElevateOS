@@ -4,6 +4,7 @@ import { generateStructuredOutput } from '@/lib/ai/openai'
 import { z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
+import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 
 const schema = z.object({
   subject: z.string(),
@@ -17,6 +18,9 @@ const schema = z.object({
 export async function POST(req: Request) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])
+  if (!allowed) return forbiddenResponse()
 
   try {
     const guard = await enforceAIDemoGuard(session, 'worksheets.create')
@@ -55,7 +59,7 @@ export async function POST(req: Request) {
       const userPrompt = `Create ${data.count} ${data.questionType} questions for ${data.subject} at ${data.difficulty} difficulty.
     ${data.topics ? `Focus on: ${data.topics}` : ''}
     ${data.curriculum ? `Style: ${data.curriculum} exam format` : ''}
-    
+
     Return JSON: {
       "title": "worksheet title",
       "questions": [
@@ -116,6 +120,9 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])
+  if (!allowed) return forbiddenResponse()
 
   const worksheets = await prisma.worksheet.findMany({
     where: { userId: session.user.id },
