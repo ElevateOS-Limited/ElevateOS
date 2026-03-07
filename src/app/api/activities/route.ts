@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
+import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
+import { withOrgScope } from '@/lib/db/org-scope'
 
 const createSchema = z.object({
   title: z.string().min(2),
@@ -23,19 +25,28 @@ const createSchema = z.object({
   tags: z.array(z.string()).default([]),
 })
 
+function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>): string | null {
+  const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
+  return typeof orgId === 'string' && orgId.trim().length > 0 ? orgId : null
+}
+
 export async function GET(req: NextRequest) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'PARENT', 'STUDENT', 'USER'])) return forbiddenResponse()
 
-  const status = req.nextUrl.searchParams.get('status') || 'active'
+  const canManage = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR'])
+  const orgId = getSessionOrgId(session)
+  const requestedStatus = req.nextUrl.searchParams.get('status') || 'active'
+  const status = canManage ? requestedStatus : 'active'
   const category = req.nextUrl.searchParams.get('category') || undefined
   const limit = Math.min(Number(req.nextUrl.searchParams.get('limit') || 50), 200)
 
   const items = await prisma.activityOpportunity.findMany({
-    where: {
+    where: withOrgScope(orgId, {
       status,
       ...(category ? { category } : {}),
-    },
+    }),
     include: {
       tags: true,
       evidenceTemplates: true,
@@ -50,6 +61,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
 
   const parsed = createSchema.safeParse(await req.json())
   if (!parsed.success) {
@@ -57,8 +69,10 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data
+  const orgId = getSessionOrgId(session)
   const item = await prisma.activityOpportunity.create({
     data: {
+      orgId,
       createdByUserId: session.user.id,
       title: data.title,
       providerName: data.providerName,
