@@ -298,6 +298,7 @@ while ($true) {
               "Required now:",
               "1. Open the next backend Funnel A PR from main and apply label $ActiveLabel.",
               "2. Post part plan and push first backend commit.",
+              "3. If no current backend task is queued, proactively ask the user for the next task and suggest one from MASTER_TASK_BOARD.md.",
               "",
               "@codex address that feedback"
             ) -join "`n"
@@ -344,6 +345,7 @@ while ($true) {
             "verdict: $($verdictInfo.verdict)",
             "",
             "Apply backend patch loop and rerun gate now.",
+            "If this task is complete, immediately continue with the next queued backend task without idle time.",
             "",
             "@codex address that feedback"
           ) -join "`n"
