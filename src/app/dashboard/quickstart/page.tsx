@@ -85,6 +85,8 @@ export default function QuickstartPage() {
   const [recentFeedback, setRecentFeedback] = useState<FeedbackEntry[]>([])
   const [recentReports, setRecentReports] = useState<NoteEntry[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [lastHistorySyncAt, setLastHistorySyncAt] = useState<string | null>(null)
   const [sourceMode, setSourceMode] = useState<'profile' | 'fallback'>('fallback')
 
   const selectedStudent = useMemo(
@@ -152,25 +154,29 @@ export default function QuickstartPage() {
 
   const loadHistory = async () => {
     setHistoryLoading(true)
+    setHistoryError(null)
     try {
       const [feedbackRes, notesRes] = await Promise.all([
         fetch('/api/feedback'),
         fetch('/api/notes?q=monthly%20report'),
       ])
 
-      if (feedbackRes.ok) {
-        const feedbackData = (await feedbackRes.json()) as FeedbackEntry[]
-        setRecentFeedback(
-          feedbackData
-            .filter((entry) => entry.category?.includes('quickstart'))
-            .slice(0, 5)
-        )
+      if (!feedbackRes.ok || !notesRes.ok) {
+        throw new Error('Unable to refresh quickstart history right now.')
       }
 
-      if (notesRes.ok) {
-        const notesData = (await notesRes.json()) as NoteEntry[]
-        setRecentReports(notesData.slice(0, 5))
-      }
+      const feedbackData = (await feedbackRes.json()) as FeedbackEntry[]
+      setRecentFeedback(
+        feedbackData
+          .filter((entry) => entry.category?.includes('quickstart'))
+          .slice(0, 5)
+      )
+
+      const notesData = (await notesRes.json()) as NoteEntry[]
+      setRecentReports(notesData.slice(0, 5))
+      setLastHistorySyncAt(new Date().toISOString())
+    } catch (error) {
+      setHistoryError(error instanceof Error ? error.message : 'Unable to refresh history.')
     } finally {
       setHistoryLoading(false)
     }
@@ -385,10 +391,14 @@ export default function QuickstartPage() {
       </section>
 
       <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="font-semibold">Quickstart Activity History</h2>
           <button onClick={loadHistory} className="text-sm underline underline-offset-2">Refresh</button>
         </div>
+        {lastHistorySyncAt ? (
+          <p className="text-xs text-gray-500 mt-1">Last synced: {new Date(lastHistorySyncAt).toLocaleString()}</p>
+        ) : null}
+        {historyError ? <p className="text-xs text-red-600 mt-1">{historyError}</p> : null}
 
         <div className="grid md:grid-cols-2 gap-4 mt-3">
           <div>
