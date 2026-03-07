@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
-import { getAuthoritativeOrgId } from '@/lib/auth/org-context'
 
 const schema = z.object({
   subject: z.string(),
@@ -27,7 +26,6 @@ export async function POST(req: Request) {
     const guard = await enforceAIDemoGuard(session, 'worksheets.create')
     if (guard) return guard
 
-    const orgId = getAuthoritativeOrgId(session)
     const body = await req.json()
     const data = schema.parse(body)
 
@@ -101,7 +99,6 @@ export async function POST(req: Request) {
 
     const worksheet = await prisma.worksheet.create({
       data: {
-        orgId: orgId ?? undefined,
         userId: session.user.id,
         title: result.title || `${data.subject} Worksheet`,
         subject: data.subject,
@@ -127,10 +124,8 @@ export async function GET(req: Request) {
   const allowed = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])
   if (!allowed) return forbiddenResponse()
 
-  const orgId = getAuthoritativeOrgId(session)
-
   const worksheets = await prisma.worksheet.findMany({
-    where: orgId ? { orgId } : { userId: session.user.id },
+    where: { userId: session.user.id },
     orderBy: { createdAt: 'desc' },
   })
 

@@ -5,7 +5,6 @@ import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
-import { getAuthoritativeOrgId } from '@/lib/auth/org-context'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,8 +16,6 @@ export async function POST(request: NextRequest) {
 
     const guard = await enforceAIDemoGuard(session, 'worksheets.generate')
     if (guard) return guard
-
-    const orgId = getAuthoritativeOrgId(session)
 
     const body = await request.json()
     const { subject, curriculum, topic, difficulty, count, questionTypes, content } = body
@@ -41,7 +38,6 @@ export async function POST(request: NextRequest) {
 
     await prisma.worksheet.create({
       data: {
-        orgId: orgId ?? undefined,
         userId: session.user.id,
         title: `${subject || curriculum} — ${normalizedTopic}`,
         subject,
