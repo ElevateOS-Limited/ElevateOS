@@ -51,6 +51,12 @@ Implement -> Push -> Gate -> Patch -> Gate (loop) until `merge verdict: APPROVE`
 - Command acknowledgment marker: `[ARBY:COMMAND_ACK]`
 - Approval handoff marker: `[ARBY:NEXT_TASK]`
 - Supervisor marker: `[AUTOPILOT:FUNNEL_A]`
+- Supervisor hard-enforcement markers:
+  - `[AUTOPILOT:FUNNEL_A][CLAIM_MISMATCH]`
+  - `[AUTOPILOT:FUNNEL_A][LOG_ONLY_BREACH]`
+  - `[AUTOPILOT:FUNNEL_A][RETIRED_PR]`
+  - `[AUTOPILOT:FUNNEL_A][NO_ACTIVE_PR]`
+  - `[AUTOPILOT:FUNNEL_A][AUTO_ACTIVE_ASSIGN]`
 
 ### Required 60-minute evidence status (WhatsApp)
 - `part`

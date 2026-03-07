@@ -41,6 +41,12 @@ Required in PR operations:
 - Expect `[ARBY:COMMAND_ACK]` after command-triggered gate runs.
 - Treat the latest `merge verdict:` as source of truth.
 - Treat `[ARBY:NEXT_TASK]` as automatic move-to-next-part signal after approval.
+- Treat supervisor escalation markers as hard actions:
+  - `[AUTOPILOT:FUNNEL_A][CLAIM_MISMATCH]`
+  - `[AUTOPILOT:FUNNEL_A][LOG_ONLY_BREACH]`
+  - `[AUTOPILOT:FUNNEL_A][RETIRED_PR]`
+  - `[AUTOPILOT:FUNNEL_A][NO_ACTIVE_PR]`
+  - `[AUTOPILOT:FUNNEL_A][AUTO_ACTIVE_ASSIGN]`
 
 Required WhatsApp status cadence (every 60 minutes, evidence only):
 - `part`
