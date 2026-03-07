@@ -12,6 +12,10 @@ if (-not $gh) {
 & $gh alias set --clobber pr-loop-build "!pwsh -NoProfile -File ./scripts/review-pr.ps1 -PrNumber `$1 -RepoPath . -RunBuild -PostReviewDecision"
 & $gh alias set --clobber pr-funnel-gate "!pwsh -NoProfile -File ./scripts/funnel-a-gate.ps1 -PrNumber `$1 -RepoPath . -WaitForResult"
 & $gh alias set --clobber pr-funnel-status "!pwsh -NoProfile -File ./scripts/funnel-a-status.ps1 -PrNumber `$1 -Part `$2 -NextAction `$3 -PostToPr -RepoPath ."
+& $gh alias set --clobber pr-funnel-open "!pwsh -NoProfile -File ./scripts/funnel-a-open-active-pr.ps1 -Part `$1 -Kickoff -RepoPath ."
+& $gh alias set --clobber pr-funnel-auto "!pwsh -NoProfile -File ./scripts/funnel-a-autopilot.ps1 -Part `$1 -RepoPath ."
+& $gh alias set --clobber pr-funnel-daemon "!pwsh -NoProfile -File ./scripts/funnel-a-autopilot-daemon.ps1 -Part `$1 -RepoPath ."
+& $gh alias set --clobber ops-openclaw-daily "!pwsh -NoProfile -File ./scripts/openclaw-daily-autopatch.ps1"
 
 Write-Host "Configured aliases:"
 & $gh alias list

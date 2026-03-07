@@ -21,6 +21,8 @@ param(
 
   [string]$Blockers = "none",
 
+  [string]$Marker = "",
+
   [switch]$PostToPr,
 
   [string]$OutputDir = "$HOME\\codex-reviews"
@@ -202,7 +204,13 @@ if ($fileList.Count -eq 0) {
   $fileList = @("none-captured")
 }
 
-$statusBody = @(
+$lines = [System.Collections.Generic.List[string]]::new()
+if ($Marker) {
+  $lines.Add($Marker)
+  $lines.Add("")
+}
+
+@(
   "part: $Part",
   "commit: $Commit",
   "files changed: $($fileList -join ', ')",
@@ -210,7 +218,9 @@ $statusBody = @(
   "merge verdict: $MergeVerdict",
   "blockers: $Blockers",
   "next action (next 60 min): $NextAction"
-) -join "`n"
+) | ForEach-Object { $lines.Add($_) }
+
+$statusBody = $lines -join "`n"
 
 if (-not (Test-Path $OutputDir)) {
   New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
