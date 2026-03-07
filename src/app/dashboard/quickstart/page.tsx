@@ -83,6 +83,7 @@ export default function QuickstartPage() {
   const [recentFeedback, setRecentFeedback] = useState<FeedbackEntry[]>([])
   const [recentReports, setRecentReports] = useState<NoteEntry[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+  const [sourceMode, setSourceMode] = useState<'profile' | 'fallback'>('fallback')
 
   const selectedStudent = useMemo(
     () => currentClass?.students?.find(s => s.id === studentId) || currentClass?.students?.[0],
@@ -112,6 +113,7 @@ export default function QuickstartPage() {
         setClasses(dynamicClasses)
         setClassId(dynamicClasses[0].id)
         setStudentId(dynamicClasses[0].students[0].id)
+        setSourceMode('profile')
       } catch {
         // fallback classes remain
       }
@@ -271,14 +273,17 @@ export default function QuickstartPage() {
   }
 
   return (
-    <main className="max-w-6xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Tutor Quickstart (Funnel A MVP)</h1>
-        <p className="text-gray-500 mt-2">Live API flow with profile-backed class list + assignment/report history.</p>
+    <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 space-y-6 overflow-x-hidden">
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">Tutor Quickstart (Funnel A MVP)</h1>
+        <p className="text-sm sm:text-base text-gray-500">Live API flow with profile-backed class list + assignment/report history.</p>
+        <p className="text-xs text-gray-500">
+          Data source: {sourceMode === 'profile' ? 'Profile-backed classes' : 'Fallback demo classes'}
+        </p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900">
+        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900 min-w-0">
           <h2 className="font-semibold">1) Pick Class & Student</h2>
           <div className="space-y-2 mt-3">
             <select value={classId} onChange={e => { setClassId(e.target.value); const cls = classes.find(c => c.id === e.target.value) || classes[0]; setStudentId(cls.students[0].id) }} className="w-full border rounded-lg px-3 py-2 bg-transparent">
@@ -290,7 +295,7 @@ export default function QuickstartPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900">
+        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900 min-w-0">
           <h2 className="font-semibold">2) Generate Worksheet</h2>
           <div className="grid grid-cols-2 gap-2 mt-3">
             <input value={topic} onChange={e => setTopic(e.target.value)} className="border rounded-lg px-3 py-2 bg-transparent" placeholder="Topic" />
@@ -312,7 +317,7 @@ export default function QuickstartPage() {
           ) : null}
         </section>
 
-        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900">
+        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900 min-w-0">
           <h2 className="font-semibold">3) Assign to Student</h2>
           <button onClick={assignWorksheet} disabled={!worksheetReady || assigning} className="mt-3 rounded-lg bg-slate-800 text-white px-4 py-2 disabled:opacity-50">
             {assigning ? 'Assigning…' : 'Assign Worksheet'}
@@ -320,7 +325,7 @@ export default function QuickstartPage() {
           {assigned && <p className="text-sm text-green-600 mt-2">Assigned successfully.</p>}
         </section>
 
-        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900">
+        <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900 min-w-0">
           <h2 className="font-semibold">4) Record Score + Trend</h2>
           <div className="flex gap-2 mt-3">
             <input value={score} onChange={e => setScore(e.target.value)} placeholder="Score 0-100" className="border rounded-lg px-3 py-2 bg-transparent" />
@@ -364,7 +369,7 @@ export default function QuickstartPage() {
             <ul className="space-y-2 text-sm">
               {recentFeedback.length ? recentFeedback.map(item => (
                 <li key={item.id} className="border rounded-lg p-2">
-                  <p>{item.message}</p>
+                  <p className="break-words">{item.message}</p>
                   <p className="text-xs text-gray-500 mt-1">{new Date(item.createdAt).toLocaleString()}</p>
                 </li>
               )) : <li className="text-xs text-gray-500">No activity yet.</li>}
