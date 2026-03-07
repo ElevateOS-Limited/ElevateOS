@@ -190,6 +190,15 @@ export default function QuickstartPage() {
 
   useEffect(() => {
     loadHistory()
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        loadHistory()
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [])
 
   const generateWorksheet = async () => {
