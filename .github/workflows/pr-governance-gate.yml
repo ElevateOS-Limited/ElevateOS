@@ -91,6 +91,13 @@ jobs:
               per_page: 100
             });
 
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner,
+              repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner,
               repo,
@@ -122,9 +129,14 @@ jobs:
               return;
             }
 
+            const latestCommitTs = commits
+              .map((c) => Date.parse(c.commit?.committer?.date || c.commit?.author?.date || ""))
+              .filter((t) => Number.isFinite(t))
+              .sort((a, b) => b - a)[0] || 0;
+
             const alreadyPosted = comments.some((c) => {
               if (!c.body || !c.body.includes(marker)) return false;
-              return (Date.parse(c.created_at) || 0) >= latest.ts;
+              return (Date.parse(c.created_at) || 0) >= latestCommitTs;
             });
             if (alreadyPosted) {
               core.info(`PR #${prNumber}: next-task handoff already posted.`);
