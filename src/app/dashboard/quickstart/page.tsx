@@ -78,6 +78,7 @@ export default function QuickstartPage() {
   const [recordingScore, setRecordingScore] = useState(false)
 
   const [comment, setComment] = useState('')
+  const MIN_REPORT_COMMENT_LEN = 20
   const [reportSaved, setReportSaved] = useState(false)
   const [savingReport, setSavingReport] = useState(false)
   const [reportError, setReportError] = useState<string | null>(null)
@@ -281,7 +282,12 @@ export default function QuickstartPage() {
   }
 
   const saveReport = async () => {
-    if (!comment.trim() || !selectedStudent) return
+    if (!selectedStudent) return
+    const normalizedComment = comment.trim()
+    if (normalizedComment.length < MIN_REPORT_COMMENT_LEN) {
+      setReportError(`Tutor comment must be at least ${MIN_REPORT_COMMENT_LEN} characters.`)
+      return
+    }
 
     setSavingReport(true)
     setReportError(null)
@@ -295,7 +301,7 @@ export default function QuickstartPage() {
         `Difficulty: ${difficulty}`,
         `Scores: ${scores.join(', ')}`,
         '',
-        `Tutor comment: ${comment.trim()}`,
+        `Tutor comment: ${normalizedComment}`,
       ].join('\n')
 
       const res = await fetch('/api/notes', {
@@ -394,7 +400,8 @@ export default function QuickstartPage() {
       <section className="rounded-2xl border p-4 bg-white dark:bg-gray-900">
         <h2 className="font-semibold">5) Monthly Report (Tutor Comment Required)</h2>
         <textarea value={comment} onChange={e => setComment(e.target.value)} rows={4} className="w-full mt-3 border rounded-lg px-3 py-2 bg-transparent" placeholder="Tutor comment on progress, weak areas, and next steps..." />
-        <button onClick={saveReport} disabled={savingReport} className="mt-3 rounded-lg bg-indigo-600 text-white px-4 py-2 disabled:opacity-50">
+        <p className="text-xs text-gray-500 mt-1">Minimum {MIN_REPORT_COMMENT_LEN} characters required.</p>
+        <button onClick={saveReport} disabled={savingReport || comment.trim().length < MIN_REPORT_COMMENT_LEN} className="mt-3 rounded-lg bg-indigo-600 text-white px-4 py-2 disabled:opacity-50">
           {savingReport ? 'Saving…' : 'Save Monthly Report'}
         </button>
         {reportError && <p className="text-sm text-red-600 mt-2">{reportError}</p>}
