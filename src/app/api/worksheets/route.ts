@@ -12,8 +12,8 @@ function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) 
 }
 
 const schema = z.object({
-  subject: z.string(),
-  curriculum: z.string().optional(),
+  subject: z.string().trim().min(1, 'Subject is required'),
+  curriculum: z.string().trim().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard', 'exam']),
   questionType: z.string(),
   topics: z.string().optional(),
