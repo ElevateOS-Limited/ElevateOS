@@ -59,6 +59,7 @@ Implement -> Push -> Gate -> Patch -> Gate (loop) until `merge verdict: APPROVE`
   - `[AUTOPILOT:FUNNEL_A][AUTO_ACTIVE_ASSIGN]`
 
 ### Required 60-minute evidence status (WhatsApp)
+- `lane` or `part/task`
 - `part`
 - `commit`
 - `files changed`
@@ -68,6 +69,19 @@ Implement -> Push -> Gate -> Patch -> Gate (loop) until `merge verdict: APPROVE`
 - `next action (next 60 min)`
 
 No tool/runtime excuse text in status updates; evidence only.
+
+### Communication endpoint routing (effective 2026-03-10)
+- OpenClaw comm-agent WhatsApp endpoint: `+85291055996`
+- Human operator WhatsApp endpoint: `+85293442294`
+- VPS operational identity endpoint: `+819091451428`
+
+### Immediate re-entry condition when loop is idle
+If no active Funnel A verdict exists in current cycle:
+1. Open or identify one production-code PR against `main`.
+2. Apply label `funnel-a-active`.
+3. Post part plan in PR.
+4. Push first production code commit (`src/**` or `prisma/**`).
+5. Trigger `/funnel-a gate`.
 
 ---
 

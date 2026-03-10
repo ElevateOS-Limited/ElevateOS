@@ -49,6 +49,7 @@ Required in PR operations:
   - `[AUTOPILOT:FUNNEL_A][AUTO_ACTIVE_ASSIGN]`
 
 Required WhatsApp status cadence (every 60 minutes, evidence only):
+- `lane` or `part/task`
 - `part`
 - `commit`
 - `files changed`
@@ -58,6 +59,11 @@ Required WhatsApp status cadence (every 60 minutes, evidence only):
 - `next action (next 60 min)`
 
 Status updates must not include tool/runtime excuses; only verifiable artifacts.
+
+Communication endpoint routing (effective 2026-03-10):
+- OpenClaw comm-agent WhatsApp endpoint: `+85291055996`
+- Human operator WhatsApp endpoint: `+85293442294`
+- VPS operational identity endpoint: `+819091451428`
 
 ---
 
