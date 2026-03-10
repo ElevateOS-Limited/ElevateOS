@@ -4,7 +4,7 @@ import { generateStructuredOutput } from '@/lib/ai/openai'
 import { z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
-import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
+import { canReadOrgWide, forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 import { getAuthoritativeOrgId } from '@/lib/auth/org-context'
 
 const schema = z.object({
@@ -128,9 +128,14 @@ export async function GET(req: Request) {
   if (!allowed) return forbiddenResponse()
 
   const orgId = getAuthoritativeOrgId(session)
+  const canReadAllOrgWorksheets = canReadOrgWide(session.user.role)
 
   const worksheets = await prisma.worksheet.findMany({
-    where: orgId ? { orgId } : { userId: session.user.id },
+    where: orgId
+      ? canReadAllOrgWorksheets
+        ? { orgId }
+        : { orgId, userId: session.user.id }
+      : { userId: session.user.id },
     orderBy: { createdAt: 'desc' },
   })
 
