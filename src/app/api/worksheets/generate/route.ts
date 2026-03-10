@@ -27,6 +27,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { subject, curriculum, topic, difficulty, count, questionTypes, content } = body
     const normalizedTopic = typeof topic === 'string' ? topic.trim() : ''
+    const normalizedSubject = typeof subject === 'string' ? subject.trim() : ''
+    const normalizedCurriculum = typeof curriculum === 'string' ? curriculum.trim() : ''
+    const titlePrefix = normalizedSubject || normalizedCurriculum || 'General'
     const questionType = questionTypes?.[0] || 'Mixed'
     const requestedCount = Number.parseInt(String(count), 10)
     const safeCount = Number.isFinite(requestedCount) && requestedCount > 0 ? Math.min(requestedCount, 30) : 10
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
       data: {
         orgId: orgId ?? undefined,
         userId: session.user.id,
-        title: `${subject || curriculum} — ${normalizedTopic}`,
+        title: `${titlePrefix} — ${normalizedTopic}`,
         subject,
         curriculum,
         difficulty,
