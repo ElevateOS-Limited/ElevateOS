@@ -66,7 +66,7 @@ function Get-PaginatedItems([string]$Gh, [string]$Endpoint) {
       if ($null -ne $item) { $items.Add($item) }
     }
   }
-  return @($items)
+  return @($items.ToArray())
 }
 
 function Get-LatestCommitContext([string]$Gh, [string]$RepoFullName, [int]$PullRequestNumber) {
@@ -254,3 +254,4 @@ if ($PostToPr) {
   if ($LASTEXITCODE -ne 0) { throw "Failed to post status comment on PR #$PrNumber." }
   Write-Host "Posted status comment on PR #$PrNumber."
 }
+

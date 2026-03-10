@@ -50,7 +50,7 @@ function Get-PaginatedItems([string]$Gh, [string]$Endpoint) {
       if ($null -ne $item) { $items.Add($item) }
     }
   }
-  return @($items)
+  return @($items.ToArray())
 }
 
 function TryGet-LatestGateRun([string]$Gh, [string]$RepoFullName, [int]$PullRequestNumber) {

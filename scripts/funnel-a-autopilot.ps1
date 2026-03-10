@@ -123,7 +123,7 @@ function Get-PaginatedItems([string]$Gh, [string]$Endpoint) {
       if ($null -ne $item) { $items.Add($item) }
     }
   }
-  return @($items)
+  return @($items.ToArray())
 }
 
 function Get-IssueComments([string]$Gh, [string]$RepoFullName, [int]$PrNumber) {
@@ -577,3 +577,4 @@ while ($true) {
   if ($CycleMinutes -lt 1) { $CycleMinutes = 1 }
   Start-Sleep -Seconds ($CycleMinutes * 60)
 }
+
