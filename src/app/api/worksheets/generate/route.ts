@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
     const { subject, curriculum, topic, difficulty, count, questionTypes, content } = body
     const normalizedTopic = typeof topic === 'string' ? topic.trim() : ''
     const questionType = questionTypes?.[0] || 'Mixed'
+    const requestedCount = Number.parseInt(String(count), 10)
+    const safeCount = Number.isFinite(requestedCount) && requestedCount > 0 ? Math.min(requestedCount, 30) : 10
 
     if (!normalizedTopic) return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
 
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
           topic: normalizedTopic,
           difficulty: difficulty || 'Medium',
           questionTypes: questionTypes || ['Multiple Choice', 'Short Answer'],
-          count: parseInt(count) || 10,
+          count: safeCount,
           content,
         })
 
