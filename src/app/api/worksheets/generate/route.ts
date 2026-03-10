@@ -31,8 +31,11 @@ export async function POST(request: NextRequest) {
     const normalizedCurriculum = typeof curriculum === 'string' ? curriculum.trim() : ''
     const titlePrefix = normalizedSubject || normalizedCurriculum || 'General'
     const questionType = questionTypes?.[0] || 'Mixed'
-    const requestedCount = Number.parseInt(String(count), 10)
-    const safeCount = Number.isFinite(requestedCount) && requestedCount > 0 ? Math.min(requestedCount, 30) : 10
+    const requestedCount = count === undefined ? 10 : Number.parseInt(String(count), 10)
+    if (!Number.isFinite(requestedCount) || requestedCount <= 0) {
+      return NextResponse.json({ error: 'Count must be a positive integer' }, { status: 400 })
+    }
+    const safeCount = Math.min(requestedCount, 30)
 
     if (!normalizedTopic) return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
 
