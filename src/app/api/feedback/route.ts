@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : ''
-  if (/[\u0000-\u001F\u007F]/.test(normalizedEmail)) {
+  if (/[\u0000-\u001F\u007F]/.test(normalizedEmail) || normalizedEmail.includes('\uFFFD')) {
     return NextResponse.json({ error: 'invalid email' }, { status: 400 })
   }
   if (normalizedEmail.length > 254) {
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedCategoryRaw = typeof category === 'string' ? category.trim().toLowerCase() : ''
-  if (/[\u0000-\u001F\u007F]/.test(normalizedCategoryRaw)) {
+  if (/[\u0000-\u001F\u007F]/.test(normalizedCategoryRaw) || normalizedCategoryRaw.includes('\uFFFD')) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
   if (normalizedCategoryRaw.length > 32) {
