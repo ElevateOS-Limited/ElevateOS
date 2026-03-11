@@ -29,6 +29,14 @@ export async function POST(request: NextRequest) {
     const normalizedTopic = typeof topic === 'string' ? topic.trim() : ''
     const normalizedSubject = typeof subject === 'string' ? subject.trim() : ''
     const normalizedCurriculum = typeof curriculum === 'string' ? curriculum.trim() : ''
+    const normalizedDifficultyRaw = typeof difficulty === 'string' ? difficulty.trim().toLowerCase() : ''
+    const difficultyMap: Record<string, string> = {
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
+      exam: 'Exam',
+    }
+    const normalizedDifficulty = difficultyMap[normalizedDifficultyRaw] ?? 'Medium'
     const titlePrefix = normalizedSubject || normalizedCurriculum || 'General'
     const questionType = questionTypes?.[0] || 'Mixed'
     const requestedCount = count === undefined ? 10 : Number.parseInt(String(count), 10)
@@ -45,7 +53,7 @@ export async function POST(request: NextRequest) {
           subject: subject || 'General',
           curriculum: curriculum || 'IB',
           topic: normalizedTopic,
-          difficulty: difficulty || 'Medium',
+          difficulty: normalizedDifficulty,
           questionTypes: questionTypes || ['Multiple Choice', 'Short Answer'],
           count: safeCount,
           content,
@@ -58,7 +66,7 @@ export async function POST(request: NextRequest) {
         title: `${titlePrefix} — ${normalizedTopic}`,
         subject,
         curriculum,
-        difficulty,
+        difficulty: normalizedDifficulty,
         questions: result.questions as any,
         answers: result.questions.map((q: any) => q.answer) as any,
         questionType,
