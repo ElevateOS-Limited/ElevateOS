@@ -18,7 +18,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const contentType = req.headers.get('content-type') || ''
-  if (!contentType.toLowerCase().includes('application/json')) {
+  const normalizedContentType = contentType.trim().toLowerCase()
+  if (!/^application\/json(?:\s*;|$)/.test(normalizedContentType)) {
     return NextResponse.json({ error: 'content-type must be application/json' }, { status: 415 })
   }
 
