@@ -18,8 +18,10 @@ export async function POST(req: NextRequest) {
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
 
   const { email, category, message } = await req.json()
-  const normalizedMessage = typeof message === 'string' ? message.trim() : ''
-  if (!normalizedMessage) return NextResponse.json({ error: 'message required' }, { status: 400 })
+  const trimmedMessage = typeof message === 'string' ? message.trim() : ''
+  if (!trimmedMessage) return NextResponse.json({ error: 'message required' }, { status: 400 })
+
+  const normalizedMessage = trimmedMessage.replace(/\s+/g, ' ')
   if (normalizedMessage.length > 2000) {
     return NextResponse.json({ error: 'message too long' }, { status: 400 })
   }
