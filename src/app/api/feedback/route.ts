@@ -49,6 +49,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid email' }, { status: 400 })
   }
 
+  if (category != null && typeof category !== 'string') {
+    return NextResponse.json({ error: 'invalid category' }, { status: 400 })
+  }
+
   const normalizedCategoryRaw = typeof category === 'string' ? category.trim().toLowerCase() : ''
   if (normalizedCategoryRaw.length > 32) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
