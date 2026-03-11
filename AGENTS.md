@@ -31,6 +31,11 @@ Execution is autonomous and iterative:
 
 Implement -> Push -> Gate -> Patch -> Gate (loop) until `merge verdict: APPROVE`.
 
+No-pause continuation policy (mandatory):
+- Do not wait between parts once a PR is approved/merged.
+- If blocked/stuck for >10 minutes, auto-patch and proceed without asking.
+- If PR is retired/unmergeable, auto-open replacement PR from latest `main`, relabel `funnel-a-active`, reapply required production commits, and rerun `/funnel-a gate`.
+
 Once approved:
 1. Open the next Funnel A production-code PR immediately.
 2. Post the next part plan in that new PR.
