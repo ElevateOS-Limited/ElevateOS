@@ -18,13 +18,15 @@ export async function POST(req: NextRequest) {
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
 
   const { email, category, message } = await req.json()
-  if (!message) return NextResponse.json({ error: 'message required' }, { status: 400 })
+  const normalizedMessage = typeof message === 'string' ? message.trim() : ''
+  if (!normalizedMessage) return NextResponse.json({ error: 'message required' }, { status: 400 })
+
   const row = await prisma.feedback.create({
     data: {
       userId: session?.user?.id || null,
       email: email || null,
       category: category || 'general',
-      message,
+      message: normalizedMessage,
     },
   })
   return NextResponse.json(row)
