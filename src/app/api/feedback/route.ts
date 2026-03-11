@@ -87,6 +87,9 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : ''
+  if (email != null && !normalizedEmail) {
+    return NextResponse.json({ error: 'invalid email' }, { status: 400 })
+  }
   if (/[\u0000-\u001F\u007F]/.test(normalizedEmail) || normalizedEmail.includes('\uFFFD')) {
     return NextResponse.json({ error: 'invalid email' }, { status: 400 })
   }
