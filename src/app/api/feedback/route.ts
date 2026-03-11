@@ -22,6 +22,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'content-type must be application/json' }, { status: 415 })
   }
 
+  const contentLengthHeader = req.headers.get('content-length')
+  const contentLength = contentLengthHeader ? Number(contentLengthHeader) : 0
+  if (Number.isFinite(contentLength) && contentLength > 12_000) {
+    return NextResponse.json({ error: 'payload too large' }, { status: 413 })
+  }
+
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
