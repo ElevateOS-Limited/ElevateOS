@@ -20,10 +20,16 @@ export async function POST(req: NextRequest) {
   const { email, category, message } = await req.json()
   const normalizedMessage = typeof message === 'string' ? message.trim() : ''
   if (!normalizedMessage) return NextResponse.json({ error: 'message required' }, { status: 400 })
+  if (normalizedMessage.length > 2000) {
+    return NextResponse.json({ error: 'message too long' }, { status: 400 })
+  }
 
   const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : ''
   const normalizedCategoryRaw = typeof category === 'string' ? category.trim().toLowerCase() : ''
-  const normalizedCategory = normalizedCategoryRaw || 'general'
+  const allowedCategories = new Set(['general', 'bug', 'feature', 'billing', 'other'])
+  const normalizedCategory = allowedCategories.has(normalizedCategoryRaw)
+    ? normalizedCategoryRaw
+    : 'general'
 
   const row = await prisma.feedback.create({
     data: {
