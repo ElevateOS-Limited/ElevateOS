@@ -29,6 +29,10 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, category, message } = payload
+  if (message != null && typeof message !== 'string') {
+    return NextResponse.json({ error: 'invalid message' }, { status: 400 })
+  }
+
   if (typeof message === 'string' && message.length > 8000) {
     return NextResponse.json({ error: 'message too long' }, { status: 400 })
   }
