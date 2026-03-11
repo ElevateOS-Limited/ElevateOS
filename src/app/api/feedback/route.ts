@@ -55,6 +55,10 @@ export async function POST(req: NextRequest) {
   const trimmedMessage = typeof message === 'string' ? message.trim() : ''
   if (!trimmedMessage) return NextResponse.json({ error: 'message required' }, { status: 400 })
 
+  if (/[\u0000-\u001F\u007F]/.test(trimmedMessage)) {
+    return NextResponse.json({ error: 'invalid message' }, { status: 400 })
+  }
+
   const normalizedMessage = trimmedMessage.replace(/\s+/g, ' ')
   if (normalizedMessage.length > 2000) {
     return NextResponse.json({ error: 'message too long' }, { status: 400 })
