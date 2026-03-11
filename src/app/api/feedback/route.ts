@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
   if (contentLengthHeader && !/^\d+$/.test(contentLengthHeader)) {
     return NextResponse.json({ error: 'invalid content-length' }, { status: 400 })
   }
+  if (contentLengthHeader && contentLengthHeader.length > 7) {
+    return NextResponse.json({ error: 'payload too large' }, { status: 413 })
+  }
   const contentLength = contentLengthHeader ? Number(contentLengthHeader) : 0
   if (
     contentLengthHeader &&
