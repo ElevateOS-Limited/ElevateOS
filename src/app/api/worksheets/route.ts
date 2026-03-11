@@ -103,11 +103,13 @@ export async function POST(req: Request) {
       }>(systemPrompt, userPrompt, 4000)
     }
 
+    const normalizedTitle = result.title?.trim() || `${data.subject} Worksheet`
+
     const worksheet = await prisma.worksheet.create({
       data: {
         orgId: orgId ?? undefined,
         userId: session.user.id,
-        title: result.title || `${data.subject} Worksheet`,
+        title: normalizedTitle,
         subject: data.subject,
         curriculum: data.curriculum,
         difficulty: data.difficulty,
