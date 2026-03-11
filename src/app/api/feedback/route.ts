@@ -21,7 +21,14 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
 
-  const { email, category, message } = await req.json()
+  let payload: { email?: unknown; category?: unknown; message?: unknown }
+  try {
+    payload = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'invalid json body' }, { status: 400 })
+  }
+
+  const { email, category, message } = payload
   const trimmedMessage = typeof message === 'string' ? message.trim() : ''
   if (!trimmedMessage) return NextResponse.json({ error: 'message required' }, { status: 400 })
 
