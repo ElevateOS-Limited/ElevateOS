@@ -15,7 +15,7 @@ const schema = z.object({
   subject: z.string().trim().min(1, 'Subject is required'),
   curriculum: z.string().trim().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard', 'exam']),
-  questionType: z.string(),
+  questionType: z.string().trim().min(1, 'Question type is required'),
   topics: z.string().optional(),
   count: z.number().min(1).max(30).default(10),
 })
