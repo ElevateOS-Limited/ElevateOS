@@ -39,6 +39,10 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedCategoryRaw = typeof category === 'string' ? category.trim().toLowerCase() : ''
+  if (normalizedCategoryRaw.length > 32) {
+    return NextResponse.json({ error: 'invalid category' }, { status: 400 })
+  }
+
   const allowedCategories = new Set(['general', 'bug', 'feature', 'billing', 'other'])
   const normalizedCategory = allowedCategories.has(normalizedCategoryRaw)
     ? normalizedCategoryRaw
