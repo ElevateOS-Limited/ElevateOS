@@ -172,6 +172,8 @@ export async function POST(req: NextRequest) {
     technical: 'bug',
     'tech-support': 'bug',
     suggestion: 'feature',
+    complaint: 'general',
+    'customer-service': 'general',
   }
   const normalizedCategoryResolved =
     normalizedCategoryCandidate && !allowedCategories.has(normalizedCategoryCandidate)
