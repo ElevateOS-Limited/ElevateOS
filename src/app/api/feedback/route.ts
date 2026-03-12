@@ -103,6 +103,25 @@ export async function POST(req: NextRequest) {
   if (normalizedEmail.includes('..')) {
     return NextResponse.json({ error: 'invalid email' }, { status: 400 })
   }
+  if (normalizedEmail) {
+    const atIndex = normalizedEmail.lastIndexOf('@')
+    const localPart = normalizedEmail.slice(0, atIndex)
+    const domainPart = normalizedEmail.slice(atIndex + 1)
+
+    if (
+      localPart.startsWith('.') ||
+      localPart.endsWith('.') ||
+      domainPart.startsWith('.') ||
+      domainPart.endsWith('.')
+    ) {
+      return NextResponse.json({ error: 'invalid email' }, { status: 400 })
+    }
+
+    const domainLabels = domainPart.split('.')
+    if (domainLabels.some((label) => !label || label.startsWith('-') || label.endsWith('-'))) {
+      return NextResponse.json({ error: 'invalid email' }, { status: 400 })
+    }
+  }
 
   if (category != null && typeof category !== 'string') {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
