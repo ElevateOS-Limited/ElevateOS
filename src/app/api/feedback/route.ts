@@ -180,6 +180,7 @@ export async function POST(req: NextRequest) {
     'guardian-support': 'general',
     'caregiver-support': 'general',
     'home-support': 'general',
+    'household-support': 'general',
     'customer-service': 'general',
     account: 'billing',
     payment: 'billing',
