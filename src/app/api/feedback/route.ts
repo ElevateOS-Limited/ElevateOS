@@ -155,6 +155,7 @@ export async function POST(req: NextRequest) {
     'feature-idea': 'feature',
     'bug-report': 'bug',
     'ui-bug': 'bug',
+    'bug-issue': 'bug',
     bugfix: 'bug',
     defect: 'bug',
     support: 'general',
