@@ -163,10 +163,20 @@ export async function POST(req: NextRequest) {
   const normalizedCategoryCandidate = categoryAliases[normalizedCategoryRaw] || normalizedCategoryRaw
 
   const allowedCategories = new Set(['general', 'bug', 'feature', 'billing', 'other'])
-  if (normalizedCategoryCandidate && !allowedCategories.has(normalizedCategoryCandidate)) {
+  const categoryFallbacks: Record<string, string> = {
+    technical: 'bug',
+    'tech-support': 'bug',
+    suggestion: 'feature',
+  }
+  const normalizedCategoryResolved =
+    normalizedCategoryCandidate && !allowedCategories.has(normalizedCategoryCandidate)
+      ? (categoryFallbacks[normalizedCategoryCandidate] || normalizedCategoryCandidate)
+      : normalizedCategoryCandidate
+
+  if (normalizedCategoryResolved && !allowedCategories.has(normalizedCategoryResolved)) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
-  const normalizedCategory = normalizedCategoryCandidate || 'general'
+  const normalizedCategory = normalizedCategoryResolved || 'general'
 
   const row = await prisma.feedback.create({
     data: {
