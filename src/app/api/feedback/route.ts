@@ -130,7 +130,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
 
-  const normalizedCategoryRaw = typeof category === 'string' ? category.trim().toLowerCase() : ''
+  const normalizedCategoryRaw =
+    typeof category === 'string'
+      ? category
+          .trim()
+          .toLowerCase()
+          .replace(/[_\s]+/g, '-')
+      : ''
   if (category != null && !normalizedCategoryRaw) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
@@ -141,11 +147,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
 
+  const categoryAliases: Record<string, string> = {
+    'feature-request': 'feature',
+    'bug-report': 'bug',
+    'support': 'general',
+  }
+  const normalizedCategoryCandidate = categoryAliases[normalizedCategoryRaw] || normalizedCategoryRaw
+
   const allowedCategories = new Set(['general', 'bug', 'feature', 'billing', 'other'])
-  if (normalizedCategoryRaw && !allowedCategories.has(normalizedCategoryRaw)) {
+  if (normalizedCategoryCandidate && !allowedCategories.has(normalizedCategoryCandidate)) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
-  const normalizedCategory = normalizedCategoryRaw || 'general'
+  const normalizedCategory = normalizedCategoryCandidate || 'general'
 
   const row = await prisma.feedback.create({
     data: {
