@@ -150,7 +150,11 @@ export async function POST(req: NextRequest) {
   const categoryAliases: Record<string, string> = {
     'feature-request': 'feature',
     'bug-report': 'bug',
-    'support': 'general',
+    support: 'general',
+    account: 'billing',
+    payment: 'billing',
+    invoice: 'billing',
+    question: 'general',
   }
   const normalizedCategoryCandidate = categoryAliases[normalizedCategoryRaw] || normalizedCategoryRaw
 
