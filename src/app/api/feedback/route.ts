@@ -150,52 +150,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
 
+  const allowedCategories = new Set(['general', 'bug', 'feature', 'billing', 'other'])
   const categoryAliases: Record<string, string> = {
     'feature-request': 'feature',
     'feature-idea': 'feature',
+    suggestion: 'feature',
     'bug-report': 'bug',
     'ui-bug': 'bug',
     'bug-issue': 'bug',
     bugfix: 'bug',
     defect: 'bug',
+    technical: 'bug',
     support: 'general',
     help: 'general',
+    question: 'general',
+    complaint: 'general',
+    'service-issue': 'general',
+    'customer-care': 'general',
+    'client-support': 'general',
+    'billing-support': 'general',
+    helpdesk: 'general',
+    'tech-support': 'general',
+    'product-support': 'general',
+    'student-support': 'general',
+    'customer-service': 'general',
     account: 'billing',
     payment: 'billing',
     'payment-issue': 'billing',
     invoice: 'billing',
     'billing-issue': 'billing',
     refund: 'billing',
-    question: 'general',
   }
+
   const normalizedCategoryCandidate = categoryAliases[normalizedCategoryRaw] || normalizedCategoryRaw
-
-  const allowedCategories = new Set(['general', 'bug', 'feature', 'billing', 'other'])
-  const categoryFallbacks: Record<string, string> = {
-    technical: 'bug',
-    'tech-support': 'bug',
-    suggestion: 'feature',
-    complaint: 'general',
-    'service-issue': 'general',
-    support: 'general',
-    'customer-care': 'general',
-    'client-support': 'general',
-    'billing-support': 'general',
-    'helpdesk': 'general',
-    'tech-support': 'general',
-    'product-support': 'general',
-    'student-support': 'general',
-    'customer-service': 'general',
-  }
-  const normalizedCategoryResolved =
-    normalizedCategoryCandidate && !allowedCategories.has(normalizedCategoryCandidate)
-      ? (categoryFallbacks[normalizedCategoryCandidate] || normalizedCategoryCandidate)
-      : normalizedCategoryCandidate
-
-  if (normalizedCategoryResolved && !allowedCategories.has(normalizedCategoryResolved)) {
+  if (normalizedCategoryCandidate && !allowedCategories.has(normalizedCategoryCandidate)) {
     return NextResponse.json({ error: 'invalid category' }, { status: 400 })
   }
-  const normalizedCategory = normalizedCategoryResolved || 'general'
+  const normalizedCategory = normalizedCategoryCandidate || 'general'
 
   const row = await prisma.feedback.create({
     data: {
