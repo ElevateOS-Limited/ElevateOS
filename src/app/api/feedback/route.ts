@@ -5,6 +5,7 @@ import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 
 const DEFAULT_FEEDBACK_LIST_LIMIT = 20
 const MAX_FEEDBACK_LIST_LIMIT = 100
+const FEEDBACK_LIMIT_MAX_DIGITS = 3
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
   if (normalizedLimitParam && !/^\d+$/.test(normalizedLimitParam)) {
     return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
   }
-  if (normalizedLimitParam.length > 3) {
+  if (normalizedLimitParam.length > FEEDBACK_LIMIT_MAX_DIGITS) {
     return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
   }
   const parsedLimit = normalizedLimitParam ? Number(normalizedLimitParam) : DEFAULT_FEEDBACK_LIST_LIMIT
