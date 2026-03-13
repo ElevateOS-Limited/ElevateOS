@@ -19,6 +19,12 @@ export async function GET() {
 
   const list = await prisma.feedback.findMany({
     where: { userId: session.user.id, orgId: orgId ?? null },
+    select: {
+      id: true,
+      category: true,
+      message: true,
+      createdAt: true,
+    },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: 100,
   })
