@@ -108,6 +108,7 @@ export default function HelpPage() {
             <h2 className="font-semibold">Recent feedback</h2>
             <p className="text-xs text-gray-500">
               Showing {meta.count} item{meta.count === 1 ? '' : 's'} ({meta.category}) · limit {meta.limit}
+              {meta.requestedLimit !== meta.limit ? ` (requested ${meta.requestedLimit})` : ''}
             </p>
           </div>
           <div className="flex items-center gap-3">

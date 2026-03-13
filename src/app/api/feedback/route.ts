@@ -15,6 +15,7 @@ const FEEDBACK_LIMIT_MIN_VALUE = 1
 const FEEDBACK_CATEGORY_QUERY_PARAM = 'category'
 const FEEDBACK_INCLUDE_META_QUERY_PARAM = 'includeMeta'
 const FEEDBACK_ALLOWED_CATEGORIES = new Set(['general', 'bug', 'feature', 'billing', 'other'])
+const TENANT_CONTEXT_REQUIRED_ERROR = { error: 'tenant context required' } as const
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
@@ -26,8 +27,8 @@ export async function GET(req: NextRequest) {
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
   const orgId = getSessionOrgId(session)
-  if (orgId) {
-    // Feedback rows are user-scoped in current schema; orgId is derived server-side for tenant context.
+  if (!orgId) {
+    return NextResponse.json(TENANT_CONTEXT_REQUIRED_ERROR, { status: 403 })
   }
 
   const limitParam = req.nextUrl.searchParams.get(FEEDBACK_LIMIT_QUERY_PARAM)
@@ -110,8 +111,8 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
   const orgId = getSessionOrgId(session)
-  if (orgId) {
-    // Feedback rows are user-scoped in current schema; orgId is derived server-side for tenant context.
+  if (!orgId) {
+    return NextResponse.json(TENANT_CONTEXT_REQUIRED_ERROR, { status: 403 })
   }
 
   let payload: { email?: unknown; category?: unknown; message?: unknown }
