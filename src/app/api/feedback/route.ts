@@ -179,6 +179,7 @@ export async function POST(req: NextRequest) {
     'academic-support': 'general',
     'curriculum-support': 'general',
     'learning-support': 'general',
+    'class-support': 'general',
     'student-support': 'general',
     'learner-support': 'general',
     'family-support': 'general',
