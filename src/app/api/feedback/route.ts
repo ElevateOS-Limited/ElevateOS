@@ -11,6 +11,7 @@ const FEEDBACK_LIMIT_DIGITS_REGEX = /^\d+$/
 const FEEDBACK_LIMIT_LEADING_ZERO_REGEX = /^0+(?=\d)/
 const FEEDBACK_LIMIT_QUERY_PARAM = 'limit'
 const HTTP_BAD_REQUEST = 400
+const FEEDBACK_LIMIT_MIN_VALUE = 1
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
   }
   const canonicalLimitParam = normalizedLimitParam.replace(FEEDBACK_LIMIT_LEADING_ZERO_REGEX, '')
   const parsedLimit = canonicalLimitParam ? Number(canonicalLimitParam) : DEFAULT_FEEDBACK_LIST_LIMIT
-  if (!Number.isInteger(parsedLimit) || parsedLimit <= 0) {
+  if (!Number.isInteger(parsedLimit) || parsedLimit < FEEDBACK_LIMIT_MIN_VALUE) {
     return NextResponse.json(INVALID_LIMIT_ERROR, { status: HTTP_BAD_REQUEST })
   }
   const take = Math.min(parsedLimit, MAX_FEEDBACK_LIST_LIMIT)
