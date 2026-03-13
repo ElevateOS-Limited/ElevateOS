@@ -48,7 +48,7 @@ Required in PR operations:
   - `[AUTOPILOT:FUNNEL_A][NO_ACTIVE_PR]`
   - `[AUTOPILOT:FUNNEL_A][AUTO_ACTIVE_ASSIGN]`
 
-Required WhatsApp status cadence (every 60 minutes, evidence only):
+Required WhatsApp status cadence (every 30 minutes, evidence only):
 - `lane` or `part/task`
 - `part`
 - `commit`
@@ -56,7 +56,22 @@ Required WhatsApp status cadence (every 60 minutes, evidence only):
 - `gate run url`
 - `merge verdict`
 - `blockers`
-- `next action (next 60 min)`
+- `next action (next 30 min)`
+- `exact appdemo backend changes in this window` (file-level + behavior-level)
+
+Instruction persistence rule:
+- Every time Howard gives a new operating instruction, patch it into `.md` immediately in the same cycle (no defer/no pause).
+
+Throughput requirement (mandatory):
+- It is unacceptable to post a 30-minute packet with "no new backend code change" while backend lane execution is expected to be active.
+- Each 30-minute window must include either:
+  1) a new backend production-code commit in `src/` or `prisma/`, or
+  2) a verifiable blocker artifact plus an immediate unblock patch in the same window.
+
+Portability / non-waste requirement (mandatory):
+- Backend slices must be deployment-agnostic and reusable beyond current hosting choices.
+- Do not ship changes coupled to a single platform unless explicitly required.
+- Keep backend logic compatible with external DB setups and alternative platforms (e.g., Fly.io) by default.
 
 Status updates must not include tool/runtime excuses; only verifiable artifacts.
 

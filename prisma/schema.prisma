@@ -289,12 +289,16 @@ model PracticeResult {
 
 model Feedback {
   id        String   @id @default(cuid())
+  orgId     String?
   userId    String?
   email     String?
   category  String   @default("general")
   message   String   @db.Text
   createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, createdAt])
+  @@index([orgId, userId, createdAt])
 }
 
 model ChangelogEntry {
