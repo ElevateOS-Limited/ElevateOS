@@ -14,6 +14,7 @@ type FeedbackListMeta = {
   limit: number
   requestedLimit: number
   order: 'asc' | 'desc'
+  query: string
 }
 
 const CATEGORY_OPTIONS = [
@@ -55,6 +56,7 @@ export default function HelpPage() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [listLimit, setListLimit] = useState(20)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [searchQuery, setSearchQuery] = useState('')
   const [items, setItems] = useState<FeedbackItem[]>([])
   const [meta, setMeta] = useState<FeedbackListMeta>({
     count: 0,
@@ -62,11 +64,18 @@ export default function HelpPage() {
     limit: 20,
     requestedLimit: 20,
     order: 'desc',
+    query: '',
   })
 
-  const load = async (selectedFilter = filterCategory, selectedLimit = listLimit, selectedOrder = sortOrder) => {
+  const load = async (
+    selectedFilter = filterCategory,
+    selectedLimit = listLimit,
+    selectedOrder = sortOrder,
+    selectedQuery = searchQuery
+  ) => {
     const params = new URLSearchParams({ includeMeta: '1', limit: String(selectedLimit), order: selectedOrder })
     if (selectedFilter !== 'all') params.set('category', selectedFilter)
+    if (selectedQuery.trim()) params.set('q', selectedQuery.trim())
     const res = await fetch(`/api/feedback?${params.toString()}`)
     const data = await res.json()
     setItems(Array.isArray(data?.items) ? data.items : [])
@@ -79,12 +88,13 @@ export default function HelpPage() {
             limit: selectedLimit,
             requestedLimit: selectedLimit,
             order: selectedOrder,
+            query: selectedQuery,
           }
     )
   }
   useEffect(() => {
-    load(filterCategory, listLimit, sortOrder)
-  }, [filterCategory, listLimit, sortOrder])
+    load(filterCategory, listLimit, sortOrder, searchQuery)
+  }, [filterCategory, listLimit, sortOrder, searchQuery])
 
   return (
     <div className="max-w-5xl mx-auto space-y-4">
@@ -127,6 +137,7 @@ export default function HelpPage() {
             <p className="text-xs text-gray-500">
               Showing {meta.count} item{meta.count === 1 ? '' : 's'} ({meta.category}) · limit {meta.limit}
               {meta.requestedLimit !== meta.limit ? ` (requested ${meta.requestedLimit})` : ''} · {meta.order === 'desc' ? 'newest first' : 'oldest first'}
+              {meta.query ? ` · search: "${meta.query}"` : ''}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -174,6 +185,16 @@ export default function HelpPage() {
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="text-sm flex items-center gap-2">
+              Search
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="message text"
+                className="border rounded p-1"
+                aria-label="Search feedback messages"
+              />
             </label>
           </div>
         </div>
