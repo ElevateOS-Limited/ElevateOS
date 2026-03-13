@@ -14,7 +14,9 @@ const HTTP_BAD_REQUEST = 400
 const FEEDBACK_LIMIT_MIN_VALUE = 1
 const FEEDBACK_CATEGORY_QUERY_PARAM = 'category'
 const FEEDBACK_INCLUDE_META_QUERY_PARAM = 'includeMeta'
+const FEEDBACK_ORDER_QUERY_PARAM = 'order'
 const FEEDBACK_ALLOWED_CATEGORIES = new Set(['general', 'bug', 'feature', 'billing', 'other'])
+const FEEDBACK_ALLOWED_ORDER = new Set(['asc', 'desc'])
 const TENANT_CONTEXT_REQUIRED_ERROR = { error: 'tenant context required' } as const
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
@@ -40,6 +42,12 @@ export async function GET(req: NextRequest) {
   }
   const includeMetaParam = req.nextUrl.searchParams.get(FEEDBACK_INCLUDE_META_QUERY_PARAM)
   const includeMeta = includeMetaParam === '1' || includeMetaParam === 'true'
+  const orderParam = req.nextUrl.searchParams.get(FEEDBACK_ORDER_QUERY_PARAM)
+  const normalizedOrderParam = typeof orderParam === 'string' ? orderParam.trim().toLowerCase() : ''
+  if (normalizedOrderParam && !FEEDBACK_ALLOWED_ORDER.has(normalizedOrderParam)) {
+    return NextResponse.json({ error: 'invalid order' }, { status: HTTP_BAD_REQUEST })
+  }
+  const sortOrder = normalizedOrderParam === 'asc' ? 'asc' : 'desc'
   if (normalizedLimitParam && !FEEDBACK_LIMIT_DIGITS_REGEX.test(normalizedLimitParam)) {
     return NextResponse.json(INVALID_LIMIT_ERROR, { status: HTTP_BAD_REQUEST })
   }
@@ -64,7 +72,7 @@ export async function GET(req: NextRequest) {
       message: true,
       createdAt: true,
     },
-    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    orderBy: [{ createdAt: sortOrder }, { id: sortOrder }],
     take,
   })
   if (includeMeta) {
@@ -75,6 +83,7 @@ export async function GET(req: NextRequest) {
         category: normalizedCategoryParam || 'all',
         limit: take,
         requestedLimit: parsedLimit,
+        order: sortOrder,
       },
     })
   }

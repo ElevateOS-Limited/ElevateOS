@@ -13,6 +13,7 @@ type FeedbackListMeta = {
   category: string
   limit: number
   requestedLimit: number
+  order: 'asc' | 'desc'
 }
 
 const CATEGORY_OPTIONS = [
@@ -32,6 +33,10 @@ const FEEDBACK_FILTER_OPTIONS = [
 ]
 
 const FEEDBACK_LIMIT_OPTIONS = [10, 20, 50]
+const FEEDBACK_ORDER_OPTIONS = [
+  { value: 'desc', label: 'Newest first' },
+  { value: 'asc', label: 'Oldest first' },
+] as const
 
 const CATEGORY_LABELS: Record<string, string> = {
   general: 'General',
@@ -49,11 +54,18 @@ export default function HelpPage() {
   const [category, setCategory] = useState('general')
   const [filterCategory, setFilterCategory] = useState('all')
   const [listLimit, setListLimit] = useState(20)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [items, setItems] = useState<FeedbackItem[]>([])
-  const [meta, setMeta] = useState<FeedbackListMeta>({ count: 0, category: 'all', limit: 20, requestedLimit: 20 })
+  const [meta, setMeta] = useState<FeedbackListMeta>({
+    count: 0,
+    category: 'all',
+    limit: 20,
+    requestedLimit: 20,
+    order: 'desc',
+  })
 
-  const load = async (selectedFilter = filterCategory, selectedLimit = listLimit) => {
-    const params = new URLSearchParams({ includeMeta: '1', limit: String(selectedLimit) })
+  const load = async (selectedFilter = filterCategory, selectedLimit = listLimit, selectedOrder = sortOrder) => {
+    const params = new URLSearchParams({ includeMeta: '1', limit: String(selectedLimit), order: selectedOrder })
     if (selectedFilter !== 'all') params.set('category', selectedFilter)
     const res = await fetch(`/api/feedback?${params.toString()}`)
     const data = await res.json()
@@ -61,12 +73,18 @@ export default function HelpPage() {
     setMeta(
       data?.meta && typeof data.meta === 'object'
         ? data.meta
-        : { count: 0, category: selectedFilter, limit: selectedLimit, requestedLimit: selectedLimit }
+        : {
+            count: 0,
+            category: selectedFilter,
+            limit: selectedLimit,
+            requestedLimit: selectedLimit,
+            order: selectedOrder,
+          }
     )
   }
   useEffect(() => {
-    load(filterCategory, listLimit)
-  }, [filterCategory, listLimit])
+    load(filterCategory, listLimit, sortOrder)
+  }, [filterCategory, listLimit, sortOrder])
 
   return (
     <div className="max-w-5xl mx-auto space-y-4">
@@ -108,7 +126,7 @@ export default function HelpPage() {
             <h2 className="font-semibold">Recent feedback</h2>
             <p className="text-xs text-gray-500">
               Showing {meta.count} item{meta.count === 1 ? '' : 's'} ({meta.category}) · limit {meta.limit}
-              {meta.requestedLimit !== meta.limit ? ` (requested ${meta.requestedLimit})` : ''}
+              {meta.requestedLimit !== meta.limit ? ` (requested ${meta.requestedLimit})` : ''} · {meta.order === 'desc' ? 'newest first' : 'oldest first'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -138,6 +156,21 @@ export default function HelpPage() {
                 {FEEDBACK_LIMIT_OPTIONS.map((value) => (
                   <option key={value} value={value}>
                     {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm flex items-center gap-2">
+              Order
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                className="border rounded p-1"
+                aria-label="Feedback list sort order"
+              >
+                {FEEDBACK_ORDER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
