@@ -9,6 +9,7 @@ const FEEDBACK_LIMIT_MAX_DIGITS = 3
 const INVALID_LIMIT_ERROR = { error: 'invalid limit' } as const
 const FEEDBACK_LIMIT_DIGITS_REGEX = /^\d+$/
 const FEEDBACK_LIMIT_LEADING_ZERO_REGEX = /^0+(?=\d)/
+const FEEDBACK_LIMIT_QUERY_PARAM = 'limit'
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     // Feedback rows are user-scoped in current schema; orgId is derived server-side for tenant context.
   }
 
-  const limitParam = req.nextUrl.searchParams.get('limit')
+  const limitParam = req.nextUrl.searchParams.get(FEEDBACK_LIMIT_QUERY_PARAM)
   const normalizedLimitParam = typeof limitParam === 'string' ? limitParam.trim() : ''
   if (normalizedLimitParam && !FEEDBACK_LIMIT_DIGITS_REGEX.test(normalizedLimitParam)) {
     return NextResponse.json(INVALID_LIMIT_ERROR, { status: 400 })
