@@ -135,7 +135,8 @@ export async function POST(req: NextRequest) {
       ? category
           .trim()
           .toLowerCase()
-          .replace(/[_\s]+/g, '-')
+          .replace(/[\/_\s]+/g, '-')
+          .replace(/&/g, '-and-')
           .replace(/-+/g, '-')
           .replace(/^-|-$/g, '')
       : ''
