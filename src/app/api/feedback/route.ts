@@ -25,6 +25,9 @@ export async function GET(req: NextRequest) {
   if (normalizedLimitParam && !/^\d+$/.test(normalizedLimitParam)) {
     return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
   }
+  if (normalizedLimitParam.length > 3) {
+    return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
+  }
   const parsedLimit = normalizedLimitParam ? Number(normalizedLimitParam) : DEFAULT_FEEDBACK_LIST_LIMIT
   if (!Number.isInteger(parsedLimit) || parsedLimit <= 0) {
     return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
