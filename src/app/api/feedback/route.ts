@@ -251,6 +251,12 @@ export async function POST(req: NextRequest) {
       category: normalizedCategory,
       message: normalizedMessage,
     },
+    select: {
+      id: true,
+      category: true,
+      message: true,
+      createdAt: true,
+    },
   })
   return NextResponse.json(row)
 }
