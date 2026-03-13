@@ -3,12 +3,14 @@ import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 
+const MAX_FEEDBACK_LIST_LIMIT = 100
+
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
   return typeof orgId === 'string' && orgId.trim().length > 0 ? orgId : null
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
@@ -16,6 +18,13 @@ export async function GET() {
   if (orgId) {
     // Feedback rows are user-scoped in current schema; orgId is derived server-side for tenant context.
   }
+
+  const limitParam = req.nextUrl.searchParams.get('limit')
+  const parsedLimit = limitParam ? Number(limitParam) : 20
+  if (!Number.isInteger(parsedLimit) || parsedLimit <= 0) {
+    return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
+  }
+  const take = Math.min(parsedLimit, MAX_FEEDBACK_LIST_LIMIT)
 
   const list = await prisma.feedback.findMany({
     where: { userId: session.user.id, orgId: orgId ?? null },
@@ -26,7 +35,7 @@ export async function GET() {
       createdAt: true,
     },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-    take: 100,
+    take,
   })
   return NextResponse.json(list)
 }
