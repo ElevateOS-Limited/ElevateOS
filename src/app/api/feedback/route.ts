@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 
+const DEFAULT_FEEDBACK_LIST_LIMIT = 20
 const MAX_FEEDBACK_LIST_LIMIT = 100
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
@@ -20,7 +21,8 @@ export async function GET(req: NextRequest) {
   }
 
   const limitParam = req.nextUrl.searchParams.get('limit')
-  const parsedLimit = limitParam ? Number(limitParam) : 20
+  const normalizedLimitParam = typeof limitParam === 'string' ? limitParam.trim() : ''
+  const parsedLimit = normalizedLimitParam ? Number(normalizedLimitParam) : DEFAULT_FEEDBACK_LIST_LIMIT
   if (!Number.isInteger(parsedLimit) || parsedLimit <= 0) {
     return NextResponse.json({ error: 'invalid limit' }, { status: 400 })
   }
