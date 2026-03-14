@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
   const requestedMinScore = Number(params.get('minScore') ?? '0')
   const supportBy = (params.get('supportBy') ?? '').trim().toLowerCase()
   const category = (params.get('category') ?? '').trim().toLowerCase()
+  const sortBy = (params.get('sortBy') ?? 'score').trim().toLowerCase()
   const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.trunc(requestedLimit), 1), 12) : 6
   const minScore = Number.isFinite(requestedMinScore) ? Math.max(Math.trunc(requestedMinScore), 0) : 0
   const appliedFilterCount = [minScore > 0, Boolean(supportBy), Boolean(category), limit !== 6].filter(Boolean).length
@@ -90,14 +91,18 @@ export async function GET(req: NextRequest) {
       return { ...activity, score: tagScore * 2 + dayScore }
     })
     .filter((activity) => activity.score >= minScore)
-    .sort((a, b) => b.score - a.score)
 
-  const recommendations = scored.slice(0, limit)
+  const sorted = [...scored].sort((a, b) => {
+    if (sortBy === 'title') return a.title.localeCompare(b.title)
+    return b.score - a.score
+  })
+
+  const recommendations = sorted.slice(0, limit)
 
   return NextResponse.json({
     openDays,
     blockedDates,
-    filters: { limit, minScore, supportBy: supportBy || null, category: category || null },
+    filters: { limit, minScore, supportBy: supportBy || null, category: category || null, sortBy },
     meta: {
       totalCatalog: ACTIVITY_CATALOG.length,
       matchedCount: scored.length,

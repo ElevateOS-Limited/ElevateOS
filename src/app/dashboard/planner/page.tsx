@@ -67,6 +67,7 @@ export default function PlannerPage() {
   const [recommendationLimit, setRecommendationLimit] = useState(6)
   const [recommendationSupportFilter, setRecommendationSupportFilter] = useState('')
   const [recommendationCategoryFilter, setRecommendationCategoryFilter] = useState('')
+  const [recommendationSortBy, setRecommendationSortBy] = useState<'score' | 'title'>('score')
   const [selectedRecommendationId, setSelectedRecommendationId] = useState<string | null>(null)
   const [selectedRecommendationDetail, setSelectedRecommendationDetail] = useState<ActivityDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -82,7 +83,7 @@ export default function PlannerPage() {
     setError('')
     try {
       const [r1, r2, r3] = await Promise.all([
-        fetch(`/api/activities/recommend?limit=${recommendationLimit}&minScore=${recommendationMinScore}&supportBy=${encodeURIComponent(recommendationSupportFilter)}&category=${encodeURIComponent(recommendationCategoryFilter)}`).then((r) => r.json()),
+        fetch(`/api/activities/recommend?limit=${recommendationLimit}&minScore=${recommendationMinScore}&supportBy=${encodeURIComponent(recommendationSupportFilter)}&category=${encodeURIComponent(recommendationCategoryFilter)}&sortBy=${recommendationSortBy}`).then((r) => r.json()),
         fetch('/api/deadlines').then((r) => r.json()),
         fetch('/api/calendar-events').then((r) => r.json()),
       ])
@@ -101,7 +102,7 @@ export default function PlannerPage() {
 
   useEffect(() => {
     load()
-  }, [recommendationMinScore, recommendationLimit, recommendationSupportFilter, recommendationCategoryFilter])
+  }, [recommendationMinScore, recommendationLimit, recommendationSupportFilter, recommendationCategoryFilter, recommendationSortBy])
 
   const today = new Date()
   const todayStr = today.toISOString().slice(0, 10)
@@ -174,6 +175,7 @@ export default function PlannerPage() {
     setRecommendationLimit(6)
     setRecommendationSupportFilter('')
     setRecommendationCategoryFilter('')
+    setRecommendationSortBy('score')
   }
 
   const addTask = async (override?: Partial<typeof newTask>) => {
@@ -393,6 +395,17 @@ export default function PlannerPage() {
                 <option value="leadership">Leadership</option>
                 <option value="creative">Creative</option>
                 <option value="internship">Internship</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-600">Sort</label>
+              <select
+                value={recommendationSortBy}
+                onChange={(e) => setRecommendationSortBy(e.target.value as 'score' | 'title')}
+                className="rounded-md border px-2 py-1 text-xs bg-white"
+              >
+                <option value="score">Best fit</option>
+                <option value="title">Title (A-Z)</option>
               </select>
             </div>
             <button
