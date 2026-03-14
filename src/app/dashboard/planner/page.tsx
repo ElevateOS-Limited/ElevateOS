@@ -65,6 +65,7 @@ export default function PlannerPage() {
   const [recommendationMeta, setRecommendationMeta] = useState<{ matchedCount: number; returnedCount: number } | null>(null)
   const [recommendationMinScore, setRecommendationMinScore] = useState(0)
   const [recommendationLimit, setRecommendationLimit] = useState(6)
+  const [recommendationSupportFilter, setRecommendationSupportFilter] = useState('')
   const [selectedRecommendationId, setSelectedRecommendationId] = useState<string | null>(null)
   const [selectedRecommendationDetail, setSelectedRecommendationDetail] = useState<ActivityDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -80,7 +81,7 @@ export default function PlannerPage() {
     setError('')
     try {
       const [r1, r2, r3] = await Promise.all([
-        fetch(`/api/activities/recommend?limit=${recommendationLimit}&minScore=${recommendationMinScore}`).then((r) => r.json()),
+        fetch(`/api/activities/recommend?limit=${recommendationLimit}&minScore=${recommendationMinScore}&supportBy=${encodeURIComponent(recommendationSupportFilter)}`).then((r) => r.json()),
         fetch('/api/deadlines').then((r) => r.json()),
         fetch('/api/calendar-events').then((r) => r.json()),
       ])
@@ -99,7 +100,7 @@ export default function PlannerPage() {
 
   useEffect(() => {
     load()
-  }, [recommendationMinScore, recommendationLimit])
+  }, [recommendationMinScore, recommendationLimit, recommendationSupportFilter])
 
   const today = new Date()
   const todayStr = today.toISOString().slice(0, 10)
@@ -354,6 +355,20 @@ export default function PlannerPage() {
                 {[3, 6, 9, 12].map((count) => (
                   <option key={count} value={count}>{count}</option>
                 ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-600">Support filter</label>
+              <select
+                value={recommendationSupportFilter}
+                onChange={(e) => setRecommendationSupportFilter(e.target.value)}
+                className="rounded-md border px-2 py-1 text-xs bg-white"
+              >
+                <option value="">All</option>
+                <option value="school">School</option>
+                <option value="mentor">Mentor</option>
+                <option value="parent">Parent</option>
+                <option value="coach">Coach</option>
               </select>
             </div>
           </div>
