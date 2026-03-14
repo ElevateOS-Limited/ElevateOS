@@ -62,7 +62,7 @@ export default function PlannerPage() {
   const [openDays, setOpenDays] = useState<string[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [availableSupport, setAvailableSupport] = useState<any[]>([])
-  const [recommendationMeta, setRecommendationMeta] = useState<{ matchedCount: number; returnedCount: number; appliedFilterCount: number; hasActiveFilters: boolean } | null>(null)
+  const [recommendationMeta, setRecommendationMeta] = useState<{ matchedCount: number; returnedCount: number; appliedFilterCount: number; hasActiveFilters: boolean; isEmptyResult?: boolean; emptyStateHint?: string | null } | null>(null)
   const [recommendationMinScore, setRecommendationMinScore] = useState(0)
   const [recommendationLimit, setRecommendationLimit] = useState(6)
   const [recommendationSupportFilter, setRecommendationSupportFilter] = useState('')
@@ -101,7 +101,11 @@ export default function PlannerPage() {
   }
 
   useEffect(() => {
-    load()
+    const timer = setTimeout(() => {
+      load()
+    }, 200)
+
+    return () => clearTimeout(timer)
   }, [recommendationMinScore, recommendationLimit, recommendationSupportFilter, recommendationCategoryFilter, recommendationSortBy])
 
   const today = new Date()
@@ -421,7 +425,17 @@ export default function PlannerPage() {
               {recommendationMeta.hasActiveFilters ? ` • ${recommendationMeta.appliedFilterCount} active filter(s)` : ' • no active filters'}
             </p>
           )}
+          {recommendationMeta?.isEmptyResult && (
+            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              {recommendationMeta.emptyStateHint || 'No matching recommendations yet. Try relaxing filters.'}
+            </div>
+          )}
           <div className="space-y-3 max-h-96 overflow-auto pr-1">
+            {recommendations.length === 0 && (
+              <div className="border rounded-xl p-4 text-xs text-gray-600 bg-gray-50">
+                No activities to show with the current filters.
+              </div>
+            )}
             {recommendations.map((r) => (
               <div key={r.id} className={`border rounded-xl p-4 hover:border-indigo-300 transition-colors ${selectedRecommendationId === r.id ? 'border-indigo-400 bg-indigo-50/50' : ''}`}>
                 <div className="flex items-start justify-between gap-2">

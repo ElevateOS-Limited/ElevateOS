@@ -99,6 +99,13 @@ export async function GET(req: NextRequest) {
 
   const recommendations = sorted.slice(0, limit)
 
+  const isEmptyResult = recommendations.length === 0
+  const emptyStateHint = isEmptyResult
+    ? (appliedFilterCount > 0
+      ? 'No matches yet — try lowering minimum fit score, removing one filter, or increasing result count.'
+      : 'No recommendations available right now. Add profile goals/interests or expand open days to improve matching.')
+    : null
+
   return NextResponse.json({
     openDays,
     blockedDates,
@@ -109,6 +116,8 @@ export async function GET(req: NextRequest) {
       returnedCount: recommendations.length,
       appliedFilterCount,
       hasActiveFilters: appliedFilterCount > 0,
+      isEmptyResult,
+      emptyStateHint,
     },
     recommendations,
     availableSupport: ACTIVITY_CATALOG.map(({ title, supportBy, supportOffer, subscription }) => ({ title, supportBy, supportOffer, subscription })),
