@@ -1,21 +1,24 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, BookOpen, Brain, CheckCircle2, Clock3, FileText, GraduationCap, ShieldCheck, Star, Target, TrendingUp } from 'lucide-react'
+import { ArrowRight, BadgeCheck, BookOpen, Brain, CheckCircle2, Clock3, FileText, GraduationCap, ShieldCheck, Target, TrendingUp, Users, Globe2, Sparkles } from 'lucide-react'
 
-const proofLayers = [
+const founderHighlights = [
   {
-    title: 'Clear Weekly Plan',
-    metric: 'Know exactly what to do next',
-    detail: 'Get prioritized tasks based on your goals, timeline, and workload.',
+    icon: Users,
+    title: 'Youth Leadership at Scale',
+    metric: '40+ members · ¥200,000+ raised',
+    detail: 'Founded and scaled student-led service organizations with measurable community outcomes.',
   },
   {
-    title: 'Stronger Student Profile',
-    metric: 'Build meaningful extracurricular depth',
-    detail: 'Focus on high-impact activities, not random activity stacking.',
+    icon: Globe2,
+    title: 'First Kiwanis Voice Club in Japan',
+    metric: 'National representation + continuity model',
+    detail: 'Built cross-club coordination across service, alumni mentorship, and institutional partnerships.',
   },
   {
-    title: 'Parent Visibility',
-    metric: 'Track progress without micromanaging',
-    detail: 'See milestones, completed actions, and next priorities in one place.',
+    icon: Sparkles,
+    title: 'Research + Product Execution',
+    metric: 'Top 5% research + AI product build',
+    detail: 'Combines cross-cultural research rigor with full-stack product execution through ElevateOS.',
   },
 ]
 
@@ -40,7 +43,7 @@ export default function Home() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2 font-bold">
             <BookOpen className="h-5 w-5 text-indigo-500" />
-            EduTech
+            ThinkCollegeLevel
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Link href="/pricing" className="rounded-md border-2 border-gray-500 bg-white px-3 py-1 text-gray-800 hover:border-gray-700 hover:text-gray-900 dark:border-gray-400 dark:bg-transparent dark:text-gray-100 dark:hover:border-white dark:hover:text-white">Pricing</Link>
@@ -51,29 +54,30 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-4 pb-16 pt-16 text-center">
         <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
-          <TrendingUp className="h-4 w-4" /> Built for international school students and parents
+          <TrendingUp className="h-4 w-4" /> Personal profile · Founder track · Leadership portfolio
         </div>
-        <h1 className="text-4xl font-bold leading-tight md:text-6xl">Your AI Admissions Copilot
-          <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"> from Grade 9 onward</span>
+        <h1 className="text-4xl font-bold leading-tight md:text-6xl">Chak Hang (Howard) Chan
+          <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"> — Builder, Researcher, Operator</span>
         </h1>
         <p className="mx-auto mt-5 max-w-3xl text-lg text-gray-600 dark:text-gray-300">
-          ElevateOS helps students build stronger university applications with clear weekly plans for academics, extracurriculars, and profile development.
+          Incoming HSPS student at the University of Cambridge, founder of ElevateOS, and founder/president of Kiwanis Voice Club of Nippon. I build systems that turn ambition into measurable outcomes across education, service, and technology.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/auth/signup" className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-7 py-3 font-semibold text-white hover:bg-indigo-500">
-            Start Free Trial <ArrowRight className="h-4 w-4" />
+          <Link href="https://www.linkedin.com/in/chakhanghoward-chan" className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-7 py-3 font-semibold text-white hover:bg-indigo-500">
+            View LinkedIn <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link href="/pricing" className="rounded-xl border border-gray-300 px-7 py-3 font-semibold text-gray-800 hover:border-indigo-500 dark:border-gray-700 dark:text-gray-200">
-            See Plans
+          <Link href="/dashboard" className="rounded-xl border border-gray-300 px-7 py-3 font-semibold text-gray-800 hover:border-indigo-500 dark:border-gray-700 dark:text-gray-200">
+            Explore ElevateOS
           </Link>
         </div>
       </section>
 
       <section className="border-y border-gray-200 bg-gray-50 py-14 dark:border-gray-800 dark:bg-gray-900">
         <div className="mx-auto grid max-w-6xl gap-5 px-4 md:grid-cols-3">
-          {proofLayers.map((item) => (
+          {founderHighlights.map((item) => (
             <div key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-950">
-              <p className="text-sm font-semibold text-indigo-600">Proof Layer</p>
+              <item.icon className="h-5 w-5 text-indigo-500" />
+              <p className="mt-3 text-sm font-semibold text-indigo-600">Track Record</p>
               <h3 className="mt-2 text-xl font-bold">{item.title}</h3>
               <p className="mt-3 text-sm font-medium text-green-600 dark:text-green-400">{item.metric}</p>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{item.detail}</p>
@@ -133,7 +137,7 @@ export default function Home() {
 
       <footer className="border-t border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4">
-          <p>© 2026 EduTech. Outcome-focused study and admissions platform.</p>
+          <p>© 2026 ThinkCollegeLevel · Howard Chan. Outcome-focused education and leadership execution.</p>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1"><ShieldCheck className="h-4 w-4" /> Privacy-first by design</span>
             <span className="inline-flex items-center gap-1"><Clock3 className="h-4 w-4" /> Weekly measurable progress</span>
