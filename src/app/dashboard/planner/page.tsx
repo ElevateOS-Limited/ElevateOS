@@ -62,7 +62,9 @@ export default function PlannerPage() {
   const [openDays, setOpenDays] = useState<string[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [availableSupport, setAvailableSupport] = useState<any[]>([])
+  const [recommendationMeta, setRecommendationMeta] = useState<{ matchedCount: number; returnedCount: number } | null>(null)
   const [recommendationMinScore, setRecommendationMinScore] = useState(0)
+  const [recommendationLimit, setRecommendationLimit] = useState(6)
   const [selectedRecommendationId, setSelectedRecommendationId] = useState<string | null>(null)
   const [selectedRecommendationDetail, setSelectedRecommendationDetail] = useState<ActivityDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -78,13 +80,14 @@ export default function PlannerPage() {
     setError('')
     try {
       const [r1, r2, r3] = await Promise.all([
-        fetch(`/api/activities/recommend?limit=6&minScore=${recommendationMinScore}`).then((r) => r.json()),
+        fetch(`/api/activities/recommend?limit=${recommendationLimit}&minScore=${recommendationMinScore}`).then((r) => r.json()),
         fetch('/api/deadlines').then((r) => r.json()),
         fetch('/api/calendar-events').then((r) => r.json()),
       ])
       setOpenDays(r1.openDays || [])
       setRecommendations(r1.recommendations || [])
       setAvailableSupport(r1.availableSupport || [])
+      setRecommendationMeta(r1.meta || null)
       setDeadlines(r2 || [])
       setEvents(r3 || [])
     } catch (e: any) {
@@ -96,7 +99,7 @@ export default function PlannerPage() {
 
   useEffect(() => {
     load()
-  }, [recommendationMinScore])
+  }, [recommendationMinScore, recommendationLimit])
 
   const today = new Date()
   const todayStr = today.toISOString().slice(0, 10)
@@ -330,7 +333,7 @@ export default function PlannerPage() {
         <div className="bg-white dark:bg-gray-900 rounded-2xl border p-6">
           <h2 className="font-semibold mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-indigo-600" /> Recommended Activities</h2>
           <p className="text-sm text-gray-500 mb-3">Open days: {openDays.join(', ') || 'None set'}</p>
-          <div className="mb-3 rounded-lg border p-2 bg-gray-50">
+          <div className="mb-3 rounded-lg border p-2 bg-gray-50 space-y-2">
             <label className="text-xs text-gray-600 block">Minimum fit score: {recommendationMinScore}</label>
             <input
               type="range"
@@ -341,7 +344,24 @@ export default function PlannerPage() {
               onChange={(e) => setRecommendationMinScore(Number(e.target.value))}
               className="w-full"
             />
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-600">Result count</label>
+              <select
+                value={recommendationLimit}
+                onChange={(e) => setRecommendationLimit(Number(e.target.value))}
+                className="rounded-md border px-2 py-1 text-xs bg-white"
+              >
+                {[3, 6, 9, 12].map((count) => (
+                  <option key={count} value={count}>{count}</option>
+                ))}
+              </select>
+            </div>
           </div>
+          {recommendationMeta && (
+            <p className="text-xs text-gray-500 mb-2">
+              Showing {recommendationMeta.returnedCount} of {recommendationMeta.matchedCount} matched opportunities
+            </p>
+          )}
           <div className="space-y-3 max-h-96 overflow-auto pr-1">
             {recommendations.map((r) => (
               <div key={r.id} className={`border rounded-xl p-4 hover:border-indigo-300 transition-colors ${selectedRecommendationId === r.id ? 'border-indigo-400 bg-indigo-50/50' : ''}`}>

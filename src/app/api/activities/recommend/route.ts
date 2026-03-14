@@ -87,11 +87,18 @@ export async function GET(req: NextRequest) {
     .filter((activity) => activity.score >= minScore)
     .sort((a, b) => b.score - a.score)
 
+  const recommendations = scored.slice(0, limit)
+
   return NextResponse.json({
     openDays,
     blockedDates,
     filters: { limit, minScore },
-    recommendations: scored.slice(0, limit),
+    meta: {
+      totalCatalog: ACTIVITY_CATALOG.length,
+      matchedCount: scored.length,
+      returnedCount: recommendations.length,
+    },
+    recommendations,
     availableSupport: ACTIVITY_CATALOG.map(({ title, supportBy, supportOffer, subscription }) => ({ title, supportBy, supportOffer, subscription })),
   })
 }
