@@ -62,6 +62,7 @@ export default function PlannerPage() {
   const [openDays, setOpenDays] = useState<string[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [availableSupport, setAvailableSupport] = useState<any[]>([])
+  const [recommendationMinScore, setRecommendationMinScore] = useState(0)
   const [selectedRecommendationId, setSelectedRecommendationId] = useState<string | null>(null)
   const [selectedRecommendationDetail, setSelectedRecommendationDetail] = useState<ActivityDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -77,7 +78,7 @@ export default function PlannerPage() {
     setError('')
     try {
       const [r1, r2, r3] = await Promise.all([
-        fetch('/api/activities/recommend').then((r) => r.json()),
+        fetch(`/api/activities/recommend?limit=6&minScore=${recommendationMinScore}`).then((r) => r.json()),
         fetch('/api/deadlines').then((r) => r.json()),
         fetch('/api/calendar-events').then((r) => r.json()),
       ])
@@ -95,7 +96,7 @@ export default function PlannerPage() {
 
   useEffect(() => {
     load()
-  }, [])
+  }, [recommendationMinScore])
 
   const today = new Date()
   const todayStr = today.toISOString().slice(0, 10)
@@ -329,6 +330,18 @@ export default function PlannerPage() {
         <div className="bg-white dark:bg-gray-900 rounded-2xl border p-6">
           <h2 className="font-semibold mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-indigo-600" /> Recommended Activities</h2>
           <p className="text-sm text-gray-500 mb-3">Open days: {openDays.join(', ') || 'None set'}</p>
+          <div className="mb-3 rounded-lg border p-2 bg-gray-50">
+            <label className="text-xs text-gray-600 block">Minimum fit score: {recommendationMinScore}</label>
+            <input
+              type="range"
+              min={0}
+              max={12}
+              step={1}
+              value={recommendationMinScore}
+              onChange={(e) => setRecommendationMinScore(Number(e.target.value))}
+              className="w-full"
+            />
+          </div>
           <div className="space-y-3 max-h-96 overflow-auto pr-1">
             {recommendations.map((r) => (
               <div key={r.id} className={`border rounded-xl p-4 hover:border-indigo-300 transition-colors ${selectedRecommendationId === r.id ? 'border-indigo-400 bg-indigo-50/50' : ''}`}>

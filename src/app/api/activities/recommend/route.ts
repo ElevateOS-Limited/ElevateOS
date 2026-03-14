@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { ACTIVITY_CATALOG } from '@/lib/activities'
@@ -10,7 +10,7 @@ function normalizeTags(input: string[]) {
   return input.map((i) => i.toLowerCase().trim()).filter(Boolean)
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -51,6 +51,12 @@ export async function GET() {
     }
   }
 
+  const params = req.nextUrl.searchParams
+  const requestedLimit = Number(params.get('limit') ?? '6')
+  const requestedMinScore = Number(params.get('minScore') ?? '0')
+  const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.trunc(requestedLimit), 1), 12) : 6
+  const minScore = Number.isFinite(requestedMinScore) ? Math.max(Math.trunc(requestedMinScore), 0) : 0
+
   const rawAvailability = (user.weeklyAvailability as any) ?? {}
   const availability = (rawAvailability?.weekly && typeof rawAvailability.weekly === 'object'
     ? rawAvailability.weekly
@@ -78,12 +84,14 @@ export async function GET() {
       const dayScore = openDays.length ? activity.days.filter((d) => openDays.includes(d)).length : 0
       return { ...activity, score: tagScore * 2 + dayScore }
     })
+    .filter((activity) => activity.score >= minScore)
     .sort((a, b) => b.score - a.score)
 
   return NextResponse.json({
     openDays,
     blockedDates,
-    recommendations: scored.slice(0, 6),
+    filters: { limit, minScore },
+    recommendations: scored.slice(0, limit),
     availableSupport: ACTIVITY_CATALOG.map(({ title, supportBy, supportOffer, subscription }) => ({ title, supportBy, supportOffer, subscription })),
   })
 }
