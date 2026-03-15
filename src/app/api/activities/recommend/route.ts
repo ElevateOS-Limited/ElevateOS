@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { ACTIVITY_CATALOG } from '@/lib/activities'
 import { DEMO_MODE } from '@/lib/auth/demo'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+const isDemoMode = DEMO_MODE || process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
+async function getPrisma() {
+  const { prisma } = await import('@/lib/prisma')
+  return prisma
+}
 
 type AvailabilityMap = Record<string, 'busy' | 'open'>
 
@@ -11,6 +21,17 @@ function normalizeTags(input: string[]) {
 }
 
 export async function GET() {
+  if (isDemoMode) {
+    return NextResponse.json({
+      ok: true,
+      demo: true,
+      openDays: ['Tuesday', 'Thursday', 'Saturday'],
+      blockedDates: [],
+      recommendations: ACTIVITY_CATALOG.slice(0, 6),
+      availableSupport: ACTIVITY_CATALOG.map(({ title, supportBy, supportOffer, subscription }) => ({ title, supportBy, supportOffer, subscription })),
+    })
+  }
+
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -22,6 +43,8 @@ export async function GET() {
     weeklyAvailability: unknown
     goals: unknown
   } | null = null
+
+  const prisma = await getPrisma()
 
   try {
     user = await prisma.user.findUnique({
