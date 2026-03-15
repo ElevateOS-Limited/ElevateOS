@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 import { withOrgScope } from '@/lib/db/org-scope'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+const isDemoMode = process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
+type RouteContext = { params: Promise<{ id: string }> }
+
+async function getPrisma() {
+  const { prisma } = await import('@/lib/prisma')
+  return prisma
+}
 
 const patchSchema = z.object({
   title: z.string().min(2).optional(),
@@ -31,7 +42,23 @@ function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>):
   return typeof orgId === 'string' && orgId.trim().length > 0 ? orgId : null
 }
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, ctx: RouteContext) {
+  const { id } = await ctx.params
+
+  if (isDemoMode) {
+    return NextResponse.json({
+      id,
+      title: 'Demo Activity',
+      providerName: 'Demo Provider',
+      description: 'Demo-mode response (no database dependency).',
+      status: 'active',
+      tags: [],
+      evidenceTemplates: [],
+      reviewLogs: [],
+    })
+  }
+
+  const prisma = await getPrisma()
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'PARENT', 'STUDENT', 'USER'])) return forbiddenResponse()
@@ -40,7 +67,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   const orgId = getSessionOrgId(session)
 
   const item = await prisma.activityOpportunity.findFirst({
-    where: withOrgScope(orgId, { id: params.id }),
+    where: withOrgScope(orgId, { id }),
     include: {
       tags: true,
       evidenceTemplates: true,
@@ -55,7 +82,14 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   return NextResponse.json(item)
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, ctx: RouteContext) {
+  const { id } = await ctx.params
+
+  if (isDemoMode) {
+    return NextResponse.json({ ok: true, id, mode: 'demo', write: 'disabled' }, { status: 200 })
+  }
+
+  const prisma = await getPrisma()
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
@@ -74,8 +108,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   const scopedWhere = canManage
-    ? withOrgScope(orgId, { id: params.id })
-    : withOrgScope(orgId, { id: params.id, createdByUserId: session.user.id })
+    ? withOrgScope(orgId, { id })
+    : withOrgScope(orgId, { id, createdByUserId: session.user.id })
 
   const existing = await prisma.activityOpportunity.findFirst({
     where: scopedWhere,
@@ -118,7 +152,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, ctx: RouteContext) {
+  const { id } = await ctx.params
+
+  if (isDemoMode) {
+    return NextResponse.json({ ok: true, id, mode: 'demo', write: 'disabled' }, { status: 200 })
+  }
+
+  const prisma = await getPrisma()
   const session = await getSessionOrDemo()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if (!hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR', 'USER'])) return forbiddenResponse()
@@ -126,8 +167,8 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
   const canManage = hasRequiredRole(session.user.role, ['OWNER', 'ADMIN', 'TUTOR'])
   const orgId = getSessionOrgId(session)
   const scopedWhere = canManage
-    ? withOrgScope(orgId, { id: params.id })
-    : withOrgScope(orgId, { id: params.id, createdByUserId: session.user.id })
+    ? withOrgScope(orgId, { id })
+    : withOrgScope(orgId, { id, createdByUserId: session.user.id })
 
   const existing = await prisma.activityOpportunity.findFirst({
     where: scopedWhere,

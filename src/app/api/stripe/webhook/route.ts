@@ -1,12 +1,27 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-import { stripe } from '@/lib/stripe/stripe'
-import { prisma } from '@/lib/prisma'
 import Stripe from 'stripe'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+const isDemoMode = process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
 export async function POST(req: Request) {
+  if (isDemoMode) {
+    return NextResponse.json({ received: true, mode: 'demo', stripe: 'disabled' })
+  }
+
   const body = await req.text()
-  const signature = headers().get('stripe-signature')!
+  const headerStore = await headers()
+  const signature = headerStore.get('stripe-signature')
+
+  if (!signature || !process.env.STRIPE_WEBHOOK_SECRET || !process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: 'Stripe is not configured' }, { status: 503 })
+  }
+
+  const [{ stripe }, { prisma }] = await Promise.all([import('@/lib/stripe/stripe'), import('@/lib/prisma')])
+
   let event: Stripe.Event
   try {
     event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
