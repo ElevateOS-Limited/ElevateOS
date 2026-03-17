@@ -3,6 +3,7 @@ import { generateStructuredOutput } from '@/lib/ai/openai'
 import { z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, useStaticDemoResponses } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 const schema = z.object({
   university: z.string(),
@@ -75,6 +76,7 @@ Return JSON:
     return NextResponse.json(result)
   } catch (e) {
     console.error(e)
-    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 })
+    return aiErrorResponse('openai', e, 'Analysis failed')
   }
 }
+

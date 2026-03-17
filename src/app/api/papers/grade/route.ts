@@ -3,6 +3,8 @@ import { getOpenAI, AI_MODEL } from '@/lib/ai/openai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoPaperGrade } from '@/lib/demo-ai'
+import { runWithAIProtection } from '@/lib/ai/resilience'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,25 +39,27 @@ ${JSON.stringify(answerKey)}
 Marking notes:
 ${markingNotes || 'Strict exact matching for objective questions; allow equivalent wording for short answers.'}`
 
-    const response = await getOpenAI().chat.completions.create({
-      model: AI_MODEL,
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'system',
-          content: 'You grade student papers from images and return valid JSON only.',
-        },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            { type: 'image_url', image_url: { url: imageDataUrl } },
-          ],
-        },
-      ],
-      max_tokens: 3000,
-    })
+    const response = await runWithAIProtection('openai', () =>
+      getOpenAI().chat.completions.create({
+        model: AI_MODEL,
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'system',
+            content: 'You grade student papers from images and return valid JSON only.',
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              { type: 'image_url', image_url: { url: imageDataUrl } },
+            ],
+          },
+        ],
+        max_tokens: 3000,
+      })
+    )
 
     const raw = response.choices[0]?.message?.content || '{}'
     const parsed = JSON.parse(raw)
@@ -67,6 +71,7 @@ ${markingNotes || 'Strict exact matching for objective questions; allow equivale
         { status: 503 }
       )
     }
-    return NextResponse.json({ error: error?.message || 'Failed to grade paper image' }, { status: 500 })
+    return aiErrorResponse('openai', error, 'Paper grading is temporarily unavailable')
   }
 }
+

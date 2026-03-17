@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 const schema = z.object({
   subject: z.string(),
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
     return NextResponse.json(worksheet)
   } catch (e) {
     console.error(e)
-    return NextResponse.json({ error: 'Failed to generate worksheet' }, { status: 500 })
+    return aiErrorResponse('openai', e, 'Failed to generate worksheet')
   }
 }
 
@@ -131,3 +132,4 @@ export async function GET(req: Request) {
 
   return NextResponse.json(worksheets)
 }
+

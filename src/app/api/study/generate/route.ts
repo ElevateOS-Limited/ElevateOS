@@ -4,6 +4,7 @@ import { generateStudyNotes } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       )
     }
     console.error('Study generation error:', error)
-    return NextResponse.json({ error: 'Failed to generate study materials' }, { status: 500 })
+    return aiErrorResponse('anthropic', error, 'Failed to generate study materials')
   }
 }
 
@@ -100,3 +101,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 })
   }
 }
+

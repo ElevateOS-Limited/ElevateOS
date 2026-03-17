@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, useStaticDemoResponses } from '@/lib/demo-ai'
+import { runWithAIProtection } from '@/lib/ai/resilience'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(req: Request) {
   const session = await getSessionOrDemo()
@@ -44,12 +46,14 @@ Always be encouraging, specific, and helpful. Keep responses concise and actiona
       { role: 'user' as const, content: message },
     ]
 
-    const response = await getOpenAI().chat.completions.create({
-      model: AI_MODEL,
-      messages: [{ role: 'system', content: systemPrompt }, ...messages],
-      max_tokens: 500,
-      temperature: 0.7,
-    })
+    const response = await runWithAIProtection('openai', () =>
+      getOpenAI().chat.completions.create({
+        model: AI_MODEL,
+        messages: [{ role: 'system', content: systemPrompt }, ...messages],
+        max_tokens: 500,
+        temperature: 0.7,
+      })
+    )
 
     const reply = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.'
 
@@ -69,7 +73,7 @@ Always be encouraging, specific, and helpful. Keep responses concise and actiona
         { status: 503 }
       )
     }
-    console.error(e)
-    return NextResponse.json({ error: 'Chat failed' }, { status: 500 })
+    return aiErrorResponse('openai', e, 'AI assistant is temporarily unavailable')
   }
 }
+

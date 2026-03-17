@@ -1,0 +1,18 @@
+
+> edutech@0.1.0 test:ci
+> vitest run tests/p0-routes.spec.ts
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.0[39m [90mC:/Users/School/Downloads/Documents/GitHub/elevateos-demo[39m
+
+ [32m✓[39m tests/p0-routes.spec.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 152[2mms[22m[39m
+[90mstdout[2m | tests/p0-routes.spec.ts[2m > [22m[2mP0 AI route behavior with mocked OpenAI failures[2m > [22m[2mreturns classified 429 when provider is rate-limited[22m[39m
+{"metric":"ai_provider","provider":"openai","event":"failure","at":"2026-03-17T09:17:44.692Z","failures":1,"code":"RATE_LIMIT","statusCode":429,"retryable":true}
+
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 18:17:44
+[2m   Duration [22m 702ms[2m (transform 108ms, setup 1ms, collect 38ms, tests 152ms, environment 0ms, prepare 135ms)[22m
+

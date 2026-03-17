@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { AIConfigError } from '@/lib/ai/errors'
+import { runWithAIProtection } from '@/lib/ai/resilience'
 
 function resolveAnthropicApiKey() {
   const key = (process.env.ANTHROPIC_API_KEY || '').trim()
@@ -28,15 +29,17 @@ export interface AICompletionOptions {
 export async function aiComplete(options: AICompletionOptions): Promise<string> {
   const { messages, system, maxTokens = 4096 } = options
 
-  const response = await getAnthropic().messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: maxTokens,
-    system: system || 'You are EduTech AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
-    messages: messages.map(m => ({
-      role: m.role,
-      content: m.content,
-    })),
-  })
+  const response = await runWithAIProtection('anthropic', () =>
+    getAnthropic().messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: maxTokens,
+      system: system || 'You are EduTech AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
+      messages: messages.map(m => ({
+        role: m.role,
+        content: m.content,
+      })),
+    })
+  )
 
   const content = response.content[0]
   if (content.type === 'text') return content.text
@@ -46,15 +49,20 @@ export async function aiComplete(options: AICompletionOptions): Promise<string> 
 export async function* aiStream(options: AICompletionOptions): AsyncGenerator<string> {
   const { messages, system, maxTokens = 4096 } = options
 
-  const stream = await getAnthropic().messages.stream({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: maxTokens,
-    system: system || 'You are EduTech AI, an expert academic assistant.',
-    messages: messages.map(m => ({
-      role: m.role,
-      content: m.content,
-    })),
-  })
+  const stream = await runWithAIProtection(
+    'anthropic',
+    () =>
+      getAnthropic().messages.stream({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: maxTokens,
+        system: system || 'You are EduTech AI, an expert academic assistant.',
+        messages: messages.map(m => ({
+          role: m.role,
+          content: m.content,
+        })),
+      }),
+    Number(process.env.AI_STREAM_TIMEOUT_MS || 60000)
+  )
 
   for await (const chunk of stream) {
     if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {

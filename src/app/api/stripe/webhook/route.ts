@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { stripe } from '@/lib/stripe/stripe'
 import { prisma } from '@/lib/prisma'
 import Stripe from 'stripe'
+import { getStripeWebhookRecord, markStripeWebhookStatus } from '@/lib/stripe/webhook-events'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -13,6 +14,13 @@ export async function POST(req: Request) {
   } catch (e) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
+
+  const existing = await getStripeWebhookRecord(event.id)
+  if (existing?.status === 'processed') {
+    return NextResponse.json({ received: true, replay: true })
+  }
+
+  await markStripeWebhookStatus(event.id, event.type, 'received')
 
   try {
     switch (event.type) {
@@ -39,8 +47,10 @@ export async function POST(req: Request) {
         break
       }
     }
+    await markStripeWebhookStatus(event.id, event.type, 'processed')
     return NextResponse.json({ received: true })
-  } catch (e) {
+  } catch (e: any) {
+    await markStripeWebhookStatus(event.id, event.type, 'failed', e?.message || 'unknown_error')
     return NextResponse.json({ error: 'Webhook failed' }, { status: 500 })
   }
 }

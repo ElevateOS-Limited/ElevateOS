@@ -5,6 +5,7 @@ import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
       )
     }
     console.error('Worksheet generation error:', error)
-    return NextResponse.json({ error: 'Failed to generate worksheet' }, { status: 500 })
+    return aiErrorResponse('anthropic', error, 'Failed to generate worksheet')
   }
 }
+

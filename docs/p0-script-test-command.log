@@ -1,0 +1,9 @@
+(node:26260) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/School/Downloads/Documents/GitHub/elevateos-demo/scripts/p0-tests.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\School\Downloads\Documents\GitHub\elevateos-demo\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"metric":"ai_provider","provider":"openai","event":"failure","at":"2026-03-17T09:17:55.242Z","failures":1,"code":"TIMEOUT","statusCode":504,"retryable":true}
+{"metric":"ai_provider","provider":"openai","event":"failure","at":"2026-03-17T09:17:55.242Z","failures":2,"code":"UNKNOWN","statusCode":502,"retryable":false}
+{"metric":"ai_provider","provider":"openai","event":"circuit_opened","at":"2026-03-17T09:17:55.242Z","failures":3,"openedUntilMs":1773739105242,"code":"UNKNOWN"}
+{"metric":"ai_provider","provider":"openai","event":"failure","at":"2026-03-17T09:17:55.242Z","failures":3,"code":"UNKNOWN","statusCode":502,"retryable":false}
+P0 tests passed

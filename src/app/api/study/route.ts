@@ -4,6 +4,7 @@ import { getSessionOrDemo } from '@/lib/auth/session'
 import { generateCompletion, generateStructuredOutput } from '@/lib/ai/openai'
 import { z } from 'zod'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 const schema = z.object({
   title: z.string(),
@@ -87,7 +88,7 @@ Generate a JSON response with:
     return NextResponse.json(material)
   } catch (e) {
     console.error(e)
-    return NextResponse.json({ error: 'Failed to process material' }, { status: 500 })
+    return aiErrorResponse('openai', e, 'Failed to process material')
   }
 }
 
@@ -102,3 +103,4 @@ export async function GET(req: Request) {
 
   return NextResponse.json(materials)
 }
+

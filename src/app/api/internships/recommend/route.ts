@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getInternshipRecommendations } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, useStaticDemoResponses, demoInternshipRecommendations } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +24,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ recommendations })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to get recommendations' }, { status: 500 })
+    return aiErrorResponse('anthropic', error, 'Failed to get recommendations')
   }
 }
+

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { DEMO_MODE } from '@/lib/auth/demo'
+import { refreshUserStripeState } from '@/lib/stripe/reconcile'
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -57,6 +58,15 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSessionOrDemo()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    try {
+      await refreshUserStripeState(session.user.id)
+    } catch (error) {
+      console.warn('stripe_refresh_failed', {
+        userId: session.user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
