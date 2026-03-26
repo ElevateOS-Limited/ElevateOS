@@ -1,37 +1,40 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { spawnSync } from 'node:child_process'
+import { NextRequest, NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic'
 
 function getGitCommit() {
-  const probe = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    stdio: 'pipe',
-    shell: false,
-  })
-  if (probe.status !== 0) {
-    return 'unknown'
-  }
-  return (probe.stdout || '').trim() || 'unknown'
+  return (
+    process.env.APP_GIT_COMMIT ||
+    process.env.SOURCE_COMMIT ||
+    process.env.GITHUB_SHA?.slice(0, 7) ||
+    'unknown'
+  )
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const startedAt = Date.now()
+  const deepCheckRequested = request.nextUrl.searchParams.get('check') === 'db'
 
-  let db = { ok: false, message: 'not checked' }
-  if (!process.env.DATABASE_URL) {
-    db = { ok: false, message: 'DATABASE_URL not set' }
-  } else {
+  let db: { checked: boolean; ok: boolean | null; message: string } = {
+    checked: false,
+    ok: null,
+    message: 'skipped',
+  }
+
+  if (deepCheckRequested && !process.env.DATABASE_URL) {
+    db = { checked: true, ok: false, message: 'DATABASE_URL not set' }
+  } else if (deepCheckRequested) {
     try {
+      const { prisma } = await import('@/lib/prisma')
       await prisma.$queryRaw`SELECT 1`
-      db = { ok: true, message: 'ok' }
+      db = { checked: true, ok: true, message: 'ok' }
     } catch (e: any) {
-      db = { ok: false, message: e?.message || 'db error' }
+      db = { checked: true, ok: false, message: e?.message || 'db error' }
     }
   }
 
   const payload = {
-    status: db.ok ? 'ok' : 'degraded',
+    status: db.checked && db.ok === false ? 'degraded' : 'ok',
     service: 'edutech-demo',
     env: process.env.NODE_ENV || 'unknown',
     buildVersion: process.env.APP_VERSION || 'v0.0.0',

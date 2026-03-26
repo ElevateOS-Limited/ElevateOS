@@ -17,11 +17,12 @@ npm install
 npx prisma generate
 npx prisma db push
 npm run build
+$env:PORT=3000
 pm2 start npm --name edutech-demo -- start
 pm2 save
 ```
 
-App will run on port 3000 by default.
+The production start script listens on `PORT`. For this VPS setup, use `PORT=3000` and proxy to that port.
 
 ## 4) TLS + domain reverse proxy
 Install nginx (if not installed), then use this server block:

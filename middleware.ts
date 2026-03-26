@@ -13,8 +13,13 @@ const blockedAgents = [
 ]
 
 const badQuery = /(\.\.|%2e%2e|union\s+select|select\s+.*from|<script|\/etc\/passwd)/i
+const healthPaths = new Set(['/healthz', '/api/health'])
 
 export function middleware(req: NextRequest) {
+  if (healthPaths.has(req.nextUrl.pathname)) {
+    return NextResponse.next()
+  }
+
   const ua = req.headers.get('user-agent') || ''
   const q = req.nextUrl.search || ''
 
@@ -35,5 +40,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|healthz|api/health).*)'],
 }
