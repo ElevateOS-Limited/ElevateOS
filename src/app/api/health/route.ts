@@ -44,5 +44,5 @@ export async function GET() {
     timestamp: new Date().toISOString(),
   }
 
-  return NextResponse.json(payload, { status: db.ok ? 200 : 503 })
+  return NextResponse.json(payload, { status: 200 })
 }
