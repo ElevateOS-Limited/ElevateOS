@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCheckoutSession } from '@/lib/stripe'
 import { getSessionOrDemo } from '@/lib/auth/session'
+import { getAppUrl } from '@/lib/app-url'
 
 const PRICE_MAP: Record<string, string> = {
   pro_monthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || '',
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 })
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+    const appUrl = getAppUrl(new URL(request.url).origin)
     const checkoutSession = await createCheckoutSession({
       userId: session.user.id,
       email: session.user.email!,

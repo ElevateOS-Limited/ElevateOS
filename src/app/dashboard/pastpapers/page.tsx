@@ -12,6 +12,22 @@ interface Question {
   marks: number
 }
 
+function calculateScore(exam: Question[] | null, answers: Record<number, string>) {
+  let total = 0
+
+  exam?.forEach((question, index) => {
+    const userAnswer = answers[index]?.trim().toLowerCase() || ''
+    const correctAnswer = question.answer.trim().toLowerCase()
+    if (question.type === 'multiple_choice') {
+      if (userAnswer && correctAnswer.includes(userAnswer.charAt(0))) total += question.marks
+    } else if (userAnswer.length > 10) {
+      total += Math.ceil(question.marks * 0.7)
+    }
+  })
+
+  return total
+}
+
 export default function PastPapersPage() {
   const [setup, setSetup] = useState({ curriculum: 'IB', subject: '', duration: '60', questionCount: '20' })
   const [loading, setLoading] = useState(false)
@@ -28,13 +44,18 @@ export default function PastPapersPage() {
     if (exam && !submitted && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft(t => {
-          if (t <= 1) { handleSubmit(); return 0 }
+          if (t <= 1) {
+            clearInterval(timerRef.current)
+            setSubmitted(true)
+            setScore(calculateScore(exam, answers))
+            return 0
+          }
           return t - 1
         })
       }, 1000)
     }
     return () => clearInterval(timerRef.current)
-  }, [exam, submitted])
+  }, [answers, exam, submitted, timeLeft])
 
   const startExam = async () => {
     setLoading(true)
@@ -66,17 +87,7 @@ export default function PastPapersPage() {
   const handleSubmit = () => {
     clearInterval(timerRef.current)
     setSubmitted(true)
-    let total = 0
-    exam?.forEach((q, i) => {
-      const userAnswer = answers[i]?.trim().toLowerCase() || ''
-      const correct = q.answer.trim().toLowerCase()
-      if (q.type === 'multiple_choice') {
-        if (userAnswer && correct.includes(userAnswer.charAt(0))) total += q.marks
-      } else {
-        if (userAnswer.length > 10) total += Math.ceil(q.marks * 0.7) // partial credit for written
-      }
-    })
-    setScore(total)
+    setScore(calculateScore(exam, answers))
   }
 
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`

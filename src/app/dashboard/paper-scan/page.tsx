@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { ScanLine, Loader2, Crown } from 'lucide-react'
@@ -54,7 +55,16 @@ export default function PaperScanPage() {
 
       <div className="bg-white dark:bg-gray-900 border rounded-2xl p-5 space-y-4">
         <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} />
-        {imageDataUrl && <img src={imageDataUrl} alt="paper" className="max-h-72 rounded-lg border" />}
+        {imageDataUrl && (
+          <Image
+            src={imageDataUrl}
+            alt="paper"
+            width={1200}
+            height={900}
+            unoptimized
+            className="max-h-72 w-auto rounded-lg border"
+          />
+        )}
 
         <div>
           <label className="text-sm font-medium">Answer key JSON</label>

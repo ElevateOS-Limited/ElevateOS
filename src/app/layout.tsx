@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/layout/Providers'
+import { getAppUrl } from '@/lib/app-url'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://thinkcollegelevel.com'),
+  metadataBase: new URL(getAppUrl()),
   title: 'EduTech - AI-Powered Study Platform',
   description: 'Premium AI study platform for IB, AP, SAT, ACT students and university admissions',
   applicationName: 'EduTech',

@@ -3,7 +3,7 @@ import { getOpenAI, AI_MODEL } from '@/lib/ai/openai'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
-import { enforceAIDemoGuard, useStaticDemoResponses } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses } from '@/lib/demo-ai'
 
 export async function POST(req: Request) {
   const session = await getSessionOrDemo()
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const { message, history = [] } = await req.json()
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       const reply = `Demo Assistant (static): Based on your message, I recommend a 3-step plan — (1) clarify target universities and major, (2) prioritize one flagship extracurricular with measurable impact, and (3) build a 90-day execution timeline with weekly checkpoints.`
       await prisma.chatMessage.createMany({
         data: [

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { analyzeUniversityFit } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoAdmissionsAnalysis } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoAdmissionsAnalysis } from '@/lib/demo-ai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please add at least one university' }, { status: 400 })
     }
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       return NextResponse.json(demoAdmissionsAnalysis(universities, intendedMajor))
     }
 

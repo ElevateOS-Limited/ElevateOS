@@ -12,7 +12,7 @@ function parseAllowlist() {
     .filter(Boolean)
 }
 
-export function useStaticDemoResponses() {
+export function shouldUseStaticDemoResponses() {
   return STATIC_RESPONSES
 }
 

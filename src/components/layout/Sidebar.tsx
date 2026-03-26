@@ -15,25 +15,37 @@ type SidebarProps = {
 
 const STORAGE_KEY = 'edutech.sidebar.state'
 
+function getStoredSidebarState() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) {
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(raw)
+    return {
+      collapsed: typeof parsed.collapsed === 'boolean' ? parsed.collapsed : false,
+      openGroups: Array.isArray(parsed.openGroups) ? parsed.openGroups : null,
+    }
+  } catch {
+    return null
+  }
+}
+
 export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [collapsed, setCollapsed] = useState(false)
-  const [openGroups, setOpenGroups] = useState<string[]>(['dashboard', 'learn', 'plan', 'apply'])
+  const [collapsed, setCollapsed] = useState<boolean>(() => getStoredSidebarState()?.collapsed ?? false)
+  const [openGroups, setOpenGroups] = useState<string[]>(() => getStoredSidebarState()?.openGroups ?? ['dashboard', 'learn', 'plan', 'apply'])
   const [search, setSearch] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(0)
   const [showQuickActions, setShowQuickActions] = useState(false)
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw)
-        if (typeof parsed.collapsed === 'boolean') setCollapsed(parsed.collapsed)
-        if (Array.isArray(parsed.openGroups)) setOpenGroups(parsed.openGroups)
-      } catch {}
-    }
-
     fetch('/api/sidebar-preferences')
       .then((r) => r.json())
       .then((data) => {

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { generateStructuredOutput } from '@/lib/ai/openai'
 import { ZodError, z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { canReadOrgWide, forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       }>
     }
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       const demo = demoWorksheet(data.topics || data.subject)
       result = {
         title: `${data.subject} Demo Worksheet`,

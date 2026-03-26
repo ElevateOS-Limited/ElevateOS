@@ -2,11 +2,15 @@
   "name": "edutech",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "node scripts/start-prod.mjs",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -49,7 +53,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
-    "eslint": "^10.0.0",
+    "eslint": "^9.39.4",
     "eslint-config-next": "^16.1.6",
     "postcss": "^8",
     "prisma": "^5.15.0",

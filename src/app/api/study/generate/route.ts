@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { generateStudyNotes } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate study materials with AI (or static demo output)
-    const materials = useStaticDemoResponses()
+    const materials = shouldUseStaticDemoResponses()
       ? demoStudyPack(subject || 'General', curriculum || 'IB')
       : await generateStudyNotes(
           combinedContent || `Generate comprehensive study notes for ${subject} ${curriculum} curriculum`,

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { generateCompletion, generateStructuredOutput } from '@/lib/ai/openai'
 import { z } from 'zod'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
 
 const schema = z.object({
   title: z.string(),
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       studyPlan: string
     }
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       const demo = demoStudyPack(data.subject || 'General', data.curriculum || 'IB')
       result = {
         summary: demo.summary,

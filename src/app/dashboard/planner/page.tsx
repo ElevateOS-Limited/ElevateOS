@@ -84,7 +84,7 @@ export default function PlannerPage() {
     load()
   }, [])
 
-  const today = new Date()
+  const today = useMemo(() => new Date(), [])
   const todayStr = today.toISOString().slice(0, 10)
 
   const stats = useMemo(() => {

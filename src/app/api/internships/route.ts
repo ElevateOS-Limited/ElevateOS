@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { generateStructuredOutput } from '@/lib/ai/openai'
 import { z } from 'zod'
 import { getSessionOrDemo } from '@/lib/auth/session'
-import { enforceAIDemoGuard, useStaticDemoResponses } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses } from '@/lib/demo-ai'
 
 const schema = z.object({
   major: z.string(),
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     const body = await req.json()
     const data = schema.parse(body)
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       return NextResponse.json({
         internships: [
           {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe/stripe'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
+import { getAppUrl } from '@/lib/app-url'
 
 export async function POST(req: Request) {
   const session = await getSessionOrDemo()
@@ -19,13 +20,14 @@ export async function POST(req: Request) {
       await prisma.user.update({ where: { id: user.id }, data: { stripeCustomerId: customerId } })
     }
 
+    const appUrl = getAppUrl(new URL(req.url).origin)
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/pricing?canceled=true`,
+      success_url: `${appUrl}/dashboard?success=true`,
+      cancel_url: `${appUrl}/pricing?canceled=true`,
       subscription_data: { trial_period_days: 7 },
     })
 

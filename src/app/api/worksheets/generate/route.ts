@@ -3,7 +3,7 @@ import { generateWorksheet } from '@/lib/ai'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoWorksheet } from '@/lib/demo-ai'
 import { forbiddenResponse, hasRequiredRole } from '@/lib/auth/roles'
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     if (!normalizedTopic) return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
 
-    const result = useStaticDemoResponses()
+    const result = shouldUseStaticDemoResponses()
       ? demoWorksheet(normalizedTopic)
       : await generateWorksheet({
           subject: subject || 'General',

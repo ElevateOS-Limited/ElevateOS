@@ -10,6 +10,11 @@ export default function RegisterPage() {
   const signupEnabled = process.env.NEXT_PUBLIC_ENABLE_SIGNUP === 'true'
   const router = useRouter()
   const [form, setForm] = useState({ name: '', email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [isAokTutor, setIsAokTutor] = useState(false)
+  const [aokInviteCode, setAokInviteCode] = useState('')
 
   if (!signupEnabled) {
     return (
@@ -22,11 +27,6 @@ export default function RegisterPage() {
       </div>
     )
   }
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [isAokTutor, setIsAokTutor] = useState(false)
-  const [aokInviteCode, setAokInviteCode] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

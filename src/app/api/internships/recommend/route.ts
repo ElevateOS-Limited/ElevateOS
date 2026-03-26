@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getInternshipRecommendations } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoInternshipRecommendations } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoInternshipRecommendations } from '@/lib/demo-ai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const { major, careerInterests, skills, location } = await request.json()
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       return NextResponse.json(demoInternshipRecommendations(major, location))
     }
 

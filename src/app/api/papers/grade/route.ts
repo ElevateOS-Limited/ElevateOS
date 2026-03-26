@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getOpenAI, AI_MODEL } from '@/lib/ai/openai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoPaperGrade } from '@/lib/demo-ai'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoPaperGrade } from '@/lib/demo-ai'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'imageDataUrl and answerKey are required' }, { status: 400 })
     }
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       return NextResponse.json(demoPaperGrade(answerKey))
     }
 

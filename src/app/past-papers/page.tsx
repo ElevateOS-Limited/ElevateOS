@@ -9,6 +9,23 @@ import toast from 'react-hot-toast'
 const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
 const CURRICULA = ['IB', 'AP', 'SAT', 'ACT', 'A-Level']
 
+function calculateScore(exam: any, answers: Record<number, string>) {
+  if (!exam?.answers || !Array.isArray(exam.questions)) {
+    return null
+  }
+
+  let correct = 0
+  ;(exam.questions as any[]).forEach((question: any, index: number) => {
+    const userAnswer = answers[question.id]?.toLowerCase().trim()
+    const correctAnswer = (exam.answers as any[])[index]?.answer?.toLowerCase().trim()
+    if (userAnswer && correctAnswer && (userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer))) {
+      correct += 1
+    }
+  })
+
+  return Math.round((correct / (exam.questions as any[]).length) * 100)
+}
+
 export default function PastPapersPage() {
   const [form, setForm] = useState({ subject: '', curriculum: 'IB', duration: 60, questionCount: 15 })
   const [exam, setExam] = useState<any>(null)
@@ -39,24 +56,16 @@ export default function PastPapersPage() {
       timerRef.current = setTimeout(() => setTimeLeft(t => t - 1), 1000)
     } else if (timeLeft === 0 && running) {
       setRunning(false)
-      handleFinish()
+      setFinished(true)
+      setScore(calculateScore(exam, answers))
     }
     return () => clearTimeout(timerRef.current)
-  }, [running, timeLeft])
+  }, [answers, exam, running, timeLeft])
 
   const handleFinish = () => {
     setFinished(true)
     setRunning(false)
-    if (exam?.answers) {
-      let correct = 0
-      ;(exam.questions as any[]).forEach((q: any, i: number) => {
-        const userAns = answers[q.id]?.toLowerCase().trim()
-        const correctAns = (exam.answers as any[])[i]?.answer?.toLowerCase().trim()
-        if (userAns && correctAns && (userAns.includes(correctAns) || correctAns.includes(userAns))) correct++
-      })
-      const pct = Math.round((correct / (exam.questions as any[]).length) * 100)
-      setScore(pct)
-    }
+    setScore(calculateScore(exam, answers))
   }
 
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`

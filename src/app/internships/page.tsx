@@ -113,7 +113,7 @@ export default function InternshipsPage() {
               <div className="flex flex-col items-center justify-center h-full min-h-64 text-gray-400">
                 <Briefcase className="w-16 h-16 mb-4 opacity-30" />
                 <p className="text-lg font-medium">Complete your profile to find internships</p>
-                <p className="text-sm">We'll recommend curated opportunities</p>
+                <p className="text-sm">We&apos;ll recommend curated opportunities</p>
               </div>
             )}
           </div>
