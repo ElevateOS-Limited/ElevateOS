@@ -11,7 +11,7 @@ export default function AuthErrorPage() {
           <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
             <Brain className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold gradient-text">EduTech</span>
+          <span className="text-2xl font-bold gradient-text">ElevateOS</span>
         </Link>
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800 max-w-sm">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />

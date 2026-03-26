@@ -10,7 +10,7 @@ import { useEffect, useRef } from 'react'
 
 const queryClient = new QueryClient()
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_USER_EMAIL ?? 'demo@thinkcollegelevel.com'
+const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_USER_EMAIL ?? 'demo@elevateos.org'
 const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_USER_PASSWORD ?? 'demopassword123'
 
 function DemoAutoSignIn() {

@@ -30,10 +30,10 @@ export default function LoginPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-2xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">EduTech</span>
+            <span className="font-bold text-2xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">ElevateOS</span>
           </Link>
           <h1 className="text-3xl font-bold">Welcome back</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Sign in to your account</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Sign in to your study workspace</p>
           <p className="text-xs text-indigo-500 mt-2">AoK tutors: sign in to access full Pro features at no cost.</p>
         </div>
 
@@ -79,7 +79,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-          Account access is invite-only. Please contact admin for your ID and password.
+          Account access is invite-only unless public signup is enabled. Please contact admin if you need access.
         </p>
       </div>
     </div>

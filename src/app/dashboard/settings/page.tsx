@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Settings, User, Save, Loader, Plus, X } from 'lucide-react'
 import { CURRICULA, GRADE_LEVELS } from '@/lib/utils'
@@ -269,7 +270,7 @@ export default function SettingsPage() {
           <div className="flex justify-between"><span className="text-gray-500">Plan</span><span className="capitalize font-medium text-violet-600">{session?.user?.plan?.toLowerCase() || 'free'}</span></div>
         </div>
         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <a href="/pricing" className="text-sm text-violet-600 hover:underline">Upgrade plan for more activity support →</a>
+          <Link href="/pricing" className="text-sm text-violet-600 hover:underline">Upgrade plan for more activity support →</Link>
         </div>
       </div>
     </div>

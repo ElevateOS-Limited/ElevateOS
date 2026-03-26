@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { Crown } from 'lucide-react'
@@ -19,7 +20,7 @@ export default function AnalyticsPage() {
           <Crown className="w-8 h-8 text-amber-500 mx-auto mb-3" />
           <h1 className="text-2xl font-bold mb-2">Advanced Analytics is Pro</h1>
           <p className="text-gray-600 mb-4">Unlock trend charts, deep weak-area diagnostics, and cohort benchmarks.</p>
-          <a href="/pricing" className="inline-block px-5 py-2.5 rounded-xl bg-indigo-600 text-white">Upgrade Plan</a>
+          <Link href="/pricing" className="inline-block px-5 py-2.5 rounded-xl bg-indigo-600 text-white">Upgrade Plan</Link>
         </div>
       </div>
     )

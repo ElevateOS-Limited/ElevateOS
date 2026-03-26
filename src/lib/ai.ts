@@ -31,7 +31,7 @@ export async function aiComplete(options: AICompletionOptions): Promise<string> 
   const response = await getAnthropic().messages.create({
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: maxTokens,
-    system: system || 'You are EduTech AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
+    system: system || 'You are ElevateOS AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
     messages: messages.map(m => ({
       role: m.role,
       content: m.content,
@@ -49,7 +49,7 @@ export async function* aiStream(options: AICompletionOptions): AsyncGenerator<st
   const stream = await getAnthropic().messages.stream({
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: maxTokens,
-    system: system || 'You are EduTech AI, an expert academic assistant.',
+    system: system || 'You are ElevateOS AI, an expert academic assistant.',
     messages: messages.map(m => ({
       role: m.role,
       content: m.content,

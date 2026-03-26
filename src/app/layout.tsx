@@ -5,9 +5,9 @@ import { getAppUrl } from '@/lib/app-url'
 
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
-  title: 'EduTech - AI-Powered Study Platform',
-  description: 'Premium AI study platform for IB, AP, SAT, ACT students and university admissions',
-  applicationName: 'EduTech',
+  title: 'ElevateOS | Study Planning And Tutoring Workflows',
+  description: 'Study planning, practice, progress tracking, and tutoring workflows for serious students and tutors.',
+  applicationName: 'ElevateOS',
   authors: [{ name: 'Howard' }],
   creator: 'Howard',
   publisher: 'Howard',

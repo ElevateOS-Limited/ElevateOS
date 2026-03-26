@@ -13,7 +13,8 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const publicSignupEnabled = process.env.PUBLIC_SIGNUP_ENABLED === 'true'
+    const publicSignupEnabled =
+      process.env.PUBLIC_SIGNUP_ENABLED === 'true' || process.env.NEXT_PUBLIC_ENABLE_SIGNUP === 'true'
     if (!publicSignupEnabled) {
       return NextResponse.json({ error: 'Signup is disabled. Contact admin for account access.' }, { status: 403 })
     }

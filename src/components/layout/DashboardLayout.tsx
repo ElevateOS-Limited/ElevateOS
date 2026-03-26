@@ -36,7 +36,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-lg gradient-text">EduTech</span>
+              <span className="font-bold text-lg gradient-text">ElevateOS</span>
             </Link>
             <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
               <X className="w-5 h-5" />
@@ -99,7 +99,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <button onClick={() => setSidebarOpen(true)}>
             <Menu className="w-5 h-5" />
           </button>
-          <Link href="/dashboard" className="font-bold gradient-text">EduTech</Link>
+          <Link href="/dashboard" className="font-bold gradient-text">ElevateOS</Link>
           <div className="w-5" />
         </header>
         <main className="flex-1 overflow-y-auto">

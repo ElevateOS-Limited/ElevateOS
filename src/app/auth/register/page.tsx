@@ -64,10 +64,10 @@ export default function RegisterPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
               <Brain className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold gradient-text">EduTech</span>
+            <span className="text-2xl font-bold gradient-text">ElevateOS</span>
           </Link>
-          <h1 className="text-3xl font-bold mb-2">Start your journey</h1>
-          <p className="text-gray-600 dark:text-gray-400">Free forever. Upgrade anytime.</p>
+          <h1 className="text-3xl font-bold mb-2">Create your account</h1>
+          <p className="text-gray-600 dark:text-gray-400">Start with the core study workflow and upgrade when you need more capacity.</p>
           <p className="text-xs text-violet-500 mt-2">AoK tutors can activate free Pro access with invite code.</p>
         </div>
 
@@ -169,7 +169,7 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-50"
             >
-              {loading ? 'Creating account...' : 'Create Free Account'}
+              {loading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
 

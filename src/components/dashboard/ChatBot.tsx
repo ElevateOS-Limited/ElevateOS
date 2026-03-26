@@ -12,7 +12,7 @@ interface Message {
 export default function ChatBot() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi! I'm your EduTech AI assistant. I can help you with study questions, explain platform features, or assist with any academic topic. What would you like to know?" }
+    { role: 'assistant', content: "Hi! I'm your ElevateOS assistant. I can help with study questions, platform features, and planning next steps. What would you like to work on?" }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -64,7 +64,7 @@ export default function ChatBot() {
               <Bot className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-semibold">EduTech AI</p>
+              <p className="font-semibold">ElevateOS Assistant</p>
               <p className="text-xs text-violet-200">Always here to help</p>
             </div>
           </div>

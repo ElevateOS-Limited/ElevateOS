@@ -54,7 +54,7 @@ export default function SignupPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-2xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">EduTech</span>
+            <span className="font-bold text-2xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">ElevateOS</span>
           </Link>
           <h1 className="text-3xl font-bold">Create your account</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Start your 7-day free trial</p>
@@ -116,6 +116,12 @@ export default function SignupPage() {
               Create Account
             </button>
           </form>
+
+          <p className="text-center text-xs text-gray-500 mt-4">
+            By signing up, you agree to our{' '}
+            <Link href="/terms" className="underline">Terms</Link> and{' '}
+            <Link href="/privacy" className="underline">Privacy Policy</Link>
+          </p>
         </div>
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">

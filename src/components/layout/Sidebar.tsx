@@ -106,7 +106,7 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
       <div className={cn('border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2', collapsed ? 'p-4' : 'p-4')}>
         <Link href="/dashboard" className={cn('flex items-center min-w-0', collapsed ? 'justify-center w-full' : 'gap-2')}>
           <div className={cn('bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center', collapsed ? 'w-9 h-9' : 'w-8 h-8')}><Brain className={cn('text-white', collapsed ? 'w-6 h-6' : 'w-5 h-5')} /></div>
-          {!collapsed && <span className="text-xl font-bold gradient-text truncate">EduTech</span>}
+          {!collapsed && <span className="text-xl font-bold gradient-text truncate">ElevateOS</span>}
         </Link>
         <button onClick={() => setCollapsed((v) => !v)} className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
           <PanelLeft className="w-4 h-4" />

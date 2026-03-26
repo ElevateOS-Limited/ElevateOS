@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
   const payload = {
     status: db.checked && db.ok === false ? 'degraded' : 'ok',
-    service: 'edutech-demo',
+    service: 'elevateos',
     env: process.env.NODE_ENV || 'unknown',
     buildVersion: process.env.APP_VERSION || 'v0.0.0',
     gitCommit: getGitCommit(),

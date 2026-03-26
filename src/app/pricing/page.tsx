@@ -11,7 +11,7 @@ const plans = [
     name: 'Free',
     price: 0,
     period: null,
-    features: ['5 AI study sessions/day', 'Basic worksheet generation', '1 admissions analysis/month', 'Platform chatbot', 'Community access'],
+    features: ['5 AI study sessions/month', '3 worksheet generations/month', 'Student profile + planner', 'Platform chatbot', 'Community access'],
     cta: 'Get Started Free',
     href: '/auth/signup',
     gradient: false,
@@ -21,7 +21,7 @@ const plans = [
     price: 19,
     period: '/month',
     priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID,
-    features: ['Unlimited AI study sessions', 'Unlimited worksheets', 'Past paper simulations', 'Unlimited admissions analysis', 'Essay writing assistant', 'Internship recommender', 'Priority AI responses', 'Export to PDF'],
+    features: ['Unlimited AI study sessions', 'Unlimited worksheets', 'Past paper simulations', 'Admissions workspace', 'Internship recommender', 'Priority AI responses', 'Export to PDF'],
     cta: 'Start Free Trial',
     gradient: true,
   },
@@ -31,7 +31,7 @@ const plans = [
     period: '/year',
     priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID,
     badge: 'Save 35%',
-    features: ['Everything in Pro', '2 months free', 'Priority email support', 'Early feature access', 'Personalized study plans'],
+    features: ['Everything in Pro', '2 months free', 'Priority email support', 'Early feature access', 'Best value for ongoing tutoring'],
     cta: 'Start Free Trial',
     gradient: false,
   },
@@ -56,10 +56,10 @@ export default function PricingPage() {
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">EduTech</span>
+            <span className="font-bold text-xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">ElevateOS</span>
           </Link>
-          <h1 className="text-5xl font-bold mb-4">Simple, Transparent Pricing</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">Start free, upgrade when you need more</p>
+          <h1 className="text-5xl font-bold mb-4">Simple pricing for study operations</h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400">Start free, upgrade when you need more practice, planning, and analytics capacity</p>
           <p className="text-sm text-green-600 mt-2 font-medium">7-day free trial on all paid plans · Cancel anytime</p>
         </div>
 
@@ -103,6 +103,12 @@ export default function PricingPage() {
               )}
             </div>
           ))}
+        </div>
+
+        <div className="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
+          <Link href="/terms" className="hover:underline">Terms</Link>
+          {' · '}
+          <Link href="/privacy" className="hover:underline">Privacy</Link>
         </div>
       </div>
     </div>

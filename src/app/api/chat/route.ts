@@ -26,8 +26,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: reply })
     }
 
-    const systemPrompt = `You are EduTech Assistant, a helpful AI assistant for the EduTech platform.
-EduTech is a premium AI-powered study platform for high school students preparing for IB, AP, SAT, ACT, and university admissions.
+    const systemPrompt = `You are ElevateOS Assistant, a helpful AI assistant for the ElevateOS platform.
+ElevateOS is a study planning and tutoring workflow platform for high school students preparing for IB, AP, SAT, ACT, and university admissions.
 
 Features you can help with:
 - Study Assistant: Upload materials to get summaries, notes, flashcards, and study plans
