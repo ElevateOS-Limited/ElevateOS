@@ -68,7 +68,7 @@ export default function RegisterPage() {
           </Link>
           <h1 className="text-3xl font-bold mb-2">Create your account</h1>
           <p className="text-gray-600 dark:text-gray-400">Start with the core study workflow and upgrade when you need more capacity.</p>
-          <p className="text-xs text-violet-500 mt-2">AoK tutors can activate free Pro access with invite code.</p>
+          <p className="text-xs text-violet-500 mt-2">Tutors can use invite codes for managed access when available.</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
@@ -151,14 +151,14 @@ export default function RegisterPage() {
             <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-3">
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={isAokTutor} onChange={(e) => setIsAokTutor(e.target.checked)} />
-                I am an AoK tutor (unlock free Pro access)
+                I am a tutor or school operator
               </label>
               {isAokTutor && (
                 <input
                   type="text"
                   value={aokInviteCode}
                   onChange={(e) => setAokInviteCode(e.target.value)}
-                  placeholder="AoK tutor invite code"
+                  placeholder="Invite code"
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
               )}

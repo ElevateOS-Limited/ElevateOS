@@ -37,6 +37,8 @@ export type NavGroup = {
   items: NavItem[]
 }
 
+export type SiteVariant = 'main' | 'tutoring'
+
 export const SIDEBAR_BADGES: Record<string, string | undefined> = {
   '/dashboard/worksheets': 'New',
   '/dashboard/paper-scan': 'Beta',
@@ -113,3 +115,11 @@ export const QUICK_ACTIONS = [
 ]
 
 export const flattenNav = () => NAV_GROUPS.flatMap((g) => g.items)
+
+export function getNavGroups(variant: SiteVariant = 'main') {
+  if (variant === 'tutoring') {
+    return NAV_GROUPS.filter((group) => group.key !== 'apply')
+  }
+
+  return NAV_GROUPS
+}

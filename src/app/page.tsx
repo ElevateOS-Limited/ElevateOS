@@ -1,13 +1,14 @@
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import {
   ArrowRight,
   BadgeCheck,
+  BarChart3,
   BookOpen,
-  Brain,
+  Briefcase,
+  CalendarClock,
   CheckCircle2,
-  Cloud,
   Clock3,
-  Database,
   FileText,
   GraduationCap,
   ShieldCheck,
@@ -16,43 +17,57 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react'
+import { getSiteVariantFromHost } from '@/lib/site'
 
-const featureBlocks = [
-  {
-    icon: Brain,
-    title: 'Profile intelligence',
-    desc: 'Turn grades, subjects, interests, and target universities into one practical roadmap.',
-  },
-  {
-    icon: FileText,
-    title: 'Study systems',
-    desc: 'Generate notes, worksheets, and exam practice that actually match the curriculum.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Admissions planning',
-    desc: 'Keep academics, activities, and essays in one workspace instead of scattered chats.',
-  },
-  {
-    icon: Target,
-    title: 'Execution tracking',
-    desc: 'See what was completed, what slipped, and what needs attention this week.',
-  },
+const tutoringModules = [
+  { icon: BookOpen, title: 'Study assistant', desc: 'Turn notes, chapters, and past papers into clearer revision sessions.' },
+  { icon: FileText, title: 'Worksheets', desc: 'Generate practice sets that match the topic, level, and pace.' },
+  { icon: Clock3, title: 'Past papers', desc: 'Run timed exam simulation and keep revision honest.' },
+  { icon: CalendarClock, title: 'Planner', desc: 'Track weekly availability, deadlines, and open study blocks.' },
 ]
 
-const cloudStack = [
-  ['Cloud Run', 'Vertex AI', 'Cloud SQL'],
-  ['Cloud Storage', 'Logging', 'Monitoring'],
+const mainModules = [
+  { icon: BookOpen, title: 'Study assistant', desc: 'Turn notes, chapters, and past papers into clearer revision sessions.' },
+  { icon: FileText, title: 'Worksheets', desc: 'Generate practice sets that match the topic, level, and pace.' },
+  { icon: Clock3, title: 'Past papers', desc: 'Run timed exam simulation and keep revision honest.' },
+  { icon: CalendarClock, title: 'Planner', desc: 'Track weekly availability, deadlines, and open study blocks.' },
+  { icon: GraduationCap, title: 'Admissions support', desc: 'Keep school targets, essays, and application timelines organized.' },
+  { icon: Briefcase, title: 'Internships', desc: 'Surface relevant opportunities without pulling attention away from study.' },
 ]
 
-const comparison = [
-  ['Weekly plan', 'Manual spreadsheets', 'Automated planning'],
-  ['Practice materials', 'Copy-paste worksheets', 'Curriculum-aware generation'],
-  ['Admissions strategy', 'Disconnected advice', 'One planning workspace'],
-  ['Progress visibility', 'Scattered messages', 'Shared execution view'],
+const tutoringAudience = [
+  ['Students', 'Know what to work on this week without rebuilding context every time you log in.'],
+  ['Tutors', 'Tie each session to a worksheet, a score, and a visible next step.'],
+  ['Small teams', 'Keep assignments, review notes, and progress in one place instead of scattered chats.'],
 ]
 
-export default function Home() {
+const mainAudience = [
+  ['Students', 'Keep study work visible and move from revision into application planning when needed.'],
+  ['Tutors', 'Tie each session to a worksheet, a score, and a visible next step.'],
+  ['Schools', 'Use one workspace for tutoring, admissions support, and student visibility.'],
+]
+
+export default async function Home() {
+  const headerStore = await headers()
+  const siteVariant = getSiteVariantFromHost(headerStore.get('host'))
+  const isTutoring = siteVariant === 'tutoring'
+
+  const modules = isTutoring ? tutoringModules : mainModules
+  const audience = isTutoring ? tutoringAudience : mainAudience
+  const heroTag = isTutoring ? 'Tutoring first' : 'Study systems'
+  const heroTitle = isTutoring
+    ? 'A tutoring workspace that keeps students moving.'
+    : 'A study and tutoring system that keeps the whole workflow visible.'
+  const heroCopy = isTutoring
+    ? 'Study plans, worksheets, past papers, progress tracking, and tutor review in one place.'
+    : 'Study plans, worksheets, past papers, admissions support, and internship discovery stay in one place without forcing people to stitch the workflow together by hand.'
+  const heroPills = isTutoring
+    ? ['Tutoring workflow', 'Worksheets', 'Past papers', 'Progress']
+    : ['Study workflow', 'Admissions support', 'Internships', 'Progress']
+  const footerCopy = isTutoring
+    ? 'Tutoring workflow, study planning, worksheets, and progress tracking on one workspace.'
+    : 'Study systems, tutoring support, admissions planning, and internship discovery on one workspace.'
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#f8f5ef] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -68,15 +83,15 @@ export default function Home() {
             </div>
             <div className="leading-tight">
               <p className="font-display text-lg text-slate-950 dark:text-white">ElevateOS</p>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">AI study systems</p>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{isTutoring ? 'Tutoring workspace' : 'Study systems'}</p>
             </div>
           </Link>
 
           <div className="hidden items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex">
             <a href="#product" className="hover:text-slate-950 dark:hover:text-white">Product</a>
-            <a href="#cloud" className="hover:text-slate-950 dark:hover:text-white">Google Cloud</a>
-            <a href="#plans" className="hover:text-slate-950 dark:hover:text-white">Plans</a>
+            <a href="#workflow" className="hover:text-slate-950 dark:hover:text-white">Workflow</a>
             <a href="#audience" className="hover:text-slate-950 dark:hover:text-white">Who it serves</a>
+            <a href="#plans" className="hover:text-slate-950 dark:hover:text-white">Plans</a>
           </div>
 
           <div className="flex items-center gap-2">
@@ -95,25 +110,23 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
               <TrendingUp className="h-4 w-4 text-[#d97706]" />
-              Built for students, tutors, and school teams that need clearer execution
+              {heroTag}
             </div>
 
             <h1 className="font-display mt-6 text-5xl leading-[0.95] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
-              An operating system for
+              {heroTitle}
               <span className="block bg-gradient-to-r from-slate-950 via-slate-700 to-[#d97706] bg-clip-text text-transparent dark:from-white dark:via-slate-200 dark:to-[#f2c06d]">
-                academic execution and admissions.
+                {isTutoring ? 'No cloud noise. No admin clutter.' : 'One workflow, fewer disconnected steps.'}
               </span>
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-              ElevateOS turns scattered study habits, profile building, and application planning into one
-              focused workflow. It is designed for IB, AP, SAT, ACT, and school teams that want structure
-              without adding more clutter.
+              {heroCopy}
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-[#f8f5ef] shadow-lg shadow-slate-950/10 transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
-                Open the demo workspace <ArrowRight className="h-4 w-4" />
+                Open the workspace <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/pricing" className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-900/10 bg-white/80 px-6 py-3 text-sm font-semibold text-slate-700 backdrop-blur hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white">
                 Review plans
@@ -121,7 +134,7 @@ export default function Home() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">
-              {['IB / AP / SAT / ACT', 'Google Cloud ready', 'Vertex AI routing', 'Built for schools'].map((item) => (
+              {heroPills.map((item) => (
                 <span key={item} className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
                   <BadgeCheck className="h-4 w-4 text-[#d97706]" />
                   {item}
@@ -135,19 +148,19 @@ export default function Home() {
             <div className="glass relative overflow-hidden rounded-[2rem] border border-slate-900/10 bg-white/80 p-5 shadow-2xl shadow-slate-950/5 backdrop-blur dark:border-white/10 dark:bg-slate-900/75">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Executive overview</p>
+                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Execution overview</p>
                   <p className="mt-1 text-xl font-semibold text-slate-950 dark:text-white">Today’s workflow in one view</p>
                 </div>
                 <div className="rounded-full bg-[#f2c06d]/20 px-3 py-1 text-xs font-semibold text-[#9a5b00] dark:text-[#f5d59f]">
-                  GCP ready
+                  Ready
                 </div>
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-slate-900/10 bg-[#f8f5ef] p-4 dark:border-white/10 dark:bg-white/5">
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Next action</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">Generate a worksheet for IB Biology HL</p>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The system already knows the curriculum, subject mix, and pace.</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">Generate a worksheet for this week</p>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The system keeps the topic, difficulty, and review history together.</p>
                 </div>
                 <div className="rounded-2xl border border-slate-900/10 bg-slate-950 p-4 text-white dark:border-white/10">
                   <p className="text-xs uppercase tracking-[0.2em] text-white/60">Profile health</p>
@@ -155,15 +168,15 @@ export default function Home() {
                     <p className="text-4xl font-semibold">84</p>
                     <p className="pb-1 text-sm text-white/70">/ 100 execution score</p>
                   </div>
-                  <p className="mt-2 text-sm text-white/70">Enough signal to plan next steps without rebuilding context every session.</p>
+                  <p className="mt-2 text-sm text-white/70">Enough signal to plan the next session without rebuilding context.</p>
                 </div>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[
                   ['Study materials', 'Notes, quizzes, papers'],
-                  ['Admissions', 'Target schools and strategy'],
-                  ['Visibility', 'Parents, tutors, students'],
+                  ['Planning', 'Open days and deadlines'],
+                  ['Visibility', isTutoring ? 'Students, tutors, small teams' : 'Parents, tutors, students'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-2xl border border-slate-900/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{label}</p>
@@ -174,14 +187,14 @@ export default function Home() {
 
               <div className="mt-4 rounded-2xl border border-slate-900/10 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-slate-950 dark:text-white">Google Cloud deployment path</p>
+                  <p className="text-sm font-semibold text-slate-950 dark:text-white">Current focus</p>
                   <Sparkles className="h-4 w-4 text-[#d97706]" />
                 </div>
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                  {cloudStack.flat().map((item) => (
-                    <div key={item} className="rounded-full border border-slate-900/10 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-200">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(isTutoring ? ['Worksheets', 'Past papers', 'Progress', 'Planner'] : ['Admissions', 'Internships', 'Worksheets', 'Progress']).map((item) => (
+                    <span key={item} className="rounded-full border border-slate-900/10 bg-white px-3 py-2 text-xs font-semibold text-slate-600 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-200">
                       {item}
-                    </div>
+                    </span>
                   ))}
                 </div>
               </div>
@@ -192,9 +205,9 @@ export default function Home() {
         <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              ['Weekly execution, not vague advice', 'Students get a clear next-action list tied to deadlines, class load, and target universities.'],
-              ['Admissions depth that compounds', 'The system surfaces gaps, flags weak extracurricular signals, and helps build a coherent profile.'],
-              ['Visibility for families and tutors', 'Progress stays legible without turning the workflow into constant check-ins or scattered chats.'],
+              ['Weekly execution, not vague advice', 'Students get a clear next-action list tied to deadlines, class load, and current priorities.'],
+              ['Progress that compounds', 'The system surfaces weak areas, keeps history visible, and makes the next step obvious.'],
+              ['Visibility without noise', 'Tutors and students can work from the same context without turning the workflow into constant check-ins.'],
             ].map(([title, detail]) => (
               <article key={title} className="rounded-[1.75rem] border border-slate-900/10 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#d97706]">Why it matters</p>
@@ -209,15 +222,19 @@ export default function Home() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Product</p>
-              <h2 className="mt-2 font-display text-3xl tracking-tight text-slate-950 dark:text-white sm:text-4xl">One system, four practical modules.</h2>
+              <h2 className="mt-2 font-display text-3xl tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                {isTutoring ? 'Four modules that matter.' : 'One system, with room for the rest of the student workflow.'}
+              </h2>
             </div>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              The product surface is intentionally narrow. It helps students execute, tutors review, and schools keep the process legible.
+              {isTutoring
+                ? 'The tutoring surface stays narrow: study support, worksheets, past papers, and planning.'
+                : 'The main site keeps tutoring core plus admissions and internship support where they help the broader student workflow.'}
             </p>
           </div>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {featureBlocks.map((item) => (
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {modules.map((item) => (
               <article key={item.title} className="rounded-[1.5rem] border border-slate-900/10 bg-white p-6 transition-transform hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900/70">
                 <item.icon className="h-6 w-6 text-[#d97706]" />
                 <h3 className="mt-4 text-xl font-semibold text-slate-950 dark:text-white">{item.title}</h3>
@@ -227,21 +244,47 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="workflow" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+          <div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]">
+            <div className="rounded-[2rem] border border-slate-900/10 bg-white p-7 shadow-sm dark:border-white/10 dark:bg-white/5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Workflow</p>
+              <h2 className="mt-3 font-display text-3xl tracking-tight text-slate-950 dark:text-white">Short enough to use every week.</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Create the task, assign it, record the result, and review history in the same workspace instead of spreading everything across chats.
+              </p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              {[
+                ['1. Set the context', 'Pick a student, subject, and topic once.'],
+                ['2. Generate the work', 'Create a worksheet or study session aligned to the topic.'],
+                ['3. Assign and review', 'Keep feedback tied to the specific task.'],
+                ['4. Track the next step', 'See progress without rebuilding the thread each time.'],
+              ].map(([title, text]) => (
+                <article key={title} className="rounded-[1.5rem] border border-slate-900/10 bg-[#f8f5ef] p-6 dark:border-white/10 dark:bg-slate-900/60">
+                  <CheckCircle2 className="h-6 w-6 text-[#d97706]" />
+                  <h3 className="mt-4 text-xl font-semibold text-slate-950 dark:text-white">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="audience" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
           <div className="grid gap-5 lg:grid-cols-[.85fr_1.15fr]">
             <div className="rounded-[2rem] border border-slate-900/10 bg-white p-7 shadow-sm dark:border-white/10 dark:bg-white/5">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Audience</p>
-              <h2 className="mt-3 font-display text-3xl tracking-tight text-slate-950 dark:text-white">Clear enough for families. Structured enough for serious applicants.</h2>
+              <h2 className="mt-3 font-display text-3xl tracking-tight text-slate-950 dark:text-white">
+                {isTutoring ? 'Built for students and tutors first.' : 'Clear enough for families. Structured enough for serious applicants.'}
+              </h2>
               <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                This is not a generic AI wrapper. It is a workflow layer for people who need to see what happened, what is next, and what still needs attention.
+                {isTutoring
+                  ? 'This is the narrow tutoring surface: the work should be obvious, the next step should be obvious, and the progress should remain visible.'
+                  : 'This is not a generic AI wrapper. It is a workflow layer for people who need to see what happened, what is next, and what still needs attention.'}
               </p>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
-              {[
-                ['Students', 'Know what to do this week instead of holding the whole application process in memory.'],
-                ['Tutors', 'Tie sessions to measurable outcomes and spend less time rebuilding context.'],
-                ['Schools', 'Use one workspace for study support, admissions planning, and student visibility.'],
-              ].map(([title, text]) => (
+              {audience.map(([title, text]) => (
                 <article key={title} className="rounded-[1.5rem] border border-slate-900/10 bg-[#f8f5ef] p-6 dark:border-white/10 dark:bg-slate-900/60">
                   <Users className="h-6 w-6 text-[#d97706]" />
                   <h3 className="mt-4 text-xl font-semibold text-slate-950 dark:text-white">{title}</h3>
@@ -252,49 +295,15 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="cloud" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
-          <div className="grid gap-6 rounded-[2rem] border border-slate-900/10 bg-slate-950 p-8 text-white shadow-2xl shadow-slate-950/10 md:grid-cols-[1fr_.9fr] dark:border-white/10">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#f2c06d]">Infrastructure</p>
-              <h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">Use the GCP credits on something that can grow into production.</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
-                ElevateOS already supports a provider stack that can prefer Google Cloud when configured. That makes the credits useful for a real product path instead of a one-off demo.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                {['Vertex AI', 'Cloud Run', 'Cloud SQL', 'Cloud Storage', 'Observability'].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80">{item}</span>
-                ))}
-              </div>
-            </div>
-            <div className="grid gap-3">
-              {[
-                { icon: Cloud, title: 'Google Cloud ready', desc: 'A production deployment path instead of disposable demo infra.' },
-                { icon: Sparkles, title: 'Vertex AI first', desc: 'AI routing can prefer Gemini when the project is configured for it.' },
-                { icon: Database, title: 'Operationally sane', desc: 'Structured storage and repeatable workflows make the GCP credits matter.' },
-              ].map((item) => (
-                <div key={item.title} className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-xl bg-[#f2c06d]/15 p-2 text-[#f2c06d]">
-                      <item.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="text-base font-semibold">{item.title}</h3>
-                  </div>
-                  <p className="mt-3 text-sm leading-7 text-white/70">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section id="plans" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-14">
           <div className="rounded-[2rem] border border-slate-900/10 bg-white p-7 shadow-sm dark:border-white/10 dark:bg-white/5">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Plan comparison</p>
-                <h2 className="mt-2 font-display text-3xl tracking-tight text-slate-950 dark:text-white">What ElevateOS replaces</h2>
+                <h2 className="mt-2 font-display text-3xl tracking-tight text-slate-950 dark:text-white">What the product replaces</h2>
               </div>
               <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                The point is not more software. The point is fewer disconnected steps and more visible execution.
+                Fewer disconnected steps. More visible progress. Less time spent re-explaining the same context.
               </p>
             </div>
 
@@ -308,7 +317,12 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-900/10 bg-white dark:divide-white/10 dark:bg-slate-950/40">
-                  {comparison.map(([label, oldValue, newValue]) => (
+                  {[
+                    ['Weekly plan', 'Manual spreadsheets', 'Automated planning'],
+                    ['Practice materials', 'Copy-paste worksheets', 'Curriculum-aware generation'],
+                    ['Progress visibility', 'Scattered messages', 'Shared execution view'],
+                    ['Tutoring context', 'Rebuilt every session', 'Preserved in one workspace'],
+                  ].map(([label, oldValue, newValue]) => (
                     <tr key={label}>
                       <td className="px-4 py-4 font-medium text-slate-950 dark:text-white">{label}</td>
                       <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{oldValue}</td>
@@ -330,9 +344,11 @@ export default function Home() {
           <div className="flex flex-col gap-4 rounded-[2rem] bg-slate-950 px-7 py-8 text-white shadow-2xl shadow-slate-950/10 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.22em] text-[#f2c06d]">Next step</p>
-              <h2 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">Open the workspace and see how the system feels in use.</h2>
+              <h2 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">Open the workspace and see the flow in use.</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">
-                Start with the demo dashboard, then move into study, worksheets, admissions, and profile setup.
+                {isTutoring
+                  ? 'Start with the tutoring dashboard, then move into study, worksheets, and progress.'
+                  : 'Start with the demo dashboard, then move into study, worksheets, admissions, internships, and profile setup.'}
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -351,12 +367,12 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-semibold text-slate-950 dark:text-white">ElevateOS</p>
-            <p className="mt-1">Study systems, admissions planning, and school visibility on one workspace.</p>
+            <p className="mt-1">{footerCopy}</p>
           </div>
           <div className="flex flex-wrap gap-4">
             <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[#d97706]" /> Privacy-first by design</span>
             <span className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-[#d97706]" /> Weekly measurable progress</span>
-            <span className="inline-flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-[#d97706]" /> Built for high-intent applicants</span>
+            <span className="inline-flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-[#d97706]" /> Built for focused tutoring</span>
           </div>
         </div>
       </footer>

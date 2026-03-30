@@ -7,15 +7,12 @@ import {
   ArrowRight,
   BarChart3,
   BookOpen,
-  Briefcase,
   CalendarClock,
   CheckCircle2,
   Clock3,
   FileText,
-  GraduationCap,
   ScanLine,
   Sparkles,
-  Trophy,
 } from 'lucide-react'
 
 const toIsoDate = (date: Date) => {
@@ -58,11 +55,9 @@ export default function DashboardPage() {
     { href: '/dashboard/study', label: 'Study Assistant', icon: BookOpen, desc: 'Upload content and generate structured notes.' },
     { href: '/dashboard/worksheets', label: 'Worksheets', icon: FileText, desc: 'Create practice questions for the current topic.' },
     { href: '/dashboard/pastpapers', label: 'Past Papers', icon: Clock3, desc: 'Run timed exam simulation for revision.' },
-    { href: '/dashboard/admissions', label: 'Admissions', icon: GraduationCap, desc: 'Check target-school fit and strategy.' },
-    { href: '/dashboard/internships', label: 'Internships', icon: Briefcase, desc: 'Review opportunities that support your profile.' },
     { href: '/dashboard/planner', label: 'Activity Planner', icon: CalendarClock, desc: 'Map open time to meaningful activity slots.' },
     { href: '/dashboard/paper-scan', label: 'Paper Scanner', icon: ScanLine, desc: 'Mark right or wrong from photographed papers.' },
-    { href: '/dashboard/extracurriculars', label: 'EC Scoring', icon: Trophy, desc: 'Score extracurricular strength against targets.' },
+    { href: '/dashboard/progress', label: 'Progress', icon: BarChart3, desc: 'Review trends, completion, and current weak areas.' },
   ]
 
   const now = new Date()
@@ -105,7 +100,7 @@ export default function DashboardPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
               {profile?.curriculum ? `${profile.curriculum} student` : 'Set up your profile to unlock cleaner recommendations.'}
-              {targets.length > 0 ? ` Target schools: ${targets.slice(0, 3).join(', ')}.` : ' Add target universities, subjects, and availability for better planning.'}
+              {subjects.length > 0 ? ` Current subjects: ${subjects.slice(0, 3).join(', ')}.` : ' Add subjects, study priorities, and availability for better planning.'}
             </p>
           </div>
 
@@ -296,15 +291,15 @@ export default function DashboardPage() {
           <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-[#f2c06d]" />
-              <p className="text-sm font-semibold">Suggested next move</p>
-            </div>
-            <p className="mt-3 text-sm leading-7 text-white/75">
-              {goals.length ? goals[0] : 'Complete your profile, then generate one worksheet and one admissions analysis to establish baseline progress.'}
-            </p>
+            <p className="text-sm font-semibold">Suggested next move</p>
+          </div>
+          <p className="mt-3 text-sm leading-7 text-white/75">
+              {goals.length ? goals[0] : 'Complete your profile, then generate one worksheet and one progress check to establish baseline momentum.'}
+          </p>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2 text-xs text-white/75">
-            {(targets.slice(0, 3).length ? targets.slice(0, 3) : ['Add target universities']).map((item: string) => (
+            {(targets.slice(0, 3).length ? targets.slice(0, 3) : ['Add study goals']).map((item: string) => (
               <span key={item} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{item}</span>
             ))}
           </div>

@@ -5,21 +5,22 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { Brain, ChevronDown, ChevronRight, Crown, PanelLeft, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { NAV_GROUPS, QUICK_ACTIONS } from '@/lib/navigation'
+import { QUICK_ACTIONS, getNavGroups, type SiteVariant } from '@/lib/navigation'
 
 type SidebarProps = {
   user: { name?: string | null; email?: string | null; plan: string; image?: string | null }
+  siteVariant?: SiteVariant
   mobileOpen?: boolean
   onCloseMobile?: () => void
 }
 
 const STORAGE_KEY = 'elevateos.sidebar.state'
 
-export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: SidebarProps) {
+export default function Sidebar({ user, siteVariant = 'main', mobileOpen = false, onCloseMobile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [collapsed, setCollapsed] = useState(false)
-  const [openGroups, setOpenGroups] = useState<string[]>(['dashboard', 'learn', 'plan', 'apply'])
+  const [openGroups, setOpenGroups] = useState<string[]>(siteVariant === 'tutoring' ? ['dashboard', 'learn', 'plan', 'insights', 'system'] : ['dashboard', 'learn', 'plan', 'apply'])
   const [search, setSearch] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(0)
   const [showQuickActions, setShowQuickActions] = useState(false)
@@ -54,15 +55,16 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
   }, [collapsed, openGroups])
 
   const filteredGroups = useMemo(() => {
-    if (!search.trim()) return NAV_GROUPS
+    const groups = getNavGroups(siteVariant)
+    if (!search.trim()) return groups
     const q = search.toLowerCase()
-    return NAV_GROUPS
+    return groups
       .map((g) => ({
         ...g,
         items: g.items.filter((i) => i.label.toLowerCase().includes(q) || i.href.toLowerCase().includes(q)),
       }))
       .filter((g) => g.items.length)
-  }, [search])
+  }, [search, siteVariant])
 
   const flatItems = filteredGroups.flatMap((g) => g.items)
 

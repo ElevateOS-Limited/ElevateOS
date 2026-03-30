@@ -34,7 +34,7 @@ export default function LoginPage() {
           </Link>
           <h1 className="text-3xl font-bold">Welcome back</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Sign in to your study workspace</p>
-          <p className="text-xs text-indigo-500 mt-2">AoK tutors: sign in to access full Pro features at no cost.</p>
+          <p className="text-xs text-indigo-500 mt-2">Tutors and students can sign in to continue their workflow.</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-8">

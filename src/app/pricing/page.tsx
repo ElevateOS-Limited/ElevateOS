@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Check, BookOpen } from 'lucide-react'
@@ -39,6 +40,36 @@ const plans = [
 
 export default function PricingPage() {
   const { data: session } = useSession()
+  const [siteVariant, setSiteVariant] = useState<'main' | 'tutoring'>('main')
+
+  useEffect(() => {
+    const host = window.location.hostname.toLowerCase()
+    setSiteVariant(host === 'tutoring.elevateos.org' || host.startsWith('tutoring.') ? 'tutoring' : 'main')
+  }, [])
+
+  const planSet = plans.map((plan) => {
+    if (plan.name === 'Pro') {
+      return {
+        ...plan,
+        features:
+          siteVariant === 'tutoring'
+            ? ['Unlimited AI study sessions', 'Unlimited worksheets', 'Past paper simulations', 'Weekly planning tools', 'PDF exports', 'Priority AI responses']
+            : plan.features,
+      }
+    }
+
+    if (plan.name === 'Pro Yearly') {
+      return {
+        ...plan,
+        features:
+          siteVariant === 'tutoring'
+            ? ['Everything in Pro', '2 months free', 'Priority email support', 'Early access to study tools', 'Best value for tutoring programs']
+            : plan.features,
+      }
+    }
+
+    return plan
+  })
 
   const checkoutMutation = useMutation({
     mutationFn: (priceId: string) => fetch('/api/stripe/create-checkout', {
@@ -58,13 +89,17 @@ export default function PricingPage() {
             </div>
             <span className="font-bold text-xl bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">ElevateOS</span>
           </Link>
-          <h1 className="text-5xl font-bold mb-4">Simple pricing for study operations</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">Start free, upgrade when you need more practice, planning, and analytics capacity</p>
+          <h1 className="text-5xl font-bold mb-4">{siteVariant === 'tutoring' ? 'Simple pricing for tutoring workflows' : 'Simple pricing for study operations'}</h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            {siteVariant === 'tutoring'
+              ? 'Start free, then upgrade when you need more practice, planning, and progress capacity.'
+              : 'Start free, upgrade when you need more practice, planning, and analytics capacity'}
+          </p>
           <p className="text-sm text-green-600 mt-2 font-medium">7-day free trial on all paid plans · Cancel anytime</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
+          {planSet.map((plan) => (
             <div key={plan.name} className={`relative bg-white dark:bg-gray-900 rounded-2xl border-2 p-8 ${plan.gradient ? 'border-indigo-500 shadow-lg shadow-indigo-100 dark:shadow-indigo-900/30' : 'border-gray-200 dark:border-gray-800'}`}>
               {plan.gradient && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">

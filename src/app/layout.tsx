@@ -16,8 +16,8 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://elevateos.org'),
-  title: 'ElevateOS | AI Study Systems for Students and Schools',
-  description: 'AI study, admissions, and execution systems for IB, AP, SAT, ACT students and school teams. Built to run on Google Cloud and Vertex AI first.',
+  title: 'ElevateOS | Tutoring Workflow Platform',
+  description: 'Tutoring workflows, study planning, worksheets, and progress tracking for students, tutors, and schools.',
   applicationName: 'ElevateOS',
   authors: [{ name: 'Howard' }],
   creator: 'Howard',

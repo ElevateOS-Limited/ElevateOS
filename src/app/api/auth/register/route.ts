@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     const aokTutorApproved = isAokTutor && tutorInvite && aokInviteCode === tutorInvite
 
     if (isAokTutor && !aokTutorApproved) {
-      return NextResponse.json({ error: 'Invalid AoK tutor invite code' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid tutor invite code' }, { status: 400 })
     }
 
     const user = await prisma.user.create({

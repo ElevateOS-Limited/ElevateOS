@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getSiteVariantFromHost } from '@/lib/site'
 
 const blockedAgents = [
   /HTTrack/i,
@@ -28,15 +29,34 @@ export function middleware(req: NextRequest) {
   }
 
   const host = (req.headers.get('host') || '').toLowerCase()
+  const siteVariant = getSiteVariantFromHost(host)
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-site-variant', siteVariant)
+
+  if (
+    siteVariant === 'tutoring' &&
+    [
+      '/admissions',
+      '/internships',
+      '/dashboard/admissions',
+      '/dashboard/internships',
+      '/dashboard/extracurriculars',
+      '/dashboard/portfolio-insights',
+      '/dashboard/scholarships',
+    ].some((prefix) => req.nextUrl.pathname === prefix || req.nextUrl.pathname.startsWith(`${prefix}/`))
+  ) {
+    return NextResponse.redirect(new URL(req.nextUrl.pathname, 'https://elevateos.org'))
+  }
+
   if (host === 'activities.thinkcollegelevel.com') {
     const rewriteUrl = req.nextUrl.clone()
     if (!rewriteUrl.pathname.startsWith('/_next') && rewriteUrl.pathname !== '/favicon.ico') {
       rewriteUrl.pathname = '/activities'
-      return NextResponse.rewrite(rewriteUrl)
+      return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
     }
   }
 
-  return NextResponse.next()
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 export const config = {

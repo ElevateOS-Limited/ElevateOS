@@ -111,9 +111,9 @@ export default function DemoPage() {
     <main className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-6xl px-6 py-12 space-y-8">
         <header className="space-y-4">
-          <p className="text-xs uppercase tracking-widest text-slate-400">Production Architecture Demo</p>
-          <h1 className="text-4xl md:text-5xl font-bold">AI Education SaaS + AI Integrity Check</h1>
-          <p className="text-slate-300 max-w-3xl">Multi-tenant, role-based platform for tutors and schools with document-grounded generation, assessments, analytics, and conservative multi-signal AI detection for academic integrity.</p>
+          <p className="text-xs uppercase tracking-widest text-slate-400">Tutoring MVP Demo</p>
+          <h1 className="text-4xl md:text-5xl font-bold">Tutoring workflow + study execution</h1>
+          <p className="text-slate-300 max-w-3xl">A focused workflow for students and tutors with study generation, worksheet creation, progress review, and weekly planning.</p>
           <div className="flex gap-3">
             <Link href="/dashboard" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500">Open Dashboard</Link>
             <Link href="/dashboard/settings" className="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-900">System Settings</Link>
@@ -125,29 +125,26 @@ export default function DemoPage() {
             'Frontend: Next.js App Router + TypeScript + Tailwind',
             'Backend: API routes + service layer + workers',
             'Data: PostgreSQL + Prisma + org-level tenant isolation',
-            'Storage: S3-compatible artifacts for files/PDF/PPTX',
-            'Queue: BullMQ/Redis for ingestion/generation/reporting',
-            'AI: retrieval + structured generation + citation support',
-            'Integrity: perplexity + burstiness + stylometry + LLM judge',
+            'Storage: file artifacts for worksheets and exports',
+            'Queue: background jobs for generation and reporting',
+            'AI: structured study help and worksheet generation',
             'Reporting: PDF/DOCX exports + trend history per student',
+            'Planning: availability, deadlines, and weekly execution',
           ].map((x) => (
             <div key={x} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm">{x}</div>
           ))}
         </section>
 
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 space-y-3">
-          <h2 className="text-2xl font-semibold">AI Detection Pipeline (Text Diagram)</h2>
+          <h2 className="text-2xl font-semibold">Tutoring Workflow (Text Diagram)</h2>
           <ol className="list-decimal pl-6 text-slate-300 space-y-1 text-sm">
-            <li>Upload file (PDF/DOCX/TXT) and create AiDetectionJob.</li>
-            <li>Extract raw text and segment into 150–300 word logical blocks.</li>
-            <li>Run per-segment signals: perplexity, burstiness, stylometry, LLM probability+reason.</li>
-            <li>Fuse scores conservatively; reduce probability when signals conflict.</li>
-            <li>Classify segment: Likely Human / Mixed / Most Likely AI Generated.</li>
-            <li>Highlight only sentence spans above threshold (yellow=moderate, red=high).</li>
-            <li>Compute overall weighted probability and document risk level.</li>
-            <li>Generate PDF/DOCX report, store artifact key, attach to student profile history.</li>
+            <li>Select student, class, and topic.</li>
+            <li>Generate worksheet or study notes tied to the current session.</li>
+            <li>Assign the work and capture the result.</li>
+            <li>Record the score and add a tutor comment.</li>
+            <li>Save the report so the next session starts with context intact.</li>
           </ol>
-          <p className="text-xs text-amber-300">Disclaimer: AI detection is probabilistic and should be used as one factor in academic evaluation.</p>
+          <p className="text-xs text-amber-300">Disclaimer: generated study output should be reviewed by the tutor before use.</p>
         </section>
 
         <section className="space-y-3">
@@ -172,35 +169,33 @@ export default function DemoPage() {
         </section>
 
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-          <h2 className="text-2xl font-semibold mb-3">UI Structure: “AI Integrity Check”</h2>
+          <h2 className="text-2xl font-semibold mb-3">UI Structure: Tutoring MVP</h2>
           <ul className="list-disc pl-6 text-sm text-slate-300 space-y-1">
-            <li>Sidebar: AI Integrity Check</li>
-            <li>Upload panel: drag/drop + student + assignment selector</li>
-            <li>Results split view: document left, segment table right</li>
-            <li>Filters: risk level, confidence, signal thresholds</li>
-            <li>Sentence highlight overlays with tooltips (probability + rationale)</li>
-            <li>Export actions: PDF/DOCX report + attach to student profile</li>
-            <li>Trend tab: AI-probability history chart per student</li>
+            <li>Sidebar: study assistant, worksheets, past papers, planner</li>
+            <li>Quickstart flow: student selection + worksheet generation</li>
+            <li>Session view: task, score, tutor comment, and history</li>
+            <li>Exports: PDF/DOCX reports + stored progress history</li>
+            <li>Progress tab: recent work, weekly signals, and next step</li>
           </ul>
         </section>
 
         <section className="grid md:grid-cols-2 gap-4">
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <h3 className="font-semibold">False Positive Mitigation</h3>
+            <h3 className="font-semibold">Progress Clarity</h3>
             <ul className="list-disc pl-6 mt-2 text-sm text-slate-300 space-y-1">
-              <li>Conservative thresholding; no paragraph-wide red flags by default</li>
-              <li>Require multi-signal agreement before high-risk label</li>
-              <li>Baseline comparison with student historical writing when available</li>
-              <li>Explainability for each flag (no black-box verdict)</li>
+              <li>One student, one topic, one next step</li>
+              <li>Worksheet, score, and note stay attached to the same flow</li>
+              <li>Tutor comments make later review faster</li>
+              <li>Context persists across sessions</li>
             </ul>
           </div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <h3 className="font-semibold">Ethical + Legal Positioning</h3>
+            <h3 className="font-semibold">Operational Positioning</h3>
             <ul className="list-disc pl-6 mt-2 text-sm text-slate-300 space-y-1">
-              <li>Detection is advisory, not automatic disciplinary evidence</li>
-              <li>Human review required prior to action</li>
-              <li>Store only necessary text segments with retention controls</li>
-              <li>Parent/student transparency notice in policy + report footer</li>
+              <li>Keep the workflow narrow and repeatable</li>
+              <li>Use the same surface every week instead of adding new tools</li>
+              <li>Keep reports, notes, and worksheets easy to retrieve</li>
+              <li>Support both tutoring and self-study use</li>
             </ul>
           </div>
         </section>

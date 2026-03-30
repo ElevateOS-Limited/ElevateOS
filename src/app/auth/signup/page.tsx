@@ -58,7 +58,7 @@ export default function SignupPage() {
           </Link>
           <h1 className="text-3xl font-bold">Create your account</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Start your 7-day free trial</p>
-          <p className="text-xs text-indigo-500 mt-2">AoK tutors can activate full Pro access for free with invite code.</p>
+          <p className="text-xs text-indigo-500 mt-2">Create an account to manage study, tutoring, and progress in one workspace.</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-8">
@@ -97,14 +97,14 @@ export default function SignupPage() {
             <div className="rounded-xl border border-gray-300 dark:border-gray-700 p-3 space-y-3">
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={isAokTutor} onChange={e => setIsAokTutor(e.target.checked)} />
-                I am an AoK tutor (free Pro access)
+                I am a tutor or school operator
               </label>
               {isAokTutor && (
                 <input
                   type="text"
                   value={aokInviteCode}
                   onChange={e => setAokInviteCode(e.target.value)}
-                  placeholder="Enter AoK tutor invite code"
+                  placeholder="Enter invite code"
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               )}

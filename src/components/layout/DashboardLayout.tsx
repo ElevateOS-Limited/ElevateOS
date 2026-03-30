@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
@@ -21,21 +21,39 @@ import {
   Shield,
 } from 'lucide-react'
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/study', label: 'Study Assistant', icon: BookOpen },
-  { href: '/worksheets', label: 'Worksheets', icon: FileText },
-  { href: '/past-papers', label: 'Past Papers', icon: Clock },
-  { href: '/admissions', label: 'Admissions', icon: GraduationCap },
-  { href: '/internships', label: 'Internships', icon: Briefcase },
-  { href: '/settings', label: 'Settings', icon: Settings },
-]
-
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
   const { theme, toggleTheme } = useTheme()
+  const [siteVariant, setSiteVariant] = useState<'main' | 'tutoring'>('main')
+
+  useEffect(() => {
+    const host = window.location.hostname.toLowerCase()
+    setSiteVariant(host === 'tutoring.elevateos.org' || host.startsWith('tutoring.') ? 'tutoring' : 'main')
+  }, [])
+
+  const navItems = useMemo(() => {
+    if (siteVariant === 'tutoring') {
+      return [
+        { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/study', label: 'Study Assistant', icon: BookOpen },
+        { href: '/worksheets', label: 'Worksheets', icon: FileText },
+        { href: '/past-papers', label: 'Past Papers', icon: Clock },
+        { href: '/settings', label: 'Settings', icon: Settings },
+      ]
+    }
+
+    return [
+      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/study', label: 'Study Assistant', icon: BookOpen },
+      { href: '/worksheets', label: 'Worksheets', icon: FileText },
+      { href: '/past-papers', label: 'Past Papers', icon: Clock },
+      { href: '/admissions', label: 'Admissions', icon: GraduationCap },
+      { href: '/internships', label: 'Internships', icon: Briefcase },
+      { href: '/settings', label: 'Settings', icon: Settings },
+    ]
+  }, [siteVariant])
 
   return (
     <div className="flex h-screen bg-[#f8f5ef] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
