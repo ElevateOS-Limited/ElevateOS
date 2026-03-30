@@ -16,8 +16,8 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://elevateos.org'),
-  title: 'ElevateOS | Tutoring Workflow Platform',
-  description: 'Tutoring workflows, study planning, worksheets, and progress tracking for students, tutors, and schools.',
+  title: 'ElevateOS | Student Workflow Platform',
+  description: 'Tutoring, study planning, worksheets, progress tracking, admissions support, and internships for students and tutors.',
   applicationName: 'ElevateOS',
   authors: [{ name: 'Howard' }],
   creator: 'Howard',
