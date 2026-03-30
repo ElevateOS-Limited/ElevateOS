@@ -17,7 +17,7 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react'
-import { getSiteVariantFromHost } from '@/lib/site'
+import { getSiteVariantFromHeaders } from '@/lib/site'
 
 const tutoringModules = [
   { icon: BookOpen, title: 'Study assistant', desc: 'Turn notes, chapters, and past papers into clearer revision sessions.' },
@@ -49,7 +49,7 @@ const mainAudience = [
 
 export default async function Home() {
   const headerStore = await headers()
-  const siteVariant = getSiteVariantFromHost(headerStore.get('host'))
+  const siteVariant = getSiteVariantFromHeaders(headerStore)
   const isTutoring = siteVariant === 'tutoring'
 
   const modules = isTutoring ? tutoringModules : mainModules

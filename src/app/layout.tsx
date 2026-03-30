@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { Geist, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/layout/Providers'
-import { getSiteVariantFromHost } from '@/lib/site'
+import { getSiteVariantFromHeaders } from '@/lib/site'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -18,7 +18,7 @@ const instrumentSerif = Instrument_Serif({
 
 export async function generateMetadata(): Promise<Metadata> {
   const headerStore = await headers()
-  const siteVariant = getSiteVariantFromHost(headerStore.get('host'))
+  const siteVariant = getSiteVariantFromHeaders(headerStore)
 
   return {
     metadataBase: new URL('https://elevateos.org'),
