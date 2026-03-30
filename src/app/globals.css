@@ -1,30 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-  }
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-  }
+:root {
+  --background: 38 35% 95%;
+  --foreground: 222 47% 11%;
 }
 
-@layer base {
-  * { @apply border-gray-200 dark:border-gray-700; }
-  body { @apply bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-gray-100 font-sans antialiased; }
-  ::selection { @apply bg-indigo-200 text-slate-900; }
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 38 35% 95%;
 }
 
-@layer utilities {
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-500 to-purple-600 bg-clip-text text-transparent;
-  }
-  .glass {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl;
-  }
+* {
+  border-color: rgb(231 228 221);
+}
+
+.dark * {
+  border-color: rgb(51 65 85);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(223, 91, 48, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(15, 23, 42, 0.08), transparent 25%),
+    linear-gradient(180deg, #f8f5ef 0%, #f4ede2 100%);
+  color: rgb(15 23 42);
+  font-family: var(--font-geist-sans), 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(223, 91, 48, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 25%),
+    linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  color: rgb(248 245 239);
+}
+
+::selection {
+  background-color: rgba(223, 91, 48, 0.28);
+  color: rgb(15 23 42);
+}
+
+.gradient-text {
+  background-image: linear-gradient(90deg, #0f172a 0%, #334155 50%, #df5b30 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass {
+  background-color: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid rgb(226 232 240 / 0.9);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.dark .glass {
+  background-color: rgb(15 23 42 / 0.82);
+  border-color: rgb(51 65 85 / 0.8);
+}
+
+.font-display {
+  font-family: var(--font-instrument-serif), 'Instrument Serif', Georgia, serif;
 }
