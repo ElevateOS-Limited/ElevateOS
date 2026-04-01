@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getOpenAI, AI_MODEL } from '@/lib/ai/openai'
+import { generateVisionJson } from '@/lib/ai/provider'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
-import { enforceAIDemoGuard, useStaticDemoResponses, demoPaperGrade } from '@/lib/demo-ai'
-import { runWithAIProtection } from '@/lib/ai/resilience'
+import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoPaperGrade } from '@/lib/demo-ai'
 import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(req: NextRequest) {
@@ -19,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'imageDataUrl and answerKey are required' }, { status: 400 })
     }
 
-    if (useStaticDemoResponses()) {
+    if (shouldUseStaticDemoResponses()) {
       return NextResponse.json(demoPaperGrade(answerKey))
     }
 
@@ -39,30 +38,13 @@ ${JSON.stringify(answerKey)}
 Marking notes:
 ${markingNotes || 'Strict exact matching for objective questions; allow equivalent wording for short answers.'}`
 
-    const response = await runWithAIProtection('openai', () =>
-      getOpenAI().chat.completions.create({
-        model: AI_MODEL,
-        temperature: 0.2,
-        response_format: { type: 'json_object' },
-        messages: [
-          {
-            role: 'system',
-            content: 'You grade student papers from images and return valid JSON only.',
-          },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              { type: 'image_url', image_url: { url: imageDataUrl } },
-            ],
-          },
-        ],
-        max_tokens: 3000,
-      })
-    )
-
-    const raw = response.choices[0]?.message?.content || '{}'
-    const parsed = JSON.parse(raw)
+    const parsed = await generateVisionJson({
+      prompt,
+      imageDataUrl,
+      system: 'You grade student papers from images and return valid JSON only.',
+      maxTokens: 3000,
+      temperature: 0.2,
+    })
     return NextResponse.json(parsed)
   } catch (error: any) {
     if (error instanceof AIConfigError) {

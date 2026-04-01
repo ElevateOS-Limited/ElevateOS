@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { Session } from 'next-auth'
-import { prisma } from '@/lib/prisma'
+import { prisma, DATABASE_URL_CONFIGURED } from '@/lib/prisma'
 
 const ENABLE_GUARD = process.env.AI_DEMO_GUARD === 'true'
 const STATIC_RESPONSES = process.env.DEMO_STATIC_RESPONSES === 'true'
@@ -16,9 +16,12 @@ export function useStaticDemoResponses() {
   return STATIC_RESPONSES
 }
 
+export const shouldUseStaticDemoResponses = useStaticDemoResponses
+
 export async function enforceAIDemoGuard(session: Session, feature: string) {
   if (STATIC_RESPONSES) return null
   if (!ENABLE_GUARD || !session?.user?.id) return null
+  if (!DATABASE_URL_CONFIGURED) return null
 
   const allowlist = parseAllowlist()
   const email = (session.user.email || '').toLowerCase()

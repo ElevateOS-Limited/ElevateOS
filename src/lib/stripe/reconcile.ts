@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { stripe } from '@/lib/stripe/stripe'
+import { getStripe } from '@/lib/stripe/stripe'
 
 type ReconcileOptions = {
   userId?: string
@@ -7,6 +7,7 @@ type ReconcileOptions = {
 }
 
 export async function reconcileStripeState(options: ReconcileOptions = {}) {
+  const stripe = getStripe()
   const users = await prisma.user.findMany({
     where: {
       ...(options.userId ? { id: options.userId } : {}),
