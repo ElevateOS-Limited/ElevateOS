@@ -1,4 +1,4 @@
-export type AIProvider = 'openai' | 'anthropic'
+export type AIProvider = 'gemini' | 'openai' | 'anthropic'
 export type AIErrorCode = 'TIMEOUT' | 'RATE_LIMIT' | 'CIRCUIT_OPEN' | 'PROVIDER_ERROR' | 'UNKNOWN'
 
 type ProviderState = {
@@ -11,6 +11,7 @@ const CIRCUIT_FAILURE_THRESHOLD = Number(process.env.AI_CIRCUIT_FAILURE_THRESHOL
 const CIRCUIT_OPEN_MS = Number(process.env.AI_CIRCUIT_OPEN_MS || 30000)
 
 const providerState: Record<AIProvider, ProviderState> = {
+  gemini: { failures: 0, openedUntilMs: 0 },
   openai: { failures: 0, openedUntilMs: 0 },
   anthropic: { failures: 0, openedUntilMs: 0 },
 }
@@ -37,6 +38,11 @@ function currentState(provider: AIProvider) {
 export function getAICircuitSnapshot() {
   const now = Date.now()
   return {
+    gemini: {
+      failures: providerState.gemini.failures,
+      open: providerState.gemini.openedUntilMs > now,
+      openedUntilMs: providerState.gemini.openedUntilMs,
+    },
     openai: {
       failures: providerState.openai.failures,
       open: providerState.openai.openedUntilMs > now,
@@ -51,6 +57,7 @@ export function getAICircuitSnapshot() {
 }
 
 export function resetAICircuitState() {
+  providerState.gemini = { failures: 0, openedUntilMs: 0 }
   providerState.openai = { failures: 0, openedUntilMs: 0 }
   providerState.anthropic = { failures: 0, openedUntilMs: 0 }
 }
@@ -86,7 +93,12 @@ export function classifyProviderError(provider: AIProvider, error: unknown) {
   const status = Number(anyError?.status ?? anyError?.statusCode ?? 0)
   const message = String(anyError?.message || '').toLowerCase()
 
-  if (status === 429 || message.includes('rate limit')) {
+  if (
+    status === 429 ||
+    message.includes('rate limit') ||
+    message.includes('quota') ||
+    message.includes('resource exhausted')
+  ) {
     return new AIProviderError(provider, 'RATE_LIMIT', `${provider} rate limited`, 429, true)
   }
   if (status >= 500) {
