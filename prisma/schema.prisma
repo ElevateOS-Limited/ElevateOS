@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -79,35 +78,35 @@ model User {
   subscriptionEnds     DateTime?
   trialEnds            DateTime?
 
-  accounts       Account[]
-  sessions       Session[]
-  studyMaterials StudyMaterial[]
-  worksheets     Worksheet[]
-  pastPapers     PastPaper[]
-  essays         Essay[]
-  chatMessages   ChatMessage[]
-  studySessions       StudySession[]
-  sidebarPreference   SidebarPreference?
-  notes               Note[]
-  flashcardDecks      FlashcardDeck[]
-  flashcards          Flashcard[]
-  flashcardReviews    FlashcardReview[]
-  userStats           UserStats?
-  eventLogs           EventLog[]
-  goalsV2             Goal[]
-  deadlinesV2         Deadline[]
-  calendarEvents      CalendarEvent[]
-  feedbackItems       Feedback[]
-  practiceSessionsV2  PracticeSession[]
+  accounts             Account[]
+  sessions             Session[]
+  studyMaterials       StudyMaterial[]
+  worksheets           Worksheet[]
+  pastPapers           PastPaper[]
+  essays               Essay[]
+  chatMessages         ChatMessage[]
+  studySessions        StudySession[]
+  sidebarPreference    SidebarPreference?
+  notes                Note[]
+  flashcardDecks       FlashcardDeck[]
+  flashcards           Flashcard[]
+  flashcardReviews     FlashcardReview[]
+  userStats            UserStats?
+  eventLogs            EventLog[]
+  goalsV2              Goal[]
+  deadlinesV2          Deadline[]
+  calendarEvents       CalendarEvent[]
+  feedbackItems        Feedback[]
+  practiceSessionsV2   PracticeSession[]
 }
 
 model SidebarPreference {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  collapsed     Boolean  @default(false)
-  openGroups    String[] @default([])
-  updatedAt     DateTime @updatedAt
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  collapsed  Boolean  @default(false)
+  openGroups String[] @default([])
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Note {
@@ -216,32 +215,32 @@ model Goal {
 }
 
 model Deadline {
-  id          String    @id @default(cuid())
-  userId      String
-  goalId      String?
-  title       String
-  dueAt       DateTime
-  priority    String    @default("medium")
-  completed   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  goal        Goal?     @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  id        String    @id @default(cuid())
+  userId    String
+  goalId    String?
+  title     String
+  dueAt     DateTime
+  priority  String    @default("medium")
+  completed Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal      Goal?     @relation(fields: [goalId], references: [id], onDelete: SetNull)
 
   @@index([userId, dueAt])
 }
 
 model CalendarEvent {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  startsAt    DateTime
-  endsAt      DateTime
-  source      String   @default("manual")
-  module      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  startsAt  DateTime
+  endsAt    DateTime
+  source    String   @default("manual")
+  module    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, startsAt])
 }
@@ -276,13 +275,13 @@ model PracticeSession {
 }
 
 model PracticeResult {
-  id               String          @id @default(cuid())
-  sessionId        String
-  questionId       String
-  selectedAnswer   String?
-  isCorrect        Boolean
-  createdAt        DateTime        @default(now())
-  session          PracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  sessionId      String
+  questionId     String
+  selectedAnswer String?
+  isCorrect      Boolean
+  createdAt      DateTime        @default(now())
+  session        PracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId])
 }
@@ -319,7 +318,7 @@ model StudyMaterial {
   subject     String
   level       String?
   curriculum  String?
-  contentType String // text, pdf, url, youtube
+  contentType String
   content     String?  @db.Text
   fileUrl     String?
   summary     String?  @db.Text
@@ -352,11 +351,11 @@ model PastPaper {
   subject     String
   curriculum  String
   year        Int?
-  duration    Int // minutes
+  duration    Int
   questions   Json
   answers     Json?
   score       Float?
-  timeSpent   Int? // seconds
+  timeSpent   Int?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -365,7 +364,7 @@ model PastPaper {
 model Essay {
   id         String   @id @default(cuid())
   userId     String
-  type       String // common-app, supplemental, personal-statement
+  type       String
   university String?
   prompt     String?  @db.Text
   draft      String?  @db.Text
@@ -380,7 +379,7 @@ model Essay {
 model ChatMessage {
   id        String   @id @default(cuid())
   userId    String
-  role      String // user, assistant
+  role      String
   content   String   @db.Text
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
