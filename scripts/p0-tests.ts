@@ -5,12 +5,12 @@ import path from 'node:path'
 import {
   getStripeWebhookRecord,
   markStripeWebhookStatus,
-} from '../src/lib/stripe/webhook-events.ts'
+} from '../src/lib/stripe/webhook-events'
 import {
   AIProviderError,
   resetAICircuitState,
   runWithAIProtection,
-} from '../src/lib/ai/resilience.ts'
+} from '../src/lib/ai/resilience'
 
 const root = process.cwd()
 
