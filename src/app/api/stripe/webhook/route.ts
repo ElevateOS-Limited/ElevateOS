@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-import { stripe } from '@/lib/stripe/stripe'
+import { getStripe } from '@/lib/stripe/stripe'
 import { prisma } from '@/lib/prisma'
 import Stripe from 'stripe'
 import { getStripeWebhookRecord, markStripeWebhookStatus } from '@/lib/stripe/webhook-events'
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const signature = headers().get('stripe-signature')!
+  const signature = (await headers()).get('stripe-signature')
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim()
+  if (!signature || !webhookSecret) {
+    return NextResponse.json({ error: 'Missing stripe signature or webhook secret' }, { status: 400 })
+  }
+  const stripe = getStripe()
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (e) {
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+  } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -33,7 +38,9 @@ export async function POST(req: Request) {
             stripeSubscriptionId: sub.id,
             stripePriceId: sub.items.data[0].price.id,
             subscriptionStatus: sub.status,
-            subscriptionEnds: new Date(sub.current_period_end * 1000),
+            subscriptionEnds: sub.items.data[0]?.current_period_end
+              ? new Date(sub.items.data[0].current_period_end * 1000)
+              : null,
           },
         })
         break

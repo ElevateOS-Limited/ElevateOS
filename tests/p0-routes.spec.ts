@@ -129,6 +129,9 @@ describe('P0 ownership-safe route mutations', () => {
 
 describe('P0 Stripe idempotent webhook processing', () => {
   it('short-circuits replayed processed event and avoids duplicate writes', async () => {
+    const prevSecret = process.env.STRIPE_WEBHOOK_SECRET
+    process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_fixture'
+
     const prisma = { user: { update: vi.fn() } }
     const markStripeWebhookStatus = vi.fn(async () => undefined)
     const getStripeWebhookRecord = vi
@@ -143,7 +146,7 @@ describe('P0 Stripe idempotent webhook processing', () => {
       markStripeWebhookStatus,
     }))
     vi.doMock('@/lib/stripe/stripe', () => ({
-      stripe: {
+      getStripe: () => ({
         webhooks: {
           constructEvent: vi.fn(() => ({
             id: 'evt_1',
@@ -159,7 +162,7 @@ describe('P0 Stripe idempotent webhook processing', () => {
             },
           })),
         },
-      },
+      }),
     }))
 
     const { POST } = await import('@/app/api/stripe/webhook/route')
@@ -173,6 +176,9 @@ describe('P0 Stripe idempotent webhook processing', () => {
     expect(replay.status).toBe(200)
     expect(payload.replay).toBe(true)
     expect(prisma.user.update).toHaveBeenCalledTimes(1)
+
+    if (prevSecret === undefined) delete process.env.STRIPE_WEBHOOK_SECRET
+    else process.env.STRIPE_WEBHOOK_SECRET = prevSecret
   })
 })
 
@@ -180,25 +186,18 @@ describe('P0 AI route behavior with mocked OpenAI failures', () => {
   it('returns classified 429 when provider is rate-limited', async () => {
     const prisma = { chatMessage: { createMany: vi.fn() } }
 
-    vi.doMock('@/lib/prisma', () => ({ prisma }))
+    vi.doMock('@/lib/prisma', () => ({ prisma, DATABASE_URL_CONFIGURED: true }))
     vi.doMock('@/lib/auth/session', () => ({ getSessionOrDemo: vi.fn(async () => session) }))
     vi.doMock('@/lib/demo-ai', () => ({
       enforceAIDemoGuard: vi.fn(async () => null),
-      useStaticDemoResponses: vi.fn(() => false),
+      shouldUseStaticDemoResponses: vi.fn(() => false),
     }))
-    vi.doMock('@/lib/ai/openai', () => ({
-      AI_MODEL: 'gpt-4o',
-      getOpenAI: vi.fn(() => ({
-        chat: {
-          completions: {
-            create: vi.fn(async () => {
-              const error = new Error('rate limit')
-              ;(error as any).status = 429
-              throw error
-            }),
-          },
-        },
-      })),
+    vi.doMock('@/lib/ai/provider', () => ({
+      generateText: vi.fn(async () => {
+        const error = new Error('rate limit')
+        ;(error as any).status = 429
+        throw error
+      }),
     }))
 
     const { POST } = await import('@/app/api/chat/route')
