@@ -27,6 +27,22 @@ function Get-GhCommand {
   throw "GitHub CLI not found. Install via: winget install --id GitHub.cli --exact --source winget"
 }
 
+function Get-RepoSlugFromPrUrl([string]$PrUrl) {
+  if ([string]::IsNullOrWhiteSpace($PrUrl)) {
+    throw "Cannot resolve repository slug: PR URL is empty."
+  }
+
+  $match = [regex]::Match($PrUrl, '^https?://[^/]+/([^/]+)/([^/]+)/pull/\d+/?$')
+  if (-not $match.Success) {
+    throw "Cannot resolve repository slug from PR URL: $PrUrl"
+  }
+
+  return @{
+    Owner = $match.Groups[1].Value
+    Repo  = $match.Groups[2].Value
+  }
+}
+
 function Get-RiskArea([string]$Path) {
   if ($Path -in @("AGENTS.md", "MASTER_TASK_BOARD.md", "PROGRESS_LOG.md", "HEARTBEAT.md", "POSTMORTEM.md")) { return "control-loop" }
   if ($Path -like "src/app/api/*" -or $Path -like "src/lib/auth/*") { return "tenant-rbac-api" }
@@ -52,11 +68,12 @@ if (-not $env:GH_TOKEN -and -not $env:GITHUB_TOKEN) {
 $prJson = & $gh pr view $PrNumber --json number,title,body,headRefName,baseRefName,author,url
 if ($LASTEXITCODE -ne 0 -or -not $prJson) { throw "Unable to load PR #$PrNumber." }
 $pr = $prJson | ConvertFrom-Json
+$repoSlug = Get-RepoSlugFromPrUrl -PrUrl $pr.url
 
 $changedFiles = @()
 $page = 1
 while ($true) {
-  $filesJson = & $gh api "repos/imjusthoward/elevateos-demo/pulls/$PrNumber/files?per_page=100&page=$page"
+  $filesJson = & $gh api "repos/$($repoSlug.Owner)/$($repoSlug.Repo)/pulls/$PrNumber/files?per_page=100&page=$page"
   if ($LASTEXITCODE -ne 0 -or -not $filesJson) { throw "Unable to load changed files for PR #$PrNumber (page $page)." }
   $batch = @($filesJson | ConvertFrom-Json)
   if ($batch.Count -eq 0) { break }

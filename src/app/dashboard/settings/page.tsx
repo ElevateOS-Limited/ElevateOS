@@ -59,7 +59,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/user/profile')
+        const res = await fetch('/api/profile')
         const data = await res.json()
         if (!data) return
         setForm((prev) => ({
@@ -97,7 +97,7 @@ export default function SettingsPage() {
     e.preventDefault()
     setSaving(true)
     try {
-      await fetch('/api/user/profile', {
+      await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

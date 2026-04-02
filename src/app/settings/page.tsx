@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Settings, Loader2, Plus, X } from 'lucide-react'
-import toast from 'react-hot-toast'
+import toast from '@/lib/toast'
 
 export default function SettingsPage() {
   const queryClient = useQueryClient()

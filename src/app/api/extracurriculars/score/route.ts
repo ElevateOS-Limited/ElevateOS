@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generateStructuredOutput } from '@/lib/ai/openai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoExtracurricularScore } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 type Activity = { name: string; role?: string; impact?: string; hoursPerWeek?: number }
 
@@ -52,6 +53,7 @@ ${JSON.stringify(payload, null, 2)}`
     const result = await generateStructuredOutput<any>(system, user, 2200)
     return NextResponse.json(result)
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Failed to score extracurriculars' }, { status: 500 })
+    return aiErrorResponse('openai', error, 'Failed to score extracurriculars')
   }
 }
+

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useMutation } from '@tanstack/react-query'
 import { Briefcase, Loader2, MapPin, Clock, DollarSign } from 'lucide-react'
-import toast from 'react-hot-toast'
+import toast from '@/lib/toast'
 
 const MAJORS = ['Computer Science', 'Engineering', 'Biology/Pre-Med', 'Business', 'Economics', 'Psychology', 'Political Science', 'Mathematics', 'Physics', 'Chemistry', 'Environmental Science', 'Art & Design', 'Law', 'Education', 'Other']
 

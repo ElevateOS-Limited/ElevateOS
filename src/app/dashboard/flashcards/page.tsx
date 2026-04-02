@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Plus, RotateCcw } from 'lucide-react'
 
 type Deck = { id: string; name: string; description?: string; _count?: { cards: number } }
@@ -19,55 +19,12 @@ export default function FlashcardsPage() {
   const [newCardBack, setNewCardBack] = useState('')
   const current = due[index]
 
-  useEffect(() => {
-    let cancelled = false
-
-    const loadDecks = async () => {
-      const res = await fetch('/api/flashcards/decks')
-      const data = await res.json()
-      if (cancelled) return
-      setDecks(data)
-      setDeckId((currentDeckId) => currentDeckId || data[0]?.id || '')
-    }
-
-    loadDecks()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!deckId) return
-
-    let cancelled = false
-
-    const loadCards = async () => {
-      const [cardsRes, dueRes] = await Promise.all([
-        fetch(`/api/flashcards/cards?deckId=${deckId}`),
-        fetch(`/api/flashcards/review?deckId=${deckId}`),
-      ])
-
-      if (cancelled) return
-      setCards(await cardsRes.json())
-      setDue(await dueRes.json())
-      setIndex(0)
-      setShowBack(false)
-    }
-
-    loadCards()
-
-    return () => {
-      cancelled = true
-    }
-  }, [deckId])
-
-  const loadDecks = async () => {
+  const loadDecks = useCallback(async () => {
     const res = await fetch('/api/flashcards/decks')
     const data = await res.json()
     setDecks(data)
-    if (!deckId && data[0]) setDeckId(data[0].id)
-  }
+    setDeckId((currentDeckId) => currentDeckId || data[0]?.id || '')
+  }, [])
 
   const loadCards = async (id: string) => {
     const [cardsRes, dueRes] = await Promise.all([
@@ -79,6 +36,9 @@ export default function FlashcardsPage() {
     setIndex(0)
     setShowBack(false)
   }
+
+  useEffect(() => { loadDecks() }, [loadDecks])
+  useEffect(() => { if (deckId) loadCards(deckId) }, [deckId])
 
   const progress = useMemo(() => (due.length ? `${Math.min(index + 1, due.length)}/${due.length}` : '0/0'), [due.length, index])
 

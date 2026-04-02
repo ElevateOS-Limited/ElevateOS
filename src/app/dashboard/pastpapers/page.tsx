@@ -36,7 +36,7 @@ export default function PastPapersPage() {
   const [submitted, setSubmitted] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
   const [score, setScore] = useState(0)
-  const timerRef = useRef<NodeJS.Timeout>()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const subjects = setup.curriculum === 'IB' ? IB_SUBJECTS : setup.curriculum === 'AP' ? AP_SUBJECTS : []
 
@@ -54,8 +54,10 @@ export default function PastPapersPage() {
         })
       }, 1000)
     }
-    return () => clearInterval(timerRef.current)
-  }, [answers, exam, submitted, timeLeft])
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [exam, submitted])
 
   const startExam = async () => {
     setLoading(true)
@@ -85,7 +87,7 @@ export default function PastPapersPage() {
   }
 
   const handleSubmit = () => {
-    clearInterval(timerRef.current)
+    if (timerRef.current) clearInterval(timerRef.current)
     setSubmitted(true)
     setScore(calculateScore(exam, answers))
   }

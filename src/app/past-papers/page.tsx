@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useMutation } from '@tanstack/react-query'
 import { Clock, Play, Square, ChevronRight, Loader2 } from 'lucide-react'
-import toast from 'react-hot-toast'
+import toast from '@/lib/toast'
 
 const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Economics']
 const CURRICULA = ['IB', 'AP', 'SAT', 'ACT', 'A-Level']
@@ -34,7 +34,7 @@ export default function PastPapersPage() {
   const [running, setRunning] = useState(false)
   const [finished, setFinished] = useState(false)
   const [score, setScore] = useState<number | null>(null)
-  const timerRef = useRef<NodeJS.Timeout>()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const mutation = useMutation({
     mutationFn: (data: any) => fetch('/api/worksheets', {
@@ -59,8 +59,10 @@ export default function PastPapersPage() {
       setFinished(true)
       setScore(calculateScore(exam, answers))
     }
-    return () => clearTimeout(timerRef.current)
-  }, [answers, exam, running, timeLeft])
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [running, timeLeft])
 
   const handleFinish = () => {
     setFinished(true)

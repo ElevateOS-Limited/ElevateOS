@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Brain, Loader2, ChevronDown, ChevronUp, BookOpen, List, Zap, Map } from 'lucide-react'
-import toast from 'react-hot-toast'
-import ReactMarkdown from 'react-markdown'
+import toast from '@/lib/toast'
 
 const CURRICULA = ['IB', 'AP', 'SAT', 'ACT', 'A-Level', 'GCSE', 'Other']
 const LEVELS = ['HL', 'SL', 'Standard', 'Advanced', 'Honors']
@@ -149,7 +148,7 @@ function StudyMaterialTabs({ material }: { material: any }) {
       </div>
 
       {tab === 'summary' && <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{material.summary || 'No summary available.'}</div>}
-      {tab === 'notes' && <div className="prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown>{material.notes || 'No notes available.'}</ReactMarkdown></div>}
+      {tab === 'notes' && <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">{material.notes || 'No notes available.'}</div>}
       {tab === 'flashcards' && (
         <div className="space-y-2">
           {(material.flashcards as any[])?.map((fc: any, i: number) => (
@@ -160,7 +159,7 @@ function StudyMaterialTabs({ material }: { material: any }) {
           )) || <p className="text-sm text-gray-500">No flashcards available.</p>}
         </div>
       )}
-      {tab === 'plan' && <div className="prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown>{material.studyPlan || 'No study plan available.'}</ReactMarkdown></div>}
+      {tab === 'plan' && <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">{material.studyPlan || 'No study plan available.'}</div>}
     </div>
   )
 }

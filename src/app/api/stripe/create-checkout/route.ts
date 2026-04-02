@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe/stripe'
+import { getStripe } from '@/lib/stripe/stripe'
 import { prisma } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { getAppUrl } from '@/lib/app-url'
@@ -9,7 +9,9 @@ export async function POST(req: Request) {
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
+    const stripe = getStripe()
     const { priceId } = await req.json()
+    const appUrl = getAppUrl(req)
     const user = await prisma.user.findUnique({ where: { id: session.user.id } })
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 

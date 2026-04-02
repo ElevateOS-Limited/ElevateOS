@@ -1,14 +1,17 @@
 # ElevateOS
 
-ElevateOS is a Next.js App Router application for study planning, tutoring workflows, practice generation, progress tracking, and related premium student tools.
+ElevateOS is the merged Next.js codebase behind `elevateos.org` and `tutoring.elevateos.org`.
 
-## Core product areas
+It focuses on:
+- student study planning and practice
+- tutoring and parent visibility
+- admissions and internships workflows
+- progress tracking, dashboards, and shared execution
 
-- Study support: summaries, flashcards, and study plans from uploaded material
-- Practice generation: worksheets and past-paper style exercises
-- Planning: profile, deadlines, blocked dates, and weekly availability
-- Progress: review history, weak areas, and analytics
-- Premium modules: admissions and internship support, paper scan, Stripe billing
+## Related projects
+
+- Think College Level: portfolio and writing hub
+  - https://thinkcollegelevel.com
 
 ## Stack
 
@@ -35,23 +38,26 @@ Minimum required environment variables:
 - `NEXTAUTH_SECRET`
 - `OPENAI_API_KEY`
 
-## Production verification
+## Demo mode
+
+Set `DEMO_MODE=true` and `NEXT_PUBLIC_DEMO_MODE=true` to boot the app without a live login. The app will sign into the demo account defined by `DEMO_USER_EMAIL` and `DEMO_USER_PASSWORD`.
+
+## Deployment notes
+
+The app supports pluggable AI providers and environment-specific deployment settings. See `SETUP.md` and `docs/digitalocean-app-platform.md` for the host-specific details.
+
+## Verification
 
 - `npm run lint`
 - `npm run typecheck`
+- `npm run test:ci`
 - `npm run build`
-- `PORT=8080 npm run start`
 
-## Auth notes
+## Runtime
 
-- Public signup requires both `PUBLIC_SIGNUP_ENABLED=true` and `NEXT_PUBLIC_ENABLE_SIGNUP=true` for consistent UI and API behavior.
-- Password reset email delivery uses `SMTP_URL` or the `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` set. If mail is not configured, the reset request flow falls back to support instructions.
-
-## Deployment
-
-- App Platform runtime binds through `npm run start`, which respects `PORT` and listens on `0.0.0.0`.
+- `npm run start` respects `PORT` and binds on `0.0.0.0`
 - Health endpoints:
   - `/healthz`
   - `/api/health`
 
-See `SETUP.md` and `docs/digitalocean-app-platform.md` for deployment details.
+See `SETUP.md` for the complete environment and deployment checklist.

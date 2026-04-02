@@ -1,7 +1,7 @@
 const sections = [
   {
     title: 'Platform use',
-    body: 'ElevateOS provides study planning, practice, notes, tutoring support, and related student workflow tools. You are responsible for how you use generated output and for reviewing any academic or admissions guidance before relying on it.',
+    body: 'ElevateOS provides study planning, practice, notes, tutoring support, and related student workflow tools. You are responsible for how you use generated output and for reviewing any guidance before relying on it.',
   },
   {
     title: 'Accounts and access',

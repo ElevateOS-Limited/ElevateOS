@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { FileText, Loader2, ChevronDown, ChevronUp, Check } from 'lucide-react'
-import toast from 'react-hot-toast'
+import toast from '@/lib/toast'
 
 const DIFFICULTIES = ['easy', 'medium', 'hard', 'exam']
 const QUESTION_TYPES = ['multiple-choice', 'short-answer', 'long-answer', 'mixed']

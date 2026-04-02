@@ -26,6 +26,9 @@ export default function StudyPage() {
   const [error, setError] = useState('')
   const [activeFlashcard, setActiveFlashcard] = useState<number | null>(null)
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set())
+  const [sharing, setSharing] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
+  const [shareStatus, setShareStatus] = useState('')
 
   const subjects = form.curriculum === 'IB' ? IB_SUBJECTS : form.curriculum === 'AP' ? AP_SUBJECTS : []
 
@@ -34,6 +37,8 @@ export default function StudyPage() {
     setError('')
     setLoading(true)
     setResult(null)
+    setShareUrl('')
+    setShareStatus('')
 
     try {
       const formData = new FormData()
@@ -57,6 +62,28 @@ export default function StudyPage() {
       next.has(i) ? next.delete(i) : next.add(i)
       return next
     })
+  }
+
+  const handleShare = async () => {
+    if (!result?.id) return
+    setSharing(true)
+    setShareStatus('')
+    try {
+      const res = await fetch('/api/study/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studySessionId: result.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to generate share link')
+      setShareUrl(data.shareUrl)
+      await navigator.clipboard.writeText(data.shareUrl)
+      setShareStatus('Share link copied to clipboard')
+    } catch (err: any) {
+      setShareStatus(err.message || 'Failed to generate share link')
+    } finally {
+      setSharing(false)
+    }
   }
 
   return (
@@ -176,6 +203,31 @@ export default function StudyPage() {
       {/* Results */}
       {result && (
         <div className="space-y-6 animate-fade-in">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold">Share this study pack</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Send a read-only preview link to a friend.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleShare}
+                disabled={sharing}
+                className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {sharing ? 'Generating...' : 'Copy Share Link'}
+              </button>
+            </div>
+            {shareStatus && (
+              <p className={`mt-3 text-sm ${shareStatus.toLowerCase().includes('failed') ? 'text-red-500' : 'text-green-600'}`}>
+                {shareStatus}
+              </p>
+            )}
+            {shareUrl && (
+              <p className="mt-2 text-xs text-gray-500 break-all">{shareUrl}</p>
+            )}
+          </div>
+
           {/* Summary */}
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">

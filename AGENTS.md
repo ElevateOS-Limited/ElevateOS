@@ -1,393 +1,157 @@
-# AGENTS.md
-Codex review rules and execution invariants for **ElevateOS Demo**
-
-This repository uses a strict control loop defined in `MASTER_TASK_BOARD.md`.  
-All pull requests must be evaluated against the system invariants below.
-
-Reviewers must prioritize **data correctness, tenant isolation, and end-to-end flow integrity** over stylistic concerns.
-
----
-
-# 1. Core principle
-
-This repo is developed through **stitched vertical slices**.
-
-A PR should:
-- complete a defined slice from `MASTER_TASK_BOARD`
-- preserve tenant isolation
-- preserve RBAC enforcement
-- preserve working build state
-
-A PR should **never**:
-- introduce new surface area before previous slice wiring is complete
-- weaken tenant isolation or role enforcement
-- introduce placeholder logic
-
----
-
-## 1A. Autopilot execution contract (authoritative)
-
-Execution is autonomous and iterative:
-
-Implement -> Push -> Gate -> Patch -> Gate (loop) until `merge verdict: APPROVE`.
-
-Once approved:
-1. Open the next Funnel A production-code PR immediately.
-2. Post the next part plan in that new PR.
-3. Continue the same loop without waiting for manual GitHub actions from the user.
-
-Required in PR operations:
-- Use `/funnel-a gate` to trigger governance gate rerun when needed.
-- Expect `[ARBY:COMMAND_ACK]` after command-triggered gate runs.
-- Treat the latest `merge verdict:` as source of truth.
-- Treat `[ARBY:NEXT_TASK]` as automatic move-to-next-part signal after approval.
-- Treat supervisor escalation markers as hard actions:
-  - `[AUTOPILOT:FUNNEL_A][CLAIM_MISMATCH]`
-  - `[AUTOPILOT:FUNNEL_A][LOG_ONLY_BREACH]`
-  - `[AUTOPILOT:FUNNEL_A][RETIRED_PR]`
-  - `[AUTOPILOT:FUNNEL_A][NO_ACTIVE_PR]`
-  - `[AUTOPILOT:FUNNEL_A][AUTO_ACTIVE_ASSIGN]`
-
-Required WhatsApp status cadence (every 30 minutes, evidence only):
-- `lane` or `part/task`
-- `part`
-- `commit`
-- `files changed`
-- `gate run url`
-- `merge verdict`
-- `blockers`
-- `next action (next 30 min)`
-- `exact appdemo backend changes in this window` (file-level + behavior-level)
-
-Instruction persistence rule:
-- Every time Howard gives a new operating instruction, patch it into `.md` immediately in the same cycle (no defer/no pause).
-
-Throughput requirement (mandatory):
-- It is unacceptable to post a 30-minute packet with "no new backend code change" while backend lane execution is expected to be active.
-- Each 30-minute window must include either:
-  1) a new backend production-code commit in `src/` or `prisma/`, or
-  2) a verifiable blocker artifact plus an immediate unblock patch in the same window.
-
-Portability / non-waste requirement (mandatory):
-- Backend slices must be deployment-agnostic and reusable beyond current hosting choices.
-- Do not ship changes coupled to a single platform unless explicitly required.
-- Keep backend logic compatible with external DB setups and alternative platforms (e.g., Fly.io) by default.
-
-Status updates must not include tool/runtime excuses; only verifiable artifacts.
-
-Communication endpoint routing (effective 2026-03-10):
-- OpenClaw comm-agent WhatsApp endpoint: `+85291055996`
-- Human operator WhatsApp endpoint: `+85293442294`
-- VPS operational identity endpoint: `+819091451428`
-
----
-
-# 2. Hard blockers (automatic review failure)
-
-Reject PR if ANY of the following appear.
-
-## Tenant isolation violation
-All tenant data must be scoped by `orgId`.
-
-Required rules:
-- Prisma queries must include `orgId` filter
-- API routes must derive orgId from session
-- orgId must never be accepted directly from client
-
-Violations:
-- `findMany()` or `update()` without org filter
-- trusting client orgId
-
----
-
-## RBAC enforcement missing
-All write routes must enforce roles.
-
-Roles defined in:
-src/lib/auth/roles.ts
-
-
-Server must enforce:
-- owner
-- admin
-- tutor
-- parent
-- student
-
-UI gating alone is **not sufficient**.
-
-Example violation:
-
-
-if (session.user.role === "tutor") { ... }
-
-
-without server validation.
-
----
-
-## Placeholder logic shipped
-Reject if any of these appear:
-
-
-TODO
-FIXME
-placeholder
-lorem
-mock data in production path
-
-
-Demo mode flags are allowed only if they **do not bypass RBAC or tenant scoping**.
-
----
-
-## Broken control loop
-Reject PR if:
-
-- `MASTER_TASK_BOARD.md` updated incorrectly
-- logging files removed
-- commit bypasses defined slice sequencing
-
-Required files:
-
-
-MASTER_TASK_BOARD.md
-PROGRESS_LOG.md
-HEARTBEAT.md
-POSTMORTEM.md
-
-
----
-
-# 3. Funnel A invariants
-
-Reference: Section 1 of `MASTER_TASK_BOARD.md`.
-
-Minimum working flow must remain intact:
-
-Tutor flow:
-
-
-login
-→ /dashboard/quickstart
-→ select class + student
-→ generate worksheet
-→ assign
-→ record score
-→ generate monthly report
-→ review history
-
-
-Reviewers must verify that the PR does not break this path.
-
----
-
-## Funnel A entity model
-
-Required entities for completion:
-
-
-Organization
-Class
-Student
-Assessment
-Attempt
-LessonPlan
-LessonSession
-CalendarEvent
-Report
-Document
-
-
-Reject PR if schema changes break compatibility.
-
----
-
-## Funnel A critical routes
-
-Routes must enforce:
-
-- RBAC
-- orgId scoping
-- validation
-
-Critical endpoints:
-
-
-/api/worksheets/generate
-/api/worksheets
-/api/feedback
-/api/notes
-/api/classes/*
-/api/students/*
-/api/assessments/*
-/api/reports/monthly/*
-
-
----
-
-# 4. AI Integrity module invariants
-
-Reference: Section 2 of `MASTER_TASK_BOARD.md`.
-
-Pipeline must follow:
-
-
-Upload
-→ Extract text
-→ Segment
-→ Score
-→ Highlight
-→ Export
-→ Persist job
-→ Link to student profile
-
-
-Reject PR if any step is skipped.
-
----
-
-## Required database entities
-
-
-AiDetectionJob
-AiDetectionSegment
-AiDetectionReport
-
-
-Each job must include:
-
-
-jobId
-studentId
-documentId
-status
-createdAt
-
-
-Segments must include:
-
-
-segmentText
-score
-label
-confidence
-rationale
-
-
----
-
-## Idempotency requirement
-
-Running analysis twice must **not duplicate segments or reports**.
-
-Job reruns should update existing records.
-
-Reject PR if duplicate rows are possible.
-
----
-
-# 5. Export requirements
-
-Exports must include:
-
-
-PDF
-DOCX
-
-
-Exports must contain:
-
-- title
-- student
-- date
-- overall score
-- segment breakdown
-- disclaimer
-
-Reject PR if export produces empty file or placeholder content.
-
----
-
-# 6. Logging protocol
-
-Control-loop files are required artifacts and must remain present:
-
-- `PROGRESS_LOG.md`
-- `HEARTBEAT.md`
-- `POSTMORTEM.md`
-
-Liveness for autonomous execution is evaluated primarily from:
-- commit activity on active Funnel A PR
-- governance gate verdict activity
-- 60-minute evidence status updates (WhatsApp + PR command loop)
-
-Reject if control-loop files are removed or if telemetry is demonstrably false.
-
----
-
-# 7. Code quality expectations
-
-Prefer:
-
-- shared utilities
-- small composable functions
-- typed inputs
-- consistent error responses
-
-Avoid:
-
-- magic constants
-- duplicated logic
-- hidden side effects
-
----
-
-# 8. Tooling expectations
-
-The following must remain functional:
-
-
-npm run build
-
-
-Lint/test scripts may fail temporarily (known baseline issue) but **must not regress further**.
-
-Known baseline issues:
-
-
-Next lint config mismatch
-missing typecheck script
-missing test script
-
-
----
-
-# 9. What approval means
-
-Approve only if:
-
-1. RBAC is enforced server-side
-2. orgId isolation is correct
-3. vertical slice remains functional
-4. no placeholders exist
-5. database writes are deterministic
-6. build succeeds
-
-If any invariant is uncertain, request changes.
-
----
-
-# 10. Review philosophy
-
-Codex should review with the mindset:
-
-**This is a multi-tenant SaaS.**
-
-Primary risks are:
-
-- tenant data leakage
-- role privilege escalation
-- broken end-to-end product flow
-
-Focus on those first.
+# ElevateOS Codex Guide
+
+## Mission
+Build and refine the ElevateOS MVP for `elevateos.org`.
+
+Prioritize a narrow tutoring-operations product:
+- tutor and parent backend workflows
+- student records and academic context
+- session logging
+- homework, notes, and progress capture
+- simple summaries and small-business admin flows
+
+Do not optimize for enterprise abstractions, speculative scale, or broad platform redesigns.
+
+## Source Of Truth
+- The repository is the source of truth. Existing behavior beats assumptions.
+- If this file and the code disagree, inspect the code first.
+- Canonical repo/base: `imjusthoward/elevateos-demo` on `main`.
+
+## Execution Model
+- Default executor for reversible local repo work: Codex local.
+- Route production runtime, deploy verification, and long-running gateway tasks to Arby unless `TAKEOVER` is explicitly requested.
+- State the active executor and current step at each meaningful action.
+- Avoid parallel collisions on the same files or services.
+- Deliver artifacts first: code, tests, logs, SHAs, runbooks, PRs.
+- Use the smallest safe reversible change first.
+- Do not repeat the same failed path more than 2 times. After 2 failures, emit:
+  - `state`
+  - `blocked_by`
+  - `options`
+  - `recommend`
+  - `next_command`
+- Never run destructive or high-blast-radius operations without explicit approval.
+
+## Product Scope
+- Preserve working auth, demo mode, and ownership boundaries.
+- Keep current MVP interpretation narrow: tutors, parents, students or tutees, sessions, progress, notes, homework, summaries, resources.
+- Treat admissions, internships, and other starter-kit flows as legacy surface area unless the task clearly targets them.
+- Down-scope generic starter behavior gradually. Do not delete broad areas blindly.
+- Replace generic branding or hype copy incrementally where it improves trust, but do not relabel unfinished features as if they already serve tutoring operations.
+
+## Non-Negotiables
+
+### Identity And Auth
+- Never trust client-supplied `userId`, `orgId`, role, or ownership fields.
+- Derive identity on the server.
+- Prefer existing helpers, especially `getSessionOrDemo()`.
+- Preserve NextAuth behavior unless fixing a real bug.
+- Keep demo mode working in `src/lib/auth/demo.ts` and `src/lib/demo-ai.ts`.
+
+### Data Ownership
+- Scope every read, write, update, and delete to the current authenticated or demo user.
+- Default to deny when ownership is ambiguous.
+- Flag any possible cross-user or cross-org leak immediately.
+- Be careful with `findUnique` when ownership is not part of the unique key.
+- Prefer `updateMany` or `deleteMany` when ownership must be enforced inside the mutation query.
+
+### Change Size And Reliability
+- Make the smallest useful change.
+- Reuse repository patterns before inventing new abstractions.
+- Preserve working routes, demo behavior, and deployment simplicity.
+- Keep migrations incremental and reversible.
+- Never claim success without code inspection or command evidence.
+
+### UX And Copy
+- Reuse existing Next.js and Tailwind patterns.
+- Keep forms explicit and low-ceremony.
+- Prefer honest, specific tutoring language over generic starter-kit copy.
+- Avoid inflated claims such as enterprise, autonomous, or AI-powered everything.
+
+## Stack And Deployment
+- Next.js App Router
+- TypeScript
+- Tailwind
+- Prisma plus PostgreSQL
+- NextAuth
+- DigitalOcean App Platform with managed Postgres
+
+Write code that fits this environment:
+- no local disk persistence assumptions
+- no hidden server-global state for product data
+- env-var based configuration
+- production-safe Prisma usage
+- graceful handling of missing optional integrations
+
+## Work Loop
+For any non-trivial task:
+1. Inspect the relevant files first.
+2. Summarize the issue in 3 to 6 bullets.
+3. Propose the smallest reversible plan.
+4. Implement directly.
+5. Run the narrowest useful verification.
+6. Report changed files, behavior delta, commands run with `PASS` or `FAIL`, remaining risk, and the next smallest follow-up.
+
+Additional rules:
+- Use plans for multi-step work and update the plan after progress.
+- Ask at most one blocking question when a reasonable assumption would be risky; otherwise proceed.
+- Prefer `rg` and `rg --files` for search.
+
+## Verification
+- Always report exact commands run and `PASS` or `FAIL`.
+- Treat `npm run build` as the primary finalization gate when runnable.
+- Run `npm run db:generate` after Prisma schema edits.
+- Only claim lint, tests, or typecheck if they were actually run.
+- If a check is blocked, say why.
+
+## Hotspots To Inspect First
+- `src/lib/auth/session.ts`
+- `src/lib/auth/options.ts`
+- `src/lib/auth/demo.ts`
+- `src/lib/demo-ai.ts`
+- `src/lib/prisma.ts`
+- `src/app/api/auth/[...nextauth]/route.ts`
+- `src/app/api/auth/register/route.ts`
+- `src/app/api/profile/route.ts`
+- `src/app/api/progress/route.ts`
+- `src/app/api/notes/route.ts`
+- `src/app/api/worksheets/route.ts`
+- `src/app/api/study/route.ts`
+- `src/app/api/study/share/route.ts`
+- `src/app/api/sidebar-preferences/route.ts`
+- `src/app/dashboard/page.tsx`
+- `src/app/dashboard/settings/page.tsx`
+- `src/app/auth/signup/page.tsx`
+- `src/app/layout.tsx`
+- `prisma/schema.prisma` when present
+
+When changing a route or page, inspect adjacent helpers and schema before editing.
+
+## Evidence And Memory
+- Target one net-new artifact every 30 minutes on active work.
+- Active backend evidence packets should include:
+  - commit SHA or SHAs
+  - backend files and behavior delta
+  - frontend files and UX delta
+  - exact verification commands with `PASS` or `FAIL`
+  - blockers
+  - next 30 to 60 minute action
+- Canonical memory files:
+  - `HEARTBEAT.md`
+  - `PROGRESS_LOG.md`
+  - `POSTMORTEM.md`
+  - `USER.md`
+  - `docs/memory-state.json`
+- Memory sync sequence:
+  1. VPS updates heartbeat and progress.
+  2. VPS runs `pwsh -NoProfile -File .\\scripts\\memory-sync.ps1 -Mode export`.
+  3. VPS commits and pushes memory artifacts.
+  4. Local work responds from the latest `docs/memory-state.json`.
+
+## Definition Of Done
+A task is done only when:
+- the code or docs change is implemented
+- auth and ownership boundaries still hold
+- demo mode still works or the impact is explicitly stated
+- touched flows are verified as much as practical
+- the result is small enough to review and roll back cleanly

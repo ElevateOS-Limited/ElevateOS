@@ -130,7 +130,7 @@ export default function QuickstartPage() {
   useEffect(() => {
     const loadProfileBackedClassList = async () => {
       try {
-        const res = await fetch('/api/user/profile')
+        const res = await fetch('/api/profile')
         if (!res.ok) return
 
         const profile: ProfileResponse = await res.json()

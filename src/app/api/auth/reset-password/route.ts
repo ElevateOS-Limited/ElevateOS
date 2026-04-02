@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message, deliveryMode })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors[0]?.message || 'Invalid email address' }, { status: 400 })
+      return NextResponse.json({ error: error.issues[0]?.message || 'Invalid email address' }, { status: 400 })
     }
 
     console.error(error)

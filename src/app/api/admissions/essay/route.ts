@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { aiComplete } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoEssayFeedback } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +44,7 @@ Be honest, specific, and encouraging. Focus on making it stronger, not just poin
 
     return NextResponse.json({ feedback })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to analyze essay' }, { status: 500 })
+    return aiErrorResponse('anthropic', error, 'Failed to analyze essay')
   }
 }
+

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { analyzeUniversityFit } from '@/lib/ai'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoAdmissionsAnalysis } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ results })
   } catch (error) {
     console.error('Admissions analysis error:', error)
-    return NextResponse.json({ error: 'Failed to analyze admissions' }, { status: 500 })
+    return aiErrorResponse('anthropic', error, 'Failed to analyze admissions')
   }
 }
+

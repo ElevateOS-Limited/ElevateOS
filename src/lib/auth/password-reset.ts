@@ -3,7 +3,7 @@ import { createHash, randomBytes } from 'crypto'
 import { getAppUrl } from '@/lib/app-url'
 import { prisma } from '@/lib/prisma'
 
-const PASSWORD_RESET_PREFIX = 'password-reset:'
+const RESET_LINK_PREFIX = 'reset-link:'
 const PASSWORD_RESET_TTL_MS = 1000 * 60 * 60
 
 function normalizeEmail(email: string) {
@@ -11,7 +11,7 @@ function normalizeEmail(email: string) {
 }
 
 function getIdentifier(email: string) {
-  return `${PASSWORD_RESET_PREFIX}${normalizeEmail(email)}`
+  return `${RESET_LINK_PREFIX}${normalizeEmail(email)}`
 }
 
 function hashToken(token: string) {
@@ -19,8 +19,8 @@ function hashToken(token: string) {
 }
 
 function getEmailFromIdentifier(identifier: string) {
-  return identifier.startsWith(PASSWORD_RESET_PREFIX)
-    ? identifier.slice(PASSWORD_RESET_PREFIX.length)
+  return identifier.startsWith(RESET_LINK_PREFIX)
+    ? identifier.slice(RESET_LINK_PREFIX.length)
     : null
 }
 
@@ -109,5 +109,6 @@ export async function resetPasswordWithToken(rawToken: string, nextPassword: str
 }
 
 export function getPasswordResetUrl(rawToken: string, fallbackOrigin?: string) {
-  return `${getAppUrl(fallbackOrigin)}/auth/reset-password/${rawToken}`
+  const origin = fallbackOrigin || getAppUrl()
+  return `${origin}/auth/reset-password/${rawToken}`
 }

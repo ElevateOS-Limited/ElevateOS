@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useMutation } from '@tanstack/react-query'
 import { GraduationCap, Loader2, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react'
-import toast from 'react-hot-toast'
+import toast from '@/lib/toast'
 
 export default function AdmissionsPage() {
   const [form, setForm] = useState({ university: '', major: '', gpa: '', satScore: '', actScore: '', curriculum: '' })

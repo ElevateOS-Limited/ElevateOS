@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { GraduationCap, Loader, Plus, X } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
 import { useSession } from 'next-auth/react'
 
 export default function AdmissionsPage() {
@@ -191,7 +190,7 @@ export default function AdmissionsPage() {
             {r.university}
           </h2>
           <div className="prose dark:prose-invert max-w-none text-sm">
-            <ReactMarkdown>{r.analysis}</ReactMarkdown>
+            <div className="whitespace-pre-wrap">{r.analysis}</div>
           </div>
         </div>
       ))}
@@ -215,7 +214,7 @@ export default function AdmissionsPage() {
         </button>
         {essayFeedback && (
           <div className="mt-4 prose dark:prose-invert max-w-none text-sm bg-green-50 dark:bg-green-900/10 rounded-xl p-4">
-            <ReactMarkdown>{essayFeedback}</ReactMarkdown>
+            <div className="whitespace-pre-wrap">{essayFeedback}</div>
           </div>
         )}
       </div>

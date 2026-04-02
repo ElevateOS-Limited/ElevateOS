@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { recordEvent } from '@/lib/stats'
 
 const schema = z.object({
   name: z.string().min(2),
@@ -9,6 +10,8 @@ const schema = z.object({
   password: z.string().min(8),
   isAokTutor: z.boolean().optional().default(false),
   aokInviteCode: z.string().optional(),
+  referralSource: z.string().optional(),
+  referralStudySessionId: z.string().optional(),
 })
 
 export async function POST(req: Request) {
@@ -19,7 +22,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Signup is disabled. Contact admin for account access.' }, { status: 403 })
     }
     const body = await req.json()
-    const { name, email, password, isAokTutor, aokInviteCode } = schema.parse(body)
+    const { name, email, password, isAokTutor, aokInviteCode, referralSource, referralStudySessionId } = schema.parse(body)
 
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) return NextResponse.json({ error: 'Email already registered' }, { status: 400 })
@@ -42,9 +45,18 @@ export async function POST(req: Request) {
       },
     })
 
+    if (referralSource === 'study_share') {
+      await recordEvent(prisma, user.id, 'invite_accepted', {
+        source: 'study_share',
+        studySessionId: referralStudySessionId || null,
+      })
+    }
+
     return NextResponse.json({ message: 'Account created', userId: user.id }, { status: 201 })
   } catch (e) {
-    if (e instanceof z.ZodError) return NextResponse.json({ error: e.errors[0].message }, { status: 400 })
+    if (e instanceof z.ZodError) {
+      return NextResponse.json({ error: e.issues[0]?.message || 'Invalid request' }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

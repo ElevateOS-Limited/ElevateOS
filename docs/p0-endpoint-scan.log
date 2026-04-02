@@ -1,0 +1,39 @@
+src/app/api/goals/route.ts:13:export async function POST(req: NextRequest) {
+src/app/api/goals/route.ts:18:  await writeAuditLog({
+src/app/api/goals/route.ts:28:export async function PATCH(req: NextRequest) {
+src/app/api/goals/route.ts:32:  const updateResult = await prisma.goal.updateMany({
+src/app/api/goals/route.ts:37:    await writeAuditLog({
+src/app/api/goals/route.ts:47:  await writeAuditLog({
+src/app/api/notes/route.ts:33:export async function POST(req: NextRequest) {
+src/app/api/notes/route.ts:48:  await writeAuditLog({
+src/app/api/notes/route.ts:58:export async function PATCH(req: NextRequest) {
+src/app/api/notes/route.ts:66:  const result = await prisma.note.updateMany({
+src/app/api/notes/route.ts:75:    await writeAuditLog({
+src/app/api/notes/route.ts:86:  await writeAuditLog({
+src/app/api/notes/route.ts:96:export async function DELETE(req: NextRequest) {
+src/app/api/notes/route.ts:102:  const result = await prisma.note.deleteMany({ where: { id, userId: session.user.id } })
+src/app/api/notes/route.ts:104:    await writeAuditLog({
+src/app/api/notes/route.ts:113:  await writeAuditLog({
+src/lib/audit.ts:12:export async function writeAuditLog(input: WriteAuditInput) {
+src/app/api/user/profile/route.ts:7:export async function PATCH(request: NextRequest) {
+src/app/api/papers/grade/route.ts:9:export async function POST(req: NextRequest) {
+src/app/api/stripe/reconcile/route.ts:4:export async function POST(request: NextRequest) {
+src/app/api/chat/route.ts:10:export async function POST(req: Request) {
+src/app/api/stripe/webhook/route.ts:8:export async function POST(req: Request) {
+src/app/api/deadlines/route.ts:13:export async function POST(req: NextRequest) {
+src/app/api/deadlines/route.ts:18:  await writeAuditLog({
+src/app/api/deadlines/route.ts:28:export async function PATCH(req: NextRequest) {
+src/app/api/deadlines/route.ts:32:  const updateResult = await prisma.deadline.updateMany({
+src/app/api/deadlines/route.ts:37:    await writeAuditLog({
+src/app/api/deadlines/route.ts:47:  await writeAuditLog({
+src/app/api/flashcards/cards/route.ts:18:export async function POST(req: NextRequest) {
+src/app/api/flashcards/cards/route.ts:32:    await writeAuditLog({
+src/app/api/flashcards/cards/route.ts:59:  await writeAuditLog({
+src/app/api/flashcards/cards/route.ts:69:export async function PATCH(req: NextRequest) {
+src/app/api/flashcards/cards/route.ts:75:  const updateResult = await prisma.flashcard.updateMany({
+src/app/api/flashcards/cards/route.ts:84:    await writeAuditLog({
+src/app/api/flashcards/cards/route.ts:94:  await writeAuditLog({
+src/app/api/flashcards/cards/route.ts:104:export async function DELETE(req: NextRequest) {
+src/app/api/flashcards/cards/route.ts:109:  const deleteResult = await prisma.flashcard.deleteMany({ where: { id, userId: session.user.id } })
+src/app/api/flashcards/cards/route.ts:111:    await writeAuditLog({
+src/app/api/flashcards/cards/route.ts:120:  await writeAuditLog({

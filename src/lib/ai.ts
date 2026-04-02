@@ -1,17 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { AIConfigError } from '@/lib/ai/errors'
-
-function resolveAnthropicApiKey() {
-  const key = (process.env.ANTHROPIC_API_KEY || '').trim()
-  if (!key || key.includes('your-anthropic-api-key')) {
-    throw new AIConfigError('ANTHROPIC_API_KEY is missing or invalid')
-  }
-  return key
-}
-
-function getAnthropic() {
-  return new Anthropic({ apiKey: resolveAnthropicApiKey() })
-}
+import { generateJson, generateText, type TextMessage } from '@/lib/ai/provider'
 
 export interface AIMessage {
   role: 'user' | 'assistant'
@@ -27,43 +14,19 @@ export interface AICompletionOptions {
 
 export async function aiComplete(options: AICompletionOptions): Promise<string> {
   const { messages, system, maxTokens = 4096 } = options
-
-  const response = await getAnthropic().messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: maxTokens,
-    system: system || 'You are ElevateOS AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
-    messages: messages.map(m => ({
-      role: m.role,
-      content: m.content,
-    })),
+  return generateText({
+    messages: messages as TextMessage[],
+    system:
+      system ||
+      'You are ElevateOS AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
+    maxTokens,
   })
-
-  const content = response.content[0]
-  if (content.type === 'text') return content.text
-  throw new Error('Unexpected response type from AI')
 }
 
 export async function* aiStream(options: AICompletionOptions): AsyncGenerator<string> {
-  const { messages, system, maxTokens = 4096 } = options
-
-  const stream = await getAnthropic().messages.stream({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: maxTokens,
-    system: system || 'You are ElevateOS AI, an expert academic assistant.',
-    messages: messages.map(m => ({
-      role: m.role,
-      content: m.content,
-    })),
-  })
-
-  for await (const chunk of stream) {
-    if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-      yield chunk.delta.text
-    }
-  }
+  const text = await aiComplete(options)
+  if (text) yield text
 }
-
-// Specialized AI functions
 
 export async function generateStudyNotes(content: string, subject: string, curriculum: string): Promise<{
   summary: string
@@ -86,15 +49,17 @@ Return a JSON object with these exact keys:
 
 Generate at least 10 flashcards and 5 key concepts. Return ONLY valid JSON.`
 
-  const result = await aiComplete({
-    messages: [{ role: 'user', content: prompt }],
-    maxTokens: 4000,
-  })
-
   try {
-    const cleaned = result.replace(/```json\n?|\n?```/g, '').trim()
-    return JSON.parse(cleaned)
+    return await generateJson({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 4000,
+      temperature: 0.4,
+    })
   } catch {
+    const result = await aiComplete({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 4000,
+    })
     return {
       summary: result,
       keyConcepts: [],
@@ -133,14 +98,12 @@ Return JSON with this structure:
 
 Return ONLY valid JSON.`
 
-  const result = await aiComplete({
-    messages: [{ role: 'user', content: prompt }],
-    maxTokens: 4000,
-  })
-
   try {
-    const cleaned = result.replace(/```json\n?|\n?```/g, '').trim()
-    return JSON.parse(cleaned)
+    return await generateJson({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 4000,
+      temperature: 0.4,
+    })
   } catch {
     return { questions: [] }
   }

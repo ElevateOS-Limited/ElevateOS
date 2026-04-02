@@ -3,21 +3,30 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { prisma, DATABASE_URL_CONFIGURED } from "@/lib/prisma";
 import { ensureDemoUser, DEMO_MODE, DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/auth/demo";
 
+const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim()
+const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim()
+
+export const GOOGLE_AUTH_CONFIGURED = Boolean(googleClientId && googleClientSecret)
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  ...(DATABASE_URL_CONFIGURED ? { adapter: PrismaAdapter(prisma) } : {}),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
   },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    ...(GOOGLE_AUTH_CONFIGURED
+      ? [
+          GoogleProvider({
+            clientId: googleClientId,
+            clientSecret: googleClientSecret,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -30,6 +39,8 @@ export const authOptions: NextAuthOptions = {
         if (DEMO_MODE && credentials.email === DEMO_EMAIL && credentials.password === DEMO_PASSWORD) {
           return ensureDemoUser();
         }
+
+        if (!DATABASE_URL_CONFIGURED) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },

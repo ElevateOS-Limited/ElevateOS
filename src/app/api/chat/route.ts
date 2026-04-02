@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getOpenAI, AI_MODEL } from '@/lib/ai/openai'
-import { prisma } from '@/lib/prisma'
+import { generateText } from '@/lib/ai/provider'
+import { prisma, DATABASE_URL_CONFIGURED } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, shouldUseStaticDemoResponses } from '@/lib/demo-ai'
+import { aiErrorResponse } from '@/lib/ai/http'
 
 export async function POST(req: Request) {
   const session = await getSessionOrDemo()
@@ -15,19 +16,21 @@ export async function POST(req: Request) {
 
     const { message, history = [] } = await req.json()
 
-    if (shouldUseStaticDemoResponses()) {
+    if (!DATABASE_URL_CONFIGURED || shouldUseStaticDemoResponses()) {
       const reply = `Demo Assistant (static): Based on your message, I recommend a 3-step plan — (1) clarify target universities and major, (2) prioritize one flagship extracurricular with measurable impact, and (3) build a 90-day execution timeline with weekly checkpoints.`
-      await prisma.chatMessage.createMany({
-        data: [
-          { userId: session.user.id, role: 'user', content: message },
-          { userId: session.user.id, role: 'assistant', content: reply },
-        ],
-      })
+      if (DATABASE_URL_CONFIGURED) {
+        await prisma.chatMessage.createMany({
+          data: [
+            { userId: session.user.id, role: 'user', content: message },
+            { userId: session.user.id, role: 'assistant', content: reply },
+          ],
+        })
+      }
       return NextResponse.json({ message: reply })
     }
 
     const systemPrompt = `You are ElevateOS Assistant, a helpful AI assistant for the ElevateOS platform.
-ElevateOS is a study planning and tutoring workflow platform for high school students preparing for IB, AP, SAT, ACT, and university admissions.
+ElevateOS is an AI-powered study platform for high school students preparing for IB, AP, SAT, ACT, and university admissions.
 
 Features you can help with:
 - Study Assistant: Upload materials to get summaries, notes, flashcards, and study plans
@@ -44,14 +47,13 @@ Always be encouraging, specific, and helpful. Keep responses concise and actiona
       { role: 'user' as const, content: message },
     ]
 
-    const response = await getOpenAI().chat.completions.create({
-      model: AI_MODEL,
-      messages: [{ role: 'system', content: systemPrompt }, ...messages],
-      max_tokens: 500,
-      temperature: 0.7,
-    })
-
-    const reply = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.'
+    const reply =
+      (await generateText({
+        system: systemPrompt,
+        messages,
+        maxTokens: 500,
+        temperature: 0.7,
+      })) || 'Sorry, I could not generate a response.'
 
     // Save to DB
     await prisma.chatMessage.createMany({
@@ -69,7 +71,7 @@ Always be encouraging, specific, and helpful. Keep responses concise and actiona
         { status: 503 }
       )
     }
-    console.error(e)
-    return NextResponse.json({ error: 'Chat failed' }, { status: 500 })
+    return aiErrorResponse('openai', e, 'AI assistant is temporarily unavailable')
   }
 }
+

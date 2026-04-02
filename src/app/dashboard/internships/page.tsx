@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Briefcase, Loader } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
 
 export default function InternshipsPage() {
   const [form, setForm] = useState({ major: '', careerInterests: '', skills: '', location: '' })
@@ -106,7 +105,7 @@ export default function InternshipsPage() {
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 animate-fade-in">
           <h2 className="text-lg font-semibold mb-4">Recommended Internships</h2>
           <div className="prose dark:prose-invert max-w-none">
-            <ReactMarkdown>{result}</ReactMarkdown>
+            <div className="whitespace-pre-wrap">{result}</div>
           </div>
         </div>
       )}
