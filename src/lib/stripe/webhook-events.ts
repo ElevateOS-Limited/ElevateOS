@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import { prisma } from '@/lib/prisma'
+import { withServiceDbContext } from '@/lib/db/rls'
 
 type StripeWebhookStatus = 'received' | 'processed' | 'failed'
 
@@ -9,39 +9,35 @@ export interface StripeWebhookRecord {
   status: StripeWebhookStatus
   receivedAt: string
   updatedAt: string
-  error?: string
+  error?: string | null
 }
 
-type StoreShape = {
-  events: Record<string, StripeWebhookRecord>
-}
-
-const STORE_DIR = path.join(process.cwd(), '.runtime')
-const STORE_PATH = path.join(STORE_DIR, 'stripe-webhook-events.json')
-
-async function ensureStore(): Promise<StoreShape> {
-  try {
-    const raw = await fs.readFile(STORE_PATH, 'utf8')
-    const parsed = JSON.parse(raw) as StoreShape
-    return { events: parsed.events ?? {} }
-  } catch {
-    await fs.mkdir(STORE_DIR, { recursive: true })
-    const initial: StoreShape = { events: {} }
-    await fs.writeFile(STORE_PATH, JSON.stringify(initial, null, 2), 'utf8')
-    return initial
+function toRecord(row: {
+  eventId: string
+  eventType: string
+  status: string
+  receivedAt: Date
+  updatedAt: Date
+  error: string | null
+}): StripeWebhookRecord {
+  return {
+    eventId: row.eventId,
+    eventType: row.eventType,
+    status: row.status as StripeWebhookStatus,
+    receivedAt: row.receivedAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    error: row.error,
   }
 }
 
-async function saveStore(store: StoreShape) {
-  await fs.mkdir(STORE_DIR, { recursive: true })
-  const tmpPath = `${STORE_PATH}.tmp`
-  await fs.writeFile(tmpPath, JSON.stringify(store, null, 2), 'utf8')
-  await fs.rename(tmpPath, STORE_PATH)
-}
-
 export async function getStripeWebhookRecord(eventId: string) {
-  const store = await ensureStore()
-  return store.events[eventId] || null
+  return withServiceDbContext(async () => {
+    const row = await prisma.stripeWebhookEvent.findUnique({
+      where: { eventId },
+    })
+
+    return row ? toRecord(row) : null
+  })
 }
 
 export async function markStripeWebhookStatus(
@@ -50,22 +46,32 @@ export async function markStripeWebhookStatus(
   status: StripeWebhookStatus,
   error?: string
 ) {
-  const store = await ensureStore()
-  const now = new Date().toISOString()
-  const existing = store.events[eventId]
-  store.events[eventId] = {
-    eventId,
-    eventType,
-    status,
-    receivedAt: existing?.receivedAt || now,
-    updatedAt: now,
-    ...(error ? { error } : {}),
-  }
-  await saveStore(store)
-  return store.events[eventId]
+  return withServiceDbContext(async () => {
+    const row = await prisma.stripeWebhookEvent.upsert({
+      where: { eventId },
+      create: {
+        eventId,
+        eventType,
+        status,
+        error: error ?? null,
+      },
+      update: {
+        eventType,
+        status,
+        error: error ?? null,
+      },
+    })
+
+    return toRecord(row)
+  })
 }
 
 export async function listStripeWebhookRecords() {
-  const store = await ensureStore()
-  return Object.values(store.events).sort((a, b) => (a.receivedAt < b.receivedAt ? 1 : -1))
+  return withServiceDbContext(async () => {
+    const rows = await prisma.stripeWebhookEvent.findMany({
+      orderBy: [{ receivedAt: 'desc' }, { eventId: 'desc' }],
+    })
+
+    return rows.map(toRecord)
+  })
 }

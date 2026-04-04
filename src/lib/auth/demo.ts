@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { Role } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { DATABASE_URL_CONFIGURED } from '@/lib/prisma'
+import { withServiceDbContext } from '@/lib/db/rls'
 
 export const DEMO_MODE = process.env.DEMO_MODE === 'true'
 export const DEMO_EMAIL = process.env.DEMO_USER_EMAIL ?? 'demo@elevateos.org'
@@ -32,20 +33,22 @@ export async function ensureDemoUser() {
   }
 
   const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12)
-  return prisma.user.upsert({
-    where: { email: DEMO_EMAIL },
-    update: {
-      name: DEMO_NAME,
-      role: DEMO_ROLE,
-      plan: DEMO_PLAN,
-      password: hashedPassword,
-    },
-    create: {
-      email: DEMO_EMAIL,
-      name: DEMO_NAME,
-      role: DEMO_ROLE,
-      plan: DEMO_PLAN,
-      password: hashedPassword,
-    },
-  })
+  return withServiceDbContext(async () =>
+    prisma.user.upsert({
+      where: { email: DEMO_EMAIL },
+      update: {
+        name: DEMO_NAME,
+        role: DEMO_ROLE,
+        plan: DEMO_PLAN,
+        password: hashedPassword,
+      },
+      create: {
+        email: DEMO_EMAIL,
+        name: DEMO_NAME,
+        role: DEMO_ROLE,
+        plan: DEMO_PLAN,
+        password: hashedPassword,
+      },
+    })
+  )
 }

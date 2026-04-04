@@ -28,7 +28,7 @@ const navItems = [
   { href: '/past-papers', label: 'Past Papers', icon: Clock },
   { href: '/admissions', label: 'Admissions', icon: GraduationCap },
   { href: '/internships', label: 'Internships', icon: Briefcase },
-  { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {

@@ -9,7 +9,9 @@ import { aiErrorResponse } from '@/lib/ai/http'
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>) {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
-  return typeof orgId === 'string' && orgId.trim().length > 0 ? orgId : null
+  if (typeof orgId === 'string' && orgId.trim().length > 0) return orgId
+  const userId = session?.user?.id
+  return typeof userId === 'string' && userId.trim().length > 0 ? userId : null
 }
 
 export async function POST(request: NextRequest) {

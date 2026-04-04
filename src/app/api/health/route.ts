@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { execSync } from 'node:child_process'
 import { getConfiguredAIStatus } from '@/lib/ai/provider'
 import { GOOGLE_AUTH_CONFIGURED } from '@/lib/auth/options'
+import { withServiceDbContext } from '@/lib/db/rls'
 
 function getGitCommit() {
   return (
@@ -27,13 +28,14 @@ export async function GET(req: Request) {
   const startedAt = Date.now()
   const detailed = healthAuthOk(req)
 
-  let dbOk = false
-  try {
-    await prisma.$queryRaw`SELECT 1`
-    dbOk = true
-  } catch {
-    dbOk = false
-  }
+  const dbOk = await withServiceDbContext(async () => {
+    try {
+      await prisma.$queryRaw`SELECT 1`
+      return true
+    } catch {
+      return false
+    }
+  })
 
   const status = dbOk ? 'ok' : 'degraded'
 

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { withServiceDbContext } from '@/lib/db/rls'
 import { parseStudyShareToken } from '@/lib/share'
 import { recordEvent } from '@/lib/stats'
 
@@ -25,19 +26,21 @@ export default async function SharedStudyPage({ params }: SharedStudyPageProps) 
     )
   }
 
-  const studySession = await prisma.studySession.findFirst({
-    where: { id: tokenPayload.sid, userId: tokenPayload.uid },
-    select: {
-      id: true,
-      title: true,
-      subject: true,
-      curriculum: true,
-      summary: true,
-      keyConcepts: true,
-      studyPlan: true,
-      createdAt: true,
-    },
-  })
+  const studySession = await withServiceDbContext(() =>
+    prisma.studySession.findFirst({
+      where: { id: tokenPayload.sid, userId: tokenPayload.uid },
+      select: {
+        id: true,
+        title: true,
+        subject: true,
+        curriculum: true,
+        summary: true,
+        keyConcepts: true,
+        studyPlan: true,
+        createdAt: true,
+      },
+    })
+  )
 
   if (!studySession) {
     return (
@@ -53,10 +56,12 @@ export default async function SharedStudyPage({ params }: SharedStudyPageProps) 
     )
   }
 
-  await recordEvent(prisma, tokenPayload.uid, 'study_share_opened', {
-    studySessionId: studySession.id,
-    source: 'shared_study_page',
-  })
+  await withServiceDbContext(() =>
+    recordEvent(prisma, tokenPayload.uid, 'study_share_opened', {
+      studySessionId: studySession.id,
+      source: 'shared_study_page',
+    })
+  )
 
   const keyConcepts: string[] = Array.isArray(studySession.keyConcepts)
     ? studySession.keyConcepts.slice(0, 8).map((v: unknown) => String(v))

@@ -3,9 +3,8 @@ import { z } from 'zod'
 import { getAppUrl } from '@/lib/app-url'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
-import { createCheckoutSession } from '@/lib/stripe'
-import { getStripe } from '@/lib/stripe/stripe'
 import { resolveStripePriceId } from '@/lib/billing/stripe'
+import { createPaidCheckoutSession } from '@/lib/billing/checkout'
 import type { BillingInterval, PaidBillingPlanId } from '@/lib/billing/plans'
 
 const checkoutRequestSchema = z.object({
@@ -36,52 +35,24 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
     if (!user.email) return NextResponse.json({ error: 'Missing account email' }, { status: 400 })
 
-    const stripe = getStripe()
-    let customerId = user.stripeCustomerId
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.name || undefined,
-      })
-      customerId = customer.id
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { stripeCustomerId: customerId },
-      })
-    }
-
     const appUrl = getAppUrl(request)
-    const checkoutSession = await createCheckoutSession({
-      userId: user.id,
-      email: user.email,
-      customerId,
+    const checkoutSession = await createPaidCheckoutSession({
+      user,
       priceId,
       successUrl: `${appUrl}/dashboard?upgraded=true`,
       cancelUrl: `${appUrl}/pricing?interval=${interval}`,
       metadata: { plan, interval },
+      eventType: 'checkout_started',
+      eventMeta: {
+        plan,
+        interval,
+        priceId,
+      },
     })
 
     if (!checkoutSession.url) {
       return NextResponse.json({ error: 'Checkout session could not be created' }, { status: 500 })
     }
-
-    await prisma.eventLog.create({
-      data: {
-        userId: user.id,
-        eventType: 'checkout_started',
-        meta: {
-          plan,
-          interval,
-          priceId,
-          customerId,
-        },
-      },
-    }).catch((error) => {
-      console.warn('checkout_started_log_failed', {
-        userId: user.id,
-        error: error instanceof Error ? error.message : String(error),
-      })
-    })
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {

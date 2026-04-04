@@ -40,6 +40,18 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model StripeWebhookEvent {
+  eventId    String   @id
+  eventType  String
+  status     String   @default("received")
+  receivedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  error      String?  @db.Text
+
+  @@index([status, receivedAt])
+  @@index([receivedAt])
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?

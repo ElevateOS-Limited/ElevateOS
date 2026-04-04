@@ -39,7 +39,9 @@ const patchSchema = z.object({
 
 function getSessionOrgId(session: Awaited<ReturnType<typeof getSessionOrDemo>>): string | null {
   const orgId = (session?.user as { orgId?: string | null } | undefined)?.orgId
-  return typeof orgId === 'string' && orgId.trim().length > 0 ? orgId : null
+  if (typeof orgId === 'string' && orgId.trim().length > 0) return orgId
+  const userId = session?.user?.id
+  return typeof userId === 'string' && userId.trim().length > 0 ? userId : null
 }
 
 export async function GET(_: NextRequest, ctx: RouteContext) {

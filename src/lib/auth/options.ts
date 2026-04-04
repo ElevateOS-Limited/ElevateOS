@@ -61,6 +61,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as any).role;
         token.plan = (user as any).plan ?? token.plan ?? "FREE";
+        token.orgId = (user as any).orgId ?? user.id;
       }
       return token;
     },
@@ -69,6 +70,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.plan = (token.plan as string) || "FREE";
+        session.user.orgId = (token.orgId as string) || session.user.id;
       }
       return session;
     },

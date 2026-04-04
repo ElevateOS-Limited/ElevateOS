@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { createHash, randomBytes } from 'crypto'
 import { getAppUrl } from '@/lib/app-url'
 import { prisma } from '@/lib/prisma'
+import { withServiceDbContext } from '@/lib/db/rls'
 
 const RESET_LINK_PREFIX = 'reset-link:'
 const PASSWORD_RESET_PREFIX = RESET_LINK_PREFIX
@@ -26,9 +27,11 @@ function getEmailFromIdentifier(identifier: string) {
 }
 
 async function getActiveResetToken(rawToken: string) {
-  const tokenRecord = await prisma.verificationToken.findUnique({
-    where: { token: hashToken(rawToken) },
-  })
+  const tokenRecord = await withServiceDbContext(() =>
+    prisma.verificationToken.findUnique({
+      where: { token: hashToken(rawToken) },
+    })
+  )
 
   if (!tokenRecord) {
     return null
@@ -39,7 +42,9 @@ async function getActiveResetToken(rawToken: string) {
   }
 
   if (tokenRecord.expires.getTime() <= Date.now()) {
-    await prisma.verificationToken.delete({ where: { token: tokenRecord.token } }).catch(() => {})
+    await withServiceDbContext(() =>
+      prisma.verificationToken.delete({ where: { token: tokenRecord.token } }).catch(() => {})
+    )
     return null
   }
 
@@ -52,16 +57,20 @@ export async function createPasswordResetToken(email: string) {
   const rawToken = randomBytes(32).toString('hex')
   const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS)
 
-  await prisma.verificationToken.deleteMany({
-    where: { identifier },
-  })
+  await withServiceDbContext(async () => {
+    await prisma.$transaction(async (tx) => {
+      await tx.verificationToken.deleteMany({
+        where: { identifier },
+      })
 
-  await prisma.verificationToken.create({
-    data: {
-      identifier,
-      token: hashToken(rawToken),
-      expires: expiresAt,
-    },
+      await tx.verificationToken.create({
+        data: {
+          identifier,
+          token: hashToken(rawToken),
+          expires: expiresAt,
+        },
+      })
+    })
   })
 
   return { rawToken, expiresAt }
@@ -96,15 +105,17 @@ export async function resetPasswordWithToken(rawToken: string, nextPassword: str
 
   const password = await bcrypt.hash(nextPassword, 12)
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: user.id },
-      data: { password },
-    }),
-    prisma.verificationToken.deleteMany({
-      where: { identifier: tokenRecord.identifier },
-    }),
-  ])
+  await withServiceDbContext(async () => {
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { password },
+      })
+      await tx.verificationToken.deleteMany({
+        where: { identifier: tokenRecord.identifier },
+      })
+    })
+  })
 
   return { ok: true as const }
 }

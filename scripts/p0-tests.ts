@@ -7,6 +7,9 @@ import {
   markStripeWebhookStatus,
 } from '../src/lib/stripe/webhook-events'
 import {
+  DATABASE_URL_CONFIGURED,
+} from '../src/lib/prisma'
+import {
   AIProviderError,
   resetAICircuitState,
   runWithAIProtection,
@@ -55,8 +58,10 @@ async function testOwnershipGuards() {
 }
 
 async function testStripeWebhookStoreReplay() {
-  const storePath = path.join(root, '.runtime', 'stripe-webhook-events.json')
-  await fs.rm(storePath, { force: true })
+  if (!DATABASE_URL_CONFIGURED) {
+    console.log('Skipping Stripe webhook persistence test because DATABASE_URL is not configured')
+    return
+  }
 
   const eventId = 'evt_test_replay_123'
   await markStripeWebhookStatus(eventId, 'customer.subscription.updated', 'received')
