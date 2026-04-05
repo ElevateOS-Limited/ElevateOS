@@ -43,7 +43,8 @@ export async function POST(req: Request) {
           name,
           email,
           password: hashed,
-          plan: aokTutorApproved ? 'PRO' : 'FREE',
+          role: aokTutorApproved ? 'TUTOR' : 'STUDENT',
+          plan: aokTutorApproved ? 'ELITE' : 'FREE',
         },
       })
 

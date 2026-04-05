@@ -4,29 +4,38 @@ import Link from 'next/link'
 import { ArrowRight, FileText, TrendingUp, Users } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { initialStudents, isParentPov, nextSessionKey, progressLabel, tutoringSectionMeta } from './tutoring-data'
+import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringOverviewPage() {
   const { activePov } = useTutoringUi()
+  const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const students = data?.students ?? initialStudents
 
-  const totalStudents = initialStudents.length
-  const accelerating = initialStudents.filter((student) => student.status === 'Improving').length
-  const steady = initialStudents.filter((student) => student.status === 'Stable').length
-  const intervention = initialStudents.filter((student) => student.status === 'Declining').length
-  const averageProgress = (initialStudents.reduce((sum, student) => sum + student.progress, 0) / totalStudents).toFixed(1)
-  const upcoming = [...initialStudents].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, 4)
-  const priorityStudents = initialStudents.filter((student) => student.status === 'Declining').slice(0, 3)
+  const totalStudents = students.length
+  const accelerating = students.filter((student) => student.status === 'Improving').length
+  const steady = students.filter((student) => student.status === 'Stable').length
+  const intervention = students.filter((student) => student.status === 'Declining').length
+  const averageProgress = (students.reduce((sum, student) => sum + student.progress, 0) / Math.max(1, totalStudents)).toFixed(1)
+  const upcoming = [...students].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, 4)
+  const priorityStudents = students.filter((student) => student.status === 'Declining').slice(0, 3)
   const visibleLinks = parentView
     ? [
+        { href: '/dashboard/tasks', label: 'Tasks', desc: 'See what has been assigned and what is due next.' },
+        { href: '/dashboard/feedback', label: 'Feedback', desc: 'Read the latest review snapshots and next actions.' },
         { href: '/dashboard/recaps', label: 'Recaps', desc: 'Read parent-ready session notes and follow-ups.' },
         { href: '/dashboard/progress', label: 'Progress', desc: 'See growth trends and the next milestones.' },
+        { href: '/dashboard/resources', label: 'Resources', desc: 'Review lesson files and support material.' },
         { href: '/dashboard/communication', label: 'Communication', desc: 'Open parent messages and tutor replies.' },
         { href: '/dashboard/schedule', label: 'Schedule', desc: 'Check upcoming sessions and timing.' },
       ]
     : [
         { href: '/dashboard/students', label: 'Students', desc: 'Roster, filters, and student notes.' },
+        { href: '/dashboard/tasks', label: 'Tasks', desc: 'Weekly assignments, deadlines, and submission flow.' },
+        { href: '/dashboard/feedback', label: 'Feedback', desc: 'Reviewed work, weak areas, and next steps.' },
         { href: '/dashboard/recaps', label: 'Recaps', desc: 'Recent session summaries and parent-ready notes.' },
         { href: '/dashboard/progress', label: 'Progress', desc: 'Track movers, intervention flags, and growth.' },
+        { href: '/dashboard/resources', label: 'Resources', desc: 'Lesson files, question banks, and tutor notes.' },
         { href: '/dashboard/schedule', label: 'Schedule', desc: 'See the week, open slots, and upcoming sessions.' },
         { href: '/dashboard/communication', label: 'Communication', desc: 'Threads, reminders, and follow-ups.' },
         { href: '/dashboard/settings', label: 'Settings', desc: 'Tutor preferences and default workflow options.' },

@@ -5,13 +5,16 @@ import Link from 'next/link'
 import { ArrowRight, AlertTriangle, TrendingUp } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { initialStudents, isParentPov, progressColor, progressLabel, statusClasses } from './tutoring-data'
+import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringProgressPage() {
   const { activePov } = useTutoringUi()
+  const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
-  const [selectedId, setSelectedId] = useState(initialStudents[0].id)
+  const students = data?.students ?? initialStudents
+  const [selectedId, setSelectedId] = useState(students[0].id)
 
-  const sortedStudents = useMemo(() => [...initialStudents].sort((left, right) => right.progress - left.progress || left.name.localeCompare(right.name)), [])
+  const sortedStudents = useMemo(() => [...students].sort((left, right) => right.progress - left.progress || left.name.localeCompare(right.name)), [students])
   const selectedStudent = sortedStudents.find((student) => student.id === selectedId) ?? sortedStudents[0]
   const accelerating = sortedStudents.filter((student) => student.status === 'Improving').length
   const steady = sortedStudents.filter((student) => student.status === 'Stable').length

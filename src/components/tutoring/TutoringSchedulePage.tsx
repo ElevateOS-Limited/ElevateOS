@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CalendarClock, CheckCircle2, Clock3 } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { initialStudents, isParentPov, nextSessionKey } from './tutoring-data'
+import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -28,6 +29,7 @@ const monthGrid = (month: Date) => {
 
 export default function TutoringSchedulePage() {
   const { activePov } = useTutoringUi()
+  const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
   const [viewMonth, setViewMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
   const [availability, setAvailability] = useState<Record<string, 'busy' | 'open'>>(
@@ -35,7 +37,8 @@ export default function TutoringSchedulePage() {
   )
   const [blockedDates, setBlockedDates] = useState<string[]>([])
 
-  const upcoming = useMemo(() => [...initialStudents].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, 5), [])
+  const students = data?.students ?? initialStudents
+  const upcoming = useMemo(() => [...students].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, 5), [students])
   const openDays = Object.values(availability).filter((value) => value === 'open').length
   const todayIso = toIsoDate(new Date())
 

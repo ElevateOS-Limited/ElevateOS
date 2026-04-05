@@ -8,10 +8,10 @@ export const DEMO_MODE = process.env.DEMO_MODE === 'true'
 export const DEMO_EMAIL = process.env.DEMO_USER_EMAIL ?? 'demo@elevateos.org'
 export const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD ?? 'demopassword123'
 export const DEMO_NAME = process.env.DEMO_USER_NAME ?? 'ElevateOS Demo Student'
-const DEMO_ROLE_NAME = (process.env.DEMO_USER_ROLE ?? 'USER').toUpperCase()
+const DEMO_ROLE_NAME = (process.env.DEMO_USER_ROLE ?? 'STUDENT').toUpperCase()
 
 export const DEMO_ROLE: Role =
-  DEMO_ROLE_NAME in Role ? Role[DEMO_ROLE_NAME as keyof typeof Role] : Role.USER
+  DEMO_ROLE_NAME in Role ? Role[DEMO_ROLE_NAME as keyof typeof Role] : Role.STUDENT
 export const DEMO_PLAN = process.env.DEMO_USER_PLAN ?? 'FREE'
 export const DEMO_USER_ID = process.env.DEMO_USER_ID ?? 'demo-user'
 

@@ -59,7 +59,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role      @default(USER)
+  role          Role      @default(STUDENT)
   plan          String    @default("FREE")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -110,6 +110,20 @@ model User {
   calendarEvents       CalendarEvent[]
   feedbackItems        Feedback[]
   practiceSessionsV2   PracticeSession[]
+  studentProfile       StudentProfile?
+  tutorProfile         TutorProfile?
+  parentProfile        ParentProfile?
+  tutoringTasksOwned   TutoringTask[] @relation("TutoringTaskStudent")
+  tutoringTasksAssigned TutoringTask[] @relation("TutoringTaskAssigner")
+  tutoringSubmissions  TutoringSubmission[] @relation("TutoringSubmissionStudent")
+  tutoringSubmissionsAuthored TutoringSubmission[] @relation("TutoringSubmissionSubmitter")
+  tutoringFeedbackGiven TutoringFeedback[] @relation("TutoringFeedbackReviewer")
+  tutoringResourcesUploaded TutoringResource[] @relation("TutoringResourceUploader")
+  tutoringResourcesForStudent TutoringResource[] @relation("TutoringResourceStudent")
+  tutoringStudentLinks TutoringStudentTutor[] @relation("TutoringStudentTutorStudent")
+  tutoringTutorLinks    TutoringStudentTutor[] @relation("TutoringStudentTutorTutor")
+  tutoringParentLinksAsStudent TutoringStudentParent[] @relation("TutoringStudentParentStudent")
+  tutoringParentLinksAsParent TutoringStudentParent[] @relation("TutoringStudentParentParent")
 }
 
 model SidebarPreference {
@@ -499,4 +513,194 @@ model ActivityReviewLog {
 
   @@index([activityId, createdAt])
   @@index([reviewerId, createdAt])
+}
+
+model StudentProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  gradeLevel    String?
+  curriculum    String?
+  schoolName    String?
+  weeklyGoal    String?  @db.Text
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([gradeLevel, curriculum])
+}
+
+model TutorProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  specialties      String[]  @default([])
+  bio              String?   @db.Text
+  weeklyCapacity   Int?
+  notes            String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ParentProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  householdLabel    String?
+  preferredChannel  String?  @default("email")
+  notes             String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TutoringStudentTutor {
+  id               String   @id @default(cuid())
+  studentUserId    String
+  tutorUserId      String
+  relationshipLabel String?
+  isPrimary        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          User     @relation("TutoringStudentTutorStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  tutor            User     @relation("TutoringStudentTutorTutor", fields: [tutorUserId], references: [id], onDelete: Cascade)
+
+  @@unique([studentUserId, tutorUserId])
+  @@index([tutorUserId])
+  @@index([studentUserId])
+}
+
+model TutoringStudentParent {
+  id                String   @id @default(cuid())
+  studentUserId     String
+  parentUserId      String
+  relationshipLabel String?
+  receivesUpdates   Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  student           User     @relation("TutoringStudentParentStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  parent            User     @relation("TutoringStudentParentParent", fields: [parentUserId], references: [id], onDelete: Cascade)
+
+  @@unique([studentUserId, parentUserId])
+  @@index([parentUserId])
+  @@index([studentUserId])
+}
+
+enum TutoringTaskStatus {
+  ASSIGNED
+  SUBMITTED
+  REVIEWED
+  OVERDUE
+  COMPLETED
+}
+
+enum TutoringResourceKind {
+  LESSON_FILE
+  QUESTION_BANK
+  MODEL_ANSWER
+  TUTOR_RESOURCE
+}
+
+enum TutoringAccessTier {
+  FREE
+  AI_PREMIUM
+  TUTORING_PREMIUM
+  TUTOR_ONLY
+}
+
+model TutoringTask {
+  id               String              @id @default(cuid())
+  studentUserId    String
+  assignedByUserId String
+  subject          String
+  topic            String
+  title            String
+  instructions     String              @db.Text
+  status           TutoringTaskStatus  @default(ASSIGNED)
+  dueAt            DateTime?
+  completedAt      DateTime?
+  priority         String              @default("medium")
+  completionNote   String?             @db.Text
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  student          User                @relation("TutoringTaskStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  assignedBy       User                @relation("TutoringTaskAssigner", fields: [assignedByUserId], references: [id], onDelete: Cascade)
+  submissions      TutoringSubmission[]
+  feedback         TutoringFeedback[]
+  resources        TutoringResource[]
+
+  @@index([studentUserId, status, dueAt])
+  @@index([assignedByUserId, createdAt])
+  @@index([subject, topic])
+}
+
+model TutoringSubmission {
+  id                String   @id @default(cuid())
+  taskId            String
+  studentUserId     String
+  submittedByUserId String
+  submittedAt       DateTime @default(now())
+  textResponse      String?  @db.Text
+  fileName          String?
+  fileMimeType      String?
+  fileBytes         Bytes?
+  externalLink      String?
+  notes             String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  task              TutoringTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  student           User         @relation("TutoringSubmissionStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  submittedBy       User         @relation("TutoringSubmissionSubmitter", fields: [submittedByUserId], references: [id], onDelete: Cascade)
+  feedback          TutoringFeedback[]
+
+  @@index([studentUserId, submittedAt])
+  @@index([taskId, submittedAt])
+}
+
+model TutoringFeedback {
+  id               String   @id @default(cuid())
+  taskId           String
+  submissionId     String?
+  reviewerUserId   String
+  score            Int?
+  comments         String   @db.Text
+  strengths        String[] @default([])
+  weaknesses       String[] @default([])
+  nextAction       String?  @db.Text
+  weakTopics       String[] @default([])
+  aiSummary        String?  @db.Text
+  reviewedAt       DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  task             TutoringTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  submission       TutoringSubmission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  reviewer         User         @relation("TutoringFeedbackReviewer", fields: [reviewerUserId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, reviewedAt])
+  @@index([reviewerUserId, reviewedAt])
+}
+
+model TutoringResource {
+  id              String              @id @default(cuid())
+  title           String
+  subject         String
+  topic           String
+  kind            TutoringResourceKind
+  accessTier      TutoringAccessTier   @default(FREE)
+  summary         String?             @db.Text
+  fileName        String?
+  fileMimeType    String?
+  fileBytes       Bytes?
+  externalLink    String?
+  taskId          String?
+  studentUserId   String?
+  uploadedByUserId String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  task            TutoringTask?       @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  student         User?               @relation("TutoringResourceStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  uploadedBy      User                @relation("TutoringResourceUploader", fields: [uploadedByUserId], references: [id], onDelete: Cascade)
+
+  @@index([subject, topic, kind])
+  @@index([studentUserId, accessTier])
+  @@index([uploadedByUserId, createdAt])
 }

@@ -9,7 +9,7 @@ const demoProfile = {
   name: 'ElevateOS Demo Student',
   email: 'demo@thinkcollegelevel.com',
   image: null,
-  role: 'USER',
+  role: 'STUDENT',
   gradeLevel: 'Grade 11',
   curriculum: 'IB',
   subjects: ['Mathematics', 'Biology', 'English'],

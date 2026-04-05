@@ -3,16 +3,22 @@ import { NextResponse } from 'next/server'
 export type AllowedRole = 'OWNER' | 'ADMIN' | 'TUTOR' | 'PARENT' | 'STUDENT' | 'USER'
 
 const ORG_WIDE_ROLES: AllowedRole[] = ['OWNER', 'ADMIN']
+const ROLE_ALIASES: Partial<Record<AllowedRole, AllowedRole>> = {
+  USER: 'STUDENT',
+}
 
 export function normalizeRole(role: string | null | undefined): AllowedRole | null {
   if (!role) return null
-  const normalized = role.toUpperCase() as AllowedRole
-  return normalized
+  const upper = role.toUpperCase() as AllowedRole
+  return ROLE_ALIASES[upper] ?? upper
 }
 
 export function hasRequiredRole(role: string | null | undefined, allowed: AllowedRole[]) {
   const normalized = normalizeRole(role)
-  return normalized ? allowed.includes(normalized) : false
+  if (!normalized) return false
+  if (allowed.includes(normalized)) return true
+  if (normalized === 'STUDENT' && allowed.includes('USER')) return true
+  return false
 }
 
 export function canReadOrgWide(role: string | null | undefined) {

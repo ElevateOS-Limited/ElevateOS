@@ -53,8 +53,8 @@ function getActionLabel(plan: BillingPlan, currentRank: number, hasSession: bool
 
   if (currentRank > planRank) return 'Included in your plan'
   if (currentRank === planRank && hasSession) return 'Current plan'
-  if (plan.id === 'PRO') return 'Start Pro trial'
-  return 'Start Elite trial'
+  if (plan.id === 'PRO') return 'Start AI Premium trial'
+  return 'Start Tutoring Premium trial'
 }
 
 function IntervalToggle({
@@ -216,7 +216,7 @@ function FeatureStrip() {
     {
       icon: Sparkles,
       title: 'More capacity',
-      text: 'Paid plans remove the manual limits that slow down study practice and admissions work.',
+      text: 'Paid plans remove the manual limits that slow down study practice, AI support, and review.',
     },
     {
       icon: ShieldCheck,
@@ -226,7 +226,7 @@ function FeatureStrip() {
     {
       icon: Zap,
       title: 'More support',
-      text: 'Elite is for families and tutors who need deeper review instead of generic outputs.',
+      text: 'Tutoring Premium is for families and tutors who need deeper review instead of generic outputs.',
     },
   ]
 
@@ -333,8 +333,8 @@ export default function PricingPage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-              Free is enough to explore the workspace. Pro handles the core study workflow. Elite adds higher-touch support
-              for tutors, parents, and students who want a more guided setup.
+              Free is enough to explore the workspace. AI Premium unlocks deeper study support. Tutoring Premium adds
+              higher-touch tutor, student, and parent workflows.
             </p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

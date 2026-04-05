@@ -12,23 +12,26 @@ import {
   tutoringStudentFilterOptions,
   type FilterKey,
 } from './tutoring-data'
+import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringRecapsPage() {
   const { activePov } = useTutoringUi()
+  const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const students = data?.students ?? initialStudents
   const [query, setQuery] = useState('')
   const [filterKey, setFilterKey] = useState<FilterKey>('all')
-  const [selectedId, setSelectedId] = useState(initialStudents[0].id)
+  const [selectedId, setSelectedId] = useState(students[0].id)
 
   const filteredStudents = useMemo(() => {
     const needle = query.trim().toLowerCase()
 
-    return initialStudents.filter((student) => {
+    return students.filter((student) => {
       const matchesQuery = !needle || [student.name, student.subject, student.grade, student.recap, student.note].join(' ').toLowerCase().includes(needle)
       const matchesFilter = filterKey === 'all' || (filterKey === 'improving' && student.status === 'Improving') || (filterKey === 'stable' && student.status === 'Stable') || (filterKey === 'declining' && student.status === 'Declining')
       return matchesQuery && matchesFilter
     })
-  }, [query, filterKey])
+  }, [students, query, filterKey])
 
   const selectedStudent = filteredStudents.find((student) => student.id === selectedId) ?? filteredStudents[0] ?? null
   const recapCount = filteredStudents.length

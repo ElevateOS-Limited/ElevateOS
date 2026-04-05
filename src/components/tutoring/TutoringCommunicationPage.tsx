@@ -5,13 +5,16 @@ import Link from 'next/link'
 import { ArrowRight, MessageSquare, Send } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { tutoringThreads } from './tutoring-data'
+import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringCommunicationPage() {
   const { activePov } = useTutoringUi()
-  const [selectedThreadId, setSelectedThreadId] = useState(tutoringThreads[0].id)
+  const { data } = useTutoringWorkspace()
+  const threads = data?.messages ?? tutoringThreads
+  const [selectedThreadId, setSelectedThreadId] = useState(threads[0].id)
   const [draft, setDraft] = useState('')
   const parentView = activePov === 'Parent POV'
-  const visibleThreads = parentView ? tutoringThreads.filter((thread) => thread.channel === 'Parent') : tutoringThreads
+  const visibleThreads = parentView ? threads.filter((thread) => thread.channel === 'Parent') : threads
   const selectedThread = useMemo(
     () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? visibleThreads[0],
     [selectedThreadId, visibleThreads],

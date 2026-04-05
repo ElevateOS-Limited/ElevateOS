@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ArrowRight, ChevronDown, MessageSquare, Plus, Search } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import {
@@ -20,6 +20,7 @@ import {
   type Student,
   type StudentStatus,
 } from './tutoring-data'
+import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 type DraftStudent = {
   name: string
@@ -49,16 +50,24 @@ function MenuButton({ label, active, onClick }: { label: string; active: boolean
 
 export default function TutoringStudentsPageClient() {
   const { activePov } = useTutoringUi()
+  const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
-  const [students, setStudents] = useState<Student[]>(initialStudents)
+  const roster = data?.students ?? initialStudents
+  const [students, setStudents] = useState<Student[]>(roster)
   const [query, setQuery] = useState('')
   const [filterKey, setFilterKey] = useState<FilterKey>('all')
   const [sortKey, setSortKey] = useState<SortKey>('name')
-  const [selectedId, setSelectedId] = useState(initialStudents[0].id)
+  const [selectedId, setSelectedId] = useState(roster[0].id)
   const [filterMenuOpen, setFilterMenuOpen] = useState(false)
   const [sortMenuOpen, setSortMenuOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const [draft, setDraft] = useState<DraftStudent>({ name: '', subject: '', grade: '', sessions: '', progress: '', nextSession: '', status: 'Stable' })
+
+  useEffect(() => {
+    if (data?.students?.length) {
+      setStudents(data.students)
+    }
+  }, [data?.students])
 
   const visibleStudents = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -127,12 +136,23 @@ export default function TutoringStudentsPageClient() {
       name,
       subject: draft.subject.trim() || 'Subject',
       grade: draft.grade.trim() || 'Grade',
+      curriculum: 'IB',
+      plan: 'ELITE',
       sessions,
       status: draft.status,
       progress,
       nextSession: draft.nextSession.trim() || 'TBD',
+      nextDeadline: '',
       recap: 'New student added from the tutoring dashboard.',
       note: 'Follow up with an intake recap and a first homework list.',
+      tutorSummary: 'Tutor summary pending.',
+      parentSummary: 'Parent summary pending.',
+      tutorNames: [],
+      parentNames: [],
+      weakTopics: [],
+      todayTasks: [],
+      completionRate: Number((progress / 100).toFixed(2)),
+      overdueTasks: 0,
     }
 
     setStudents((current) => [nextStudent, ...current])
