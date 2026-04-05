@@ -5,6 +5,7 @@ import { CheckCircle2, Sparkles, Star } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 import {
+  demoTutoringWorkspace,
   formatDateTimeLabel,
   isParentPov,
   taskStatusClasses,
@@ -15,9 +16,9 @@ import {
 export default function TutoringFeedbackPage() {
   const { activePov } = useTutoringUi()
   const { data, isLoading, error } = useTutoringWorkspace()
-  const tasks = data?.tasks ?? []
-  const submissions = data?.submissions ?? []
-  const feedback = data?.feedback ?? []
+  const tasks = data?.tasks ?? demoTutoringWorkspace.tasks
+  const submissions = data?.submissions ?? demoTutoringWorkspace.submissions
+  const feedback = data?.feedback ?? demoTutoringWorkspace.feedback
   const parentView = isParentPov(activePov)
   const [selectedFeedbackId, setSelectedFeedbackId] = useState<string>('')
 

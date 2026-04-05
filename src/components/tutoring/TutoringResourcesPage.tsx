@@ -5,6 +5,7 @@ import { Download, Library, Link2, UploadCloud } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 import {
+  demoTutoringWorkspace,
   accessTierLabel,
   isParentPov,
   resourceKindLabel,
@@ -19,7 +20,7 @@ const resourceKindOrder: TutoringResourceKind[] = ['lesson_file', 'question_bank
 export default function TutoringResourcesPage() {
   const { activePov } = useTutoringUi()
   const { data, isLoading, error } = useTutoringWorkspace()
-  const resources = data?.resources ?? []
+  const resources = data?.resources ?? demoTutoringWorkspace.resources
   const parentView = isParentPov(activePov)
   const [selectedResourceId, setSelectedResourceId] = useState<string>('')
   const [kindFilter, setKindFilter] = useState<TutoringResourceKind | 'all'>('all')

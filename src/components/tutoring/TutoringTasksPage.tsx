@@ -5,6 +5,7 @@ import { CheckCircle2, FileText, Paperclip, Send, Sparkles } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 import {
+  demoTutoringWorkspace,
   formatDateLabel,
   formatDateTimeLabel,
   isParentPov,
@@ -17,10 +18,10 @@ import {
 export default function TutoringTasksPage() {
   const { activePov } = useTutoringUi()
   const { data, isLoading, error } = useTutoringWorkspace()
-  const tasks = data?.tasks ?? []
-  const submissions = data?.submissions ?? []
-  const resources = data?.resources ?? []
-  const feedback = data?.feedback ?? []
+  const tasks = data?.tasks ?? demoTutoringWorkspace.tasks
+  const submissions = data?.submissions ?? demoTutoringWorkspace.submissions
+  const resources = data?.resources ?? demoTutoringWorkspace.resources
+  const feedback = data?.feedback ?? demoTutoringWorkspace.feedback
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
   const [selectedTaskId, setSelectedTaskId] = useState<string>('')
