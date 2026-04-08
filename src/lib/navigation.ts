@@ -54,7 +54,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: 'learn',
     label: 'Learn',
     items: [
-      { href: '/dashboard/study', label: 'AI Study Assistant', icon: Brain },
+      { href: '/dashboard/study', label: 'Study Help', icon: Brain },
       { href: '/dashboard/notes', label: 'Notes', icon: BookOpen },
       { href: '/dashboard/flashcards', label: 'Flashcards', icon: Layers },
       { href: '/dashboard/question-bank', label: 'Question Bank', icon: Library },
@@ -95,14 +95,14 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: 'system',
-    label: 'System',
+    key: 'account',
+    label: 'Account',
     items: [
       { href: '/dashboard/settings', label: 'Settings', icon: Settings },
       { href: 'https://tutoring.elevateos.org/dashboard', label: 'Tutoring Dashboard', icon: Users, badge: 'Preview' },
-      { href: '/pricing', label: 'Billing / Plan', icon: CreditCard },
-      { href: '/dashboard/help', label: 'Help / Feedback', icon: MessageSquare },
-      { href: '/dashboard/changelog', label: 'Changelog', icon: Megaphone },
+      { href: '/pricing', label: 'Billing', icon: CreditCard },
+      { href: '/dashboard/help', label: 'Help', icon: MessageSquare },
+      { href: '/dashboard/changelog', label: 'Updates', icon: Megaphone },
     ],
   },
 ]

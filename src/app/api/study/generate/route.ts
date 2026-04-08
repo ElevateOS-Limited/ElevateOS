@@ -6,6 +6,23 @@ import { AIConfigError } from '@/lib/ai/errors'
 import { enforceAIDemoGuard, shouldUseStaticDemoResponses, demoStudyPack } from '@/lib/demo-ai'
 import { aiErrorResponse } from '@/lib/ai/http'
 
+const MAX_STUDY_FILE_BYTES = 5 * 1024 * 1024
+const MAX_STUDY_CONTENT_CHARS = 12_000
+const ALLOWED_STUDY_FILE_TYPES = new Set([
+  'application/pdf',
+  'text/plain',
+  'text/markdown',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+])
+
+function normalizeInput(value: FormDataEntryValue | null) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getSessionOrDemo()
@@ -15,29 +32,53 @@ export async function POST(request: NextRequest) {
     if (guard) return guard
 
     const formData = await request.formData()
-    const title = formData.get('title') as string
-    const subject = formData.get('subject') as string
-    const curriculum = formData.get('curriculum') as string
-    const content = formData.get('content') as string
-    const url = formData.get('url') as string
+    const title = normalizeInput(formData.get('title'))
+    const subject = normalizeInput(formData.get('subject'))
+    const curriculum = normalizeInput(formData.get('curriculum'))
+    const content = normalizeInput(formData.get('content'))
+    const url = normalizeInput(formData.get('url'))
     const file = formData.get('file') as File | null
+
+    if (title.length > 160 || subject.length > 120 || curriculum.length > 80 || content.length > MAX_STUDY_CONTENT_CHARS) {
+      return NextResponse.json({ error: 'Study upload payload too large' }, { status: 413 })
+    }
 
     // Combine content sources
     let combinedContent = content || ''
 
     if (file) {
-      // For PDF parsing in production, use pdf-parse
-      const text = await file.text()
+      if (file.size > MAX_STUDY_FILE_BYTES) {
+        return NextResponse.json({ error: 'File too large' }, { status: 413 })
+      }
+      if (file.type && !ALLOWED_STUDY_FILE_TYPES.has(file.type)) {
+        return NextResponse.json({ error: 'Unsupported file type' }, { status: 415 })
+      }
+
+      const text = (await file.text()).slice(0, MAX_STUDY_CONTENT_CHARS)
       combinedContent += '\n\n' + text
     }
 
     if (url) {
-      // Simple URL content note - in production fetch and parse the URL
-      combinedContent += `\n\nURL referenced: ${url}`
+      let parsedUrl: URL
+      try {
+        parsedUrl = new URL(url)
+      } catch {
+        return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
+      }
+
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        return NextResponse.json({ error: 'Unsupported URL protocol' }, { status: 400 })
+      }
+
+      combinedContent += `\n\nURL referenced: ${parsedUrl.toString()}`
     }
 
     if (!combinedContent.trim() && !url) {
       return NextResponse.json({ error: 'Please provide some content to study' }, { status: 400 })
+    }
+
+    if (combinedContent.length > MAX_STUDY_CONTENT_CHARS) {
+      combinedContent = combinedContent.slice(0, MAX_STUDY_CONTENT_CHARS)
     }
 
     // Generate study materials with AI (or static demo output)
@@ -53,10 +94,10 @@ export async function POST(request: NextRequest) {
     const studySession = await prisma.studySession.create({
       data: {
         userId: session.user.id,
-        title: title || `${subject} Study Session`,
-        subject,
-        curriculum,
-        content: combinedContent.slice(0, 10000),
+        title: title || `${subject || 'Study'} Study Session`,
+        subject: subject || 'General',
+        curriculum: curriculum || 'IB',
+        content: combinedContent.slice(0, MAX_STUDY_CONTENT_CHARS),
         summary: materials.summary,
         flashcards: materials.flashcards as any,
         studyPlan: materials.studyPlan as any,

@@ -34,7 +34,7 @@ export default function WorksheetsPage() {
       <div className="p-6 max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-3"><FileText className="w-8 h-8 text-purple-500" /> Worksheet Generator</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Generate AI-powered practice questions tailored to your curriculum</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Generate practice questions tailored to your curriculum</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">

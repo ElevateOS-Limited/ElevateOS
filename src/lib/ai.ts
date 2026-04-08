@@ -18,7 +18,7 @@ export async function aiComplete(options: AICompletionOptions): Promise<string> 
     messages: messages as TextMessage[],
     system:
       system ||
-      'You are ElevateOS AI, an expert academic assistant helping high school students excel in IB, AP, SAT, ACT, and university admissions. Be precise, educational, and encouraging.',
+      'You help students with IB-first revision, tutoring execution, and parent-ready summaries. Keep answers precise, practical, and encouraging.',
     maxTokens,
   })
 }
@@ -34,7 +34,7 @@ export async function generateStudyNotes(content: string, subject: string, curri
   studyPlan: string[]
   flashcards: { front: string; back: string }[]
 }> {
-  const prompt = `You are an expert ${curriculum} ${subject} tutor. Analyze this content and generate structured study materials.
+  const prompt = `You are an expert ${curriculum} ${subject} tutor. Analyze this content and generate structured study materials for an execution-focused revision workflow.
 
 Content:
 ${content.slice(0, 8000)}
@@ -96,7 +96,7 @@ Return JSON with this structure:
   ]
 }
 
-Return ONLY valid JSON.`
+Prioritize mark-scheme alignment, concise question wording, and weak-topic practice. Return ONLY valid JSON.`
 
   try {
     return await generateJson({
@@ -138,7 +138,7 @@ Be specific, realistic, and encouraging.`
 
   return aiComplete({
     messages: [{ role: 'user', content: prompt }],
-    system: 'You are an expert university admissions counselor with deep knowledge of university requirements worldwide.',
+    system: 'You are an experienced university admissions counselor who gives practical, honest guidance.',
     maxTokens: 2000,
   })
 }
@@ -166,7 +166,7 @@ Focus on competitive, prestigious programs that would stand out on university ap
 
   return aiComplete({
     messages: [{ role: 'user', content: prompt }],
-    system: 'You are a career counselor and university admissions expert specializing in helping high school students find prestigious internships.',
+    system: 'You are a career counselor who recommends realistic internship opportunities for high school students.',
     maxTokens: 2000,
   })
 }

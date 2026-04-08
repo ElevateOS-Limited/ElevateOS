@@ -12,7 +12,7 @@ interface Message {
 export function ChatBot() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hi! I\'m your ElevateOS assistant. How can I help you today?' }
+    { role: 'assistant', content: 'Hi. I can help with study questions, practice, and planning.' }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -54,7 +54,7 @@ export function ChatBot() {
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary-500 to-purple-600 rounded-t-2xl">
             <div className="flex items-center gap-2 text-white">
               <Bot className="w-5 h-5" />
-              <span className="font-semibold text-sm">ElevateOS Assistant</span>
+              <span className="font-semibold text-sm">ElevateOS Help</span>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">
               <X className="w-4 h-4" />

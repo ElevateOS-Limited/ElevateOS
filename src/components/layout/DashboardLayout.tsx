@@ -23,7 +23,7 @@ import {
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/study', label: 'Study Assistant', icon: BookOpen },
+  { href: '/study', label: 'Study Help', icon: BookOpen },
   { href: '/worksheets', label: 'Worksheets', icon: FileText },
   { href: '/past-papers', label: 'Past Papers', icon: Clock },
   { href: '/admissions', label: 'Admissions', icon: GraduationCap },

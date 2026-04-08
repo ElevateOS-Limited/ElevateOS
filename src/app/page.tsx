@@ -19,23 +19,23 @@ import {
 const featureBlocks = [
   {
     icon: Brain,
-    title: 'Profile intelligence',
-    desc: 'Turn grades, subjects, interests, and target universities into one practical roadmap.',
+    title: 'IB-first revision',
+    desc: 'Ground answers in syllabus topics, mark schemes, and exam technique instead of generic chat.',
   },
   {
     icon: FileText,
-    title: 'Study systems',
-    desc: 'Generate notes, worksheets, and exam practice that actually match the curriculum.',
+    title: 'Practice loop',
+    desc: 'Assign, submit, review, and repeat without losing the thread between sessions.',
   },
   {
     icon: GraduationCap,
-    title: 'Admissions planning',
-    desc: 'Keep academics, activities, and essays in one workspace instead of scattered chats.',
+    title: 'Weak-topic memory',
+    desc: 'Track recurring mistakes, score trends, and the next correction to make.',
   },
   {
     icon: Target,
-    title: 'Execution tracking',
-    desc: 'See what was completed, what slipped, and what needs attention this week.',
+    title: 'Parent-ready reports',
+    desc: 'Compress weekly progress into a simple, trust-building summary for families.',
   },
 ]
 
@@ -50,32 +50,32 @@ type FeaturedProject = {
 const featuredProjectsBase: FeaturedProject[] = [
   {
     title: 'Tutoring dashboard',
-    desc: 'Tutor and parent operations view for sessions, recaps, and next steps.',
+    desc: 'Tutor and parent operations view for sessions, reports, and next steps.',
     href: '/dashboard',
     cta: 'Open dashboard',
     icon: Users,
   },
   {
-    title: 'ElevateOS workspace',
-    desc: 'Student study, admissions, and execution flows in one shared system.',
+    title: 'IB revision workspace',
+    desc: 'Student study, weak topics, and practice flows in one shared system.',
     href: '/dashboard',
     cta: 'Open workspace',
     icon: BookOpen,
   },
   {
-    title: 'Admissions planning',
-    desc: 'Track targets, timelines, and profile-building tasks in one place.',
-    href: '/dashboard/admissions',
-    cta: 'Review admissions',
+    title: 'Weekly reports',
+    desc: 'Family-ready progress summaries and next-step snapshots.',
+    href: '/dashboard/reports',
+    cta: 'Review reports',
     icon: GraduationCap,
   },
 ]
 
 const comparison = [
-  ['Weekly plan', 'Manual spreadsheets', 'Automated planning'],
-  ['Practice materials', 'Copy-paste worksheets', 'Curriculum-aware generation'],
-  ['Admissions strategy', 'Disconnected advice', 'One planning workspace'],
-  ['Progress visibility', 'Scattered messages', 'Shared execution view'],
+  ['Revision loop', 'Scattered notes and chats', 'Assign → Submit → Feedback → Track → Report'],
+  ['Practice quality', 'Generic practice questions', 'IB-aware prompts and mark-scheme alignment'],
+  ['Weak-topic memory', 'No consistent review trail', 'Persistent weak-topic and score tracking'],
+  ['Parent visibility', 'Status-by-status guesswork', 'Weekly report and concise update'],
 ]
 
 export default async function Home() {
@@ -93,29 +93,29 @@ export default async function Home() {
   const primaryCtaLabel = isTutoring ? 'Open tutor dashboard' : 'Open the demo workspace'
   const heroBadgeText = isTutoring
     ? 'Built for tutors, parents, and school teams that need clearer execution'
-    : 'Built for students, tutors, and school teams that need clearer execution'
-  const heroLead = isTutoring ? 'A tutoring workspace for' : 'An operating system for'
+    : 'IB-first AI revision copilot'
+  const heroLead = isTutoring ? 'A tutoring workspace for' : 'An AI copilot for'
   const heroAccent = isTutoring
     ? 'sessions, recaps, and parent visibility.'
-    : 'academic execution and admissions.'
+    : 'IB revision, weak-topic tracking, and weekly reports.'
   const heroBody = isTutoring
     ? 'ElevateOS turns tutor operations into one workflow: session notes, recap follow-up, parent visibility, and next-step tracking. The goal is fewer scattered messages and faster coordination.'
-    : 'ElevateOS turns scattered study habits, profile building, and application planning into one focused workflow. It is designed for IB, AP, SAT, ACT, and school teams that want structure without adding more clutter.'
+    : 'ElevateOS turns IB notes, past papers, and tutor feedback into one focused workflow. It helps students get clearer explanations, better practice, and a cleaner path from question to correction.'
   const heroChips = isTutoring
     ? ['Tutoring dashboard', 'Parent visibility', 'Session recaps', 'Workflow tracking']
-    : ['IB / AP / SAT / ACT', 'Study systems', 'Admissions planning', 'Built for schools']
-  const overviewLabel = isTutoring ? 'Tutor overview' : 'Executive overview'
-  const overviewTitle = isTutoring ? 'Today’s tutoring workflow in one view' : 'Today’s workflow in one view'
-  const overviewBadge = isTutoring ? 'Team ready' : 'System ready'
+    : ['IB subjects', 'Past papers', 'Mark schemes', 'Weak-topic tracking']
+  const overviewLabel = isTutoring ? 'Tutor overview' : 'Revision overview'
+  const overviewTitle = isTutoring ? 'Today’s tutoring workflow in one view' : 'Today’s IB revision loop in one view'
+  const overviewBadge = isTutoring ? 'Team ready' : 'IB ready'
   const nextActionTitle = isTutoring
     ? 'Open the tutor dashboard and review the next recap'
-    : 'Generate a worksheet for IB Biology HL'
+    : 'Ask the AI to mark an IB answer and flag the weak topic'
   const nextActionBody = isTutoring
-    ? 'The system keeps sessions, parent notes, and follow-ups in one place.'
-    : 'The system already knows the curriculum, subject mix, and pace.'
+    ? 'The workspace keeps sessions, parent notes, and follow-ups in one place.'
+    : 'The workspace keeps questions, feedback, and next actions in one loop.'
   const footerCopy = isTutoring
     ? 'Tutoring operations, parent visibility, and student execution in one workspace.'
-    : 'Study systems, admissions planning, and school visibility on one workspace.'
+    : 'IB revision, weak-topic tracking, and structured execution in one workspace.'
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#f8f5ef] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
@@ -132,7 +132,7 @@ export default async function Home() {
             </div>
             <div className="leading-tight">
               <p className="font-display text-lg text-slate-950 dark:text-white">ElevateOS</p>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">AI study systems</p>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Study workspace</p>
             </div>
           </Link>
 
@@ -215,7 +215,7 @@ export default async function Home() {
                   <p className="text-xs uppercase tracking-[0.2em] text-white/60">Profile health</p>
                   <div className="mt-3 flex items-end gap-3">
                     <p className="text-4xl font-semibold">84</p>
-                    <p className="pb-1 text-sm text-white/70">/ 100 execution score</p>
+                    <p className="pb-1 text-sm text-white/70">/ 100 progress score</p>
                   </div>
                   <p className="mt-2 text-sm text-white/70">Enough signal to plan next steps without rebuilding context every session.</p>
                 </div>
@@ -260,10 +260,10 @@ export default async function Home() {
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Product</p>
               <h2 className="mt-2 font-display text-3xl tracking-tight text-slate-950 dark:text-white sm:text-4xl">One system, four practical modules.</h2>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              The product surface is intentionally narrow. It helps students execute, tutors review, and schools keep the process legible.
-            </p>
-          </div>
+              <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                The product surface is intentionally narrow. It helps students answer better, tutors review faster, and families see the next step.
+              </p>
+            </div>
 
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {featureBlocks.map((item) => (
@@ -282,14 +282,14 @@ export default async function Home() {
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Audience</p>
               <h2 className="mt-3 font-display text-3xl tracking-tight text-slate-950 dark:text-white">Clear enough for families. Structured enough for serious applicants.</h2>
               <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                This is not a generic AI wrapper. It is a workflow layer for people who need to see what happened, what is next, and what still needs attention.
+                This is a practical workflow layer for people who need to see what happened, what is next, and what still needs attention.
               </p>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               {[
-                ['Students', 'Know what to do this week instead of holding the whole application process in memory.'],
-                ['Tutors', 'Tie sessions to measurable outcomes and spend less time rebuilding context.'],
-                ['Schools', 'Use one workspace for study support, admissions planning, and student visibility.'],
+                ['Students', 'Know what to do this week instead of holding the whole revision process in memory.'],
+                ['Tutors', 'Tie feedback to measurable outcomes and spend less time rebuilding context.'],
+                ['Families', 'Use one workspace for study support, progress visibility, and clear next steps.'],
               ].map(([title, text]) => (
                 <article key={title} className="rounded-[1.5rem] border border-slate-900/10 bg-[#f8f5ef] p-6 dark:border-white/10 dark:bg-slate-900/60">
                   <Users className="h-6 w-6 text-[#d97706]" />
@@ -305,12 +305,12 @@ export default async function Home() {
           <div className="grid gap-6 rounded-[2rem] border border-slate-900/10 bg-slate-950 p-8 text-white shadow-2xl shadow-slate-950/10 md:grid-cols-[1fr_.9fr] dark:border-white/10">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#f2c06d]">Related work</p>
-              <h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">Tutoring, study, and admissions stay in the same product family.</h2>
+              <h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">Revision, tutoring, and reports stay in the same product family.</h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
-                ElevateOS keeps the public site focused on student execution and tutoring operations without mixing in unrelated portfolio items.
+                ElevateOS keeps the public site focused on IB execution, parent trust, and tutoring operations without mixing in unrelated portfolio items.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                {['Tutoring dashboard', 'Study systems', 'Admissions', 'Portfolio'].map((item) => (
+                {['AI revision copilot', 'Tutoring dashboard', 'Weekly reports', 'Profile visibility'].map((item) => (
                   <span key={item} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80">{item}</span>
                 ))}
               </div>
@@ -349,7 +349,7 @@ export default async function Home() {
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d97706]">Plan comparison</p>
                 <h2 className="mt-2 font-display text-3xl tracking-tight text-slate-950 dark:text-white">What ElevateOS replaces</h2>
               </div>
-              <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
                 The point is not more software. The point is fewer disconnected steps and more visible execution.
               </p>
             </div>
@@ -386,9 +386,9 @@ export default async function Home() {
           <div className="flex flex-col gap-4 rounded-[2rem] bg-slate-950 px-7 py-8 text-white shadow-2xl shadow-slate-950/10 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.22em] text-[#f2c06d]">Next step</p>
-              <h2 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">Open the workspace and see how the system feels in use.</h2>
+              <h2 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">Open the workspace and see the execution loop in use.</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">
-                Start with the demo dashboard, then move into study, worksheets, admissions, and profile setup.
+                Start with the demo dashboard, then move into revision, task review, feedback, and weekly reporting.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">

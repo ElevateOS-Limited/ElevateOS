@@ -111,12 +111,12 @@ export default function DemoPage() {
     <main className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-6xl px-6 py-12 space-y-8">
         <header className="space-y-4">
-          <p className="text-xs uppercase tracking-widest text-slate-400">Production Architecture Demo</p>
-          <h1 className="text-4xl md:text-5xl font-bold">AI Education SaaS + AI Integrity Check</h1>
-          <p className="text-slate-300 max-w-3xl">Multi-tenant, role-based platform for tutors and schools with document-grounded generation, assessments, analytics, and conservative multi-signal AI detection for academic integrity.</p>
+          <p className="text-xs uppercase tracking-widest text-slate-400">ElevateOS demo</p>
+          <h1 className="text-4xl md:text-5xl font-bold">Tutoring workflow + integrity checks</h1>
+          <p className="text-slate-300 max-w-3xl">A multi-tenant workflow for tutors and schools with document-grounded generation, assessments, analytics, and academic integrity checks.</p>
           <div className="flex gap-3">
             <Link href="/dashboard" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500">Open Dashboard</Link>
-            <Link href="/dashboard/settings" className="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-900">System Settings</Link>
+            <Link href="/dashboard/settings" className="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-900">Settings</Link>
           </div>
         </header>
 

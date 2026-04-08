@@ -46,7 +46,7 @@ export default function TutoringSettingsPage() {
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents can control how often they get updates and through which channel they want them delivered.'
-              : 'This page keeps the tutoring workspace configurable while the main ElevateOS dashboard stays separate.'}
+              : 'Set the default tutor preferences and workspace options for the tutoring dashboard.'}
           </p>
         </div>
 
@@ -167,7 +167,7 @@ export default function TutoringSettingsPage() {
             <Save className="h-4 w-4" />
             Save settings
           </button>
-          {saved ? <p className="text-sm text-emerald-700">Settings saved locally.</p> : null}
+          {saved ? <p className="text-sm text-emerald-700">Settings saved.</p> : null}
         </form>
       </section>
 
@@ -199,9 +199,9 @@ export default function TutoringSettingsPage() {
         <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Workspace notes</div>
           <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
-            <li>• Live hosting and deployment happen outside this page.</li>
-            <li>• Backend-only infrastructure details stay out of the public UI.</li>
-            <li>• Each sidebar item now has a dedicated route.</li>
+            <li>• Update notifications before each session if the schedule changes.</li>
+            <li>• Keep profile details current so the dashboard stays useful.</li>
+            <li>• Each sidebar item has a dedicated route.</li>
           </ul>
           <Link href="/auth/login" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[#f8f5ef]">
             Sign out

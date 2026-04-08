@@ -205,7 +205,7 @@ export default function TutoringFeedbackPage() {
           </div>
 
           <div className="mt-4 flex items-center justify-between rounded-[1rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-            <span>AI summary available</span>
+            <span>Summary available</span>
             <span className="font-semibold">{selectedFeedback?.aiSummary ? 'Yes' : 'No'}</span>
           </div>
           {selectedFeedback?.aiSummary ? (

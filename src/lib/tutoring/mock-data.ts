@@ -5,6 +5,7 @@ export type TutoringNavId =
   | 'students'
   | 'tasks'
   | 'feedback'
+  | 'reports'
   | 'progress'
   | 'resources'
   | 'schedule'
@@ -176,6 +177,7 @@ export function getTutoringNavId(pathname?: string | null): TutoringNavId {
     ['/students', 'students'],
     ['/tasks', 'tasks'],
     ['/feedback', 'feedback'],
+    ['/reports', 'reports'],
     ['/recaps', 'feedback'],
     ['/progress', 'progress'],
     ['/resources', 'resources'],
@@ -197,6 +199,7 @@ export const tutoringNavItems: Array<{ id: TutoringNavId; href: string; label: s
   { id: 'students', href: '/dashboard/students', label: 'Students', icon: Users },
   { id: 'tasks', href: '/dashboard/tasks', label: 'Tasks', icon: FileText, badge: 4 },
   { id: 'feedback', href: '/dashboard/feedback', label: 'Feedback', icon: Sparkles, badge: 2 },
+  { id: 'reports', href: '/dashboard/reports', label: 'Reports', icon: FileText, badge: 1 },
   { id: 'progress', href: '/dashboard/progress', label: 'Progress', icon: TrendingUp },
   { id: 'resources', href: '/dashboard/resources', label: 'Resources', icon: Library },
   { id: 'schedule', href: '/dashboard/schedule', label: 'Schedule', icon: CalendarClock },
@@ -234,6 +237,10 @@ export const tutoringSectionMeta: Record<TutoringNavId, { title: string; descrip
   feedback: {
     title: 'Feedback',
     description: 'Reviewed work, weak-topic tags, scores, and next actions.',
+  },
+  reports: {
+    title: 'Reports',
+    description: 'Weekly parent summaries, execution metrics, and AI-assisted recaps.',
   },
   progress: {
     title: 'Progress',

@@ -15,13 +15,14 @@ export async function POST(req: Request) {
     if (guard) return guard
 
     const { message, history = [] } = await req.json()
+    const cleanMessage = typeof message === 'string' ? message.trim() : ''
 
     if (!DATABASE_URL_CONFIGURED || shouldUseStaticDemoResponses()) {
-      const reply = `Demo Assistant (static): Based on your message, I recommend a 3-step plan — (1) clarify target universities and major, (2) prioritize one flagship extracurricular with measurable impact, and (3) build a 90-day execution timeline with weekly checkpoints.`
+      const reply = `Here is a practical next step: clarify the goal, focus on one priority for this week, and set a simple timeline with one checkpoint.`
       if (DATABASE_URL_CONFIGURED) {
         await prisma.chatMessage.createMany({
           data: [
-            { userId: session.user.id, role: 'user', content: message },
+            { userId: session.user.id, role: 'user', content: cleanMessage || 'Empty message' },
             { userId: session.user.id, role: 'assistant', content: reply },
           ],
         })
@@ -29,22 +30,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: reply })
     }
 
-    const systemPrompt = `You are ElevateOS Assistant, a helpful AI assistant for the ElevateOS platform.
-ElevateOS is an AI-powered study platform for high school students preparing for IB, AP, SAT, ACT, and university admissions.
+    const systemPrompt = `You help students with IB-first revision, tutoring execution, and parent-ready summaries.
+ElevateOS is a study and tutoring workspace for IB students that runs on the execution loop: Assign -> Submit -> Feedback -> Track -> Report -> Repeat.
 
-Features you can help with:
-- Study Assistant: Upload materials to get summaries, notes, flashcards, and study plans
-- Worksheet Generator: Create practice questions for any subject
-- Past Paper Simulation: Practice with timed exam simulations
-- University Admissions: Analyze admission chances and get essay help
-- Internship Recommender: Find relevant internship opportunities
-- Profile Settings: Update your academic profile
+You can help with:
+- Study help: upload materials to get summaries, notes, flashcards, and study plans
+- Worksheet generation: create practice questions for any subject
+- Past paper practice: run timed exam simulations
+- Feedback compression: turn tutor notes into parent-friendly weekly summaries
+- Weak-topic diagnosis: identify recurring mistakes and next steps
+- Profile details: update academic information
 
-Always be encouraging, specific, and helpful. Keep responses concise and actionable.`
+Always be encouraging, specific, and helpful. Keep responses concise and actionable. Do not mention prompts, policies, or internal implementation details.`
 
     const messages = [
       ...history.slice(-10),
-      { role: 'user' as const, content: message },
+      { role: 'user' as const, content: cleanMessage || 'I need help organizing my work this week.' },
     ]
 
     const reply =
@@ -58,7 +59,7 @@ Always be encouraging, specific, and helpful. Keep responses concise and actiona
     // Save to DB
     await prisma.chatMessage.createMany({
       data: [
-        { userId: session.user.id, role: 'user', content: message },
+        { userId: session.user.id, role: 'user', content: cleanMessage || 'Empty message' },
         { userId: session.user.id, role: 'assistant', content: reply },
       ],
     })

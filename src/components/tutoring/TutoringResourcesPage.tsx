@@ -70,12 +70,12 @@ export default function TutoringResourcesPage() {
             {tutoringSectionMeta.resources.title}
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Resources visible to families and students' : 'Lesson files, question banks, and internal references'}
+            {parentView ? 'Resources visible to families and students' : 'Lesson files, question banks, and tutor notes'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents only need a high-level view of what is supporting the current week. Resource access stays simple and legible.'
-              : 'Tutors can switch between lesson files, practice banks, model answers, and internal reference material without leaving the workspace.'}
+              : 'Tutors can switch between lesson files, practice banks, model answers, and tutor notes without leaving the workspace.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -233,11 +233,11 @@ export default function TutoringResourcesPage() {
           </div>
           <p className="mt-3 text-sm leading-7 text-slate-600">
             {parentView
-              ? 'Families do not upload here, but this panel shows the same structure the tutor uses to add lesson files, answer keys, or internal notes.'
+              ? 'Families do not upload here, but this panel shows the same structure the tutor uses to add lesson files, answer keys, or study notes.'
               : 'Keep uploads simple: choose the access tier, link the task, and store the file in one place.'}
           </p>
           <div className="mt-4 rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
-            Storage wiring can stay behind this screen. The UI is ready for a file picker, access tier selector, and task selector when you connect persistence.
+            Choose a file, pick who can see it, and link it to the task before saving.
           </div>
         </div>
       </aside>

@@ -32,7 +32,7 @@ export default function StudyPage() {
     <DashboardLayout>
       <div className="p-6 max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold flex items-center gap-3"><Brain className="w-8 h-8 text-indigo-500" /> Study Assistant</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-3"><Brain className="w-8 h-8 text-indigo-500" /> Study Help</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Paste your study material and get AI-generated notes, flashcards, and study plans</p>
         </div>
 

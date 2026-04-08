@@ -25,8 +25,8 @@ export default function AdmissionsPage() {
     <DashboardLayout>
       <div className="p-6 max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold flex items-center gap-3"><GraduationCap className="w-8 h-8 text-green-500" /> Admissions Assistant</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">AI-powered university admissions analysis and essay guidance</p>
+          <h1 className="text-3xl font-bold flex items-center gap-3"><GraduationCap className="w-8 h-8 text-green-500" /> Admissions Support</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">University admissions analysis and essay guidance</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -128,7 +128,7 @@ export default function AdmissionsPage() {
               <div className="flex flex-col items-center justify-center h-full min-h-64 text-gray-400">
                 <GraduationCap className="w-16 h-16 mb-4 opacity-30" />
                 <p className="text-lg font-medium">Enter a university to analyze</p>
-                <p className="text-sm">Get AI-powered admission insights</p>
+                <p className="text-sm">Get admission insights</p>
               </div>
             )}
           </div>

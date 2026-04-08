@@ -56,7 +56,7 @@ export default function DashboardPage() {
   })
 
   const quickActions = [
-    { href: '/dashboard/study', label: 'Study Assistant', icon: BookOpen, desc: 'Upload content and generate structured notes.' },
+    { href: '/dashboard/study', label: 'Study Help', icon: BookOpen, desc: 'Upload content and generate structured notes.' },
     { href: '/dashboard/worksheets', label: 'Worksheets', icon: FileText, desc: 'Create practice questions for the current topic.' },
     { href: '/dashboard/pastpapers', label: 'Past Papers', icon: Clock3, desc: 'Run timed exam simulation for revision.' },
     { href: '/dashboard/admissions', label: 'Admissions', icon: GraduationCap, desc: 'Check target-school fit and strategy.' },
@@ -100,13 +100,13 @@ export default function DashboardPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-[#f8f5ef] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#9a5b00] dark:border-white/10 dark:bg-white/5 dark:text-[#f5d59f]">
               <Sparkles className="h-3.5 w-3.5" />
-              Execution overview
+              Today at a glance
             </div>
             <h1 className="font-display mt-4 text-4xl tracking-tight text-slate-950 dark:text-white sm:text-5xl">
               Welcome back, {firstName}.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              {profile?.curriculum ? `${profile.curriculum} student` : 'Set up your profile to unlock cleaner recommendations.'}
+              {profile?.curriculum ? `${profile.curriculum} student` : 'Set up your profile to get better recommendations.'}
               {targets.length > 0 ? ` Target schools: ${targets.slice(0, 3).join(', ')}.` : ' Add target universities, subjects, and availability for better planning.'}
             </p>
           </div>
@@ -197,8 +197,8 @@ export default function DashboardPage() {
         </article>
 
         <article className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10 dark:border-white/10">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">Profile snapshot</p>
-          <h2 className="mt-2 text-2xl font-semibold">What the workspace already knows</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">Profile</p>
+          <h2 className="mt-2 text-2xl font-semibold">Profile details</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {[
               ['Curriculum', profile?.curriculum || 'Not set'],
@@ -214,9 +214,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
-            <p className="text-sm font-semibold">Profile signals</p>
+            <p className="text-sm font-semibold">Profile completeness</p>
             <p className="mt-2 text-3xl font-semibold">{profileSignals}/6</p>
-            <p className="mt-2 text-sm text-white/70">Add more profile context to improve recommendations and reduce generic outputs.</p>
+            <p className="mt-2 text-sm text-white/70">Add more profile details to improve recommendations.</p>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2 text-xs text-white/75">
@@ -295,7 +295,7 @@ export default function DashboardPage() {
 
         <article className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10 dark:border-white/10">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold">Execution signals</h2>
+            <h2 className="text-2xl font-semibold">Progress at a glance</h2>
             <BarChart3 className="h-5 w-5 text-[#f2c06d]" />
           </div>
 
@@ -315,10 +315,10 @@ export default function DashboardPage() {
           <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-[#f2c06d]" />
-              <p className="text-sm font-semibold">Suggested next move</p>
+            <p className="text-sm font-semibold">Next step</p>
             </div>
             <p className="mt-3 text-sm leading-7 text-white/75">
-              {goals.length ? goals[0] : 'Complete your profile, then generate one worksheet and one admissions analysis to establish baseline progress.'}
+              {goals.length ? goals[0] : 'Complete your profile, then generate one worksheet and one admissions analysis to establish a baseline.'}
             </p>
           </div>
 

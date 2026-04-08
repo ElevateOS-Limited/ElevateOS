@@ -23,6 +23,7 @@ export default function TutoringOverviewPage() {
     ? [
         { href: '/dashboard/tasks', label: 'Tasks', desc: 'See what has been assigned and what is due next.' },
         { href: '/dashboard/feedback', label: 'Feedback', desc: 'Read the latest review snapshots and next actions.' },
+        { href: '/dashboard/reports', label: 'Reports', desc: 'Open the weekly family summary with AI-compressed notes.' },
         { href: '/dashboard/recaps', label: 'Recaps', desc: 'Read parent-ready session notes and follow-ups.' },
         { href: '/dashboard/progress', label: 'Progress', desc: 'See growth trends and the next milestones.' },
         { href: '/dashboard/resources', label: 'Resources', desc: 'Review lesson files and support material.' },
@@ -33,6 +34,7 @@ export default function TutoringOverviewPage() {
         { href: '/dashboard/students', label: 'Students', desc: 'Roster, filters, and student notes.' },
         { href: '/dashboard/tasks', label: 'Tasks', desc: 'Weekly assignments, deadlines, and submission flow.' },
         { href: '/dashboard/feedback', label: 'Feedback', desc: 'Reviewed work, weak areas, and next steps.' },
+        { href: '/dashboard/reports', label: 'Reports', desc: 'Build the weekly parent summary from the current loop.' },
         { href: '/dashboard/recaps', label: 'Recaps', desc: 'Recent session summaries and parent-ready notes.' },
         { href: '/dashboard/progress', label: 'Progress', desc: 'Track movers, intervention flags, and growth.' },
         { href: '/dashboard/resources', label: 'Resources', desc: 'Lesson files, question banks, and tutor notes.' },
@@ -62,12 +64,12 @@ export default function TutoringOverviewPage() {
               {parentView ? 'Parent dashboard' : 'Tutor dashboard'}
             </div>
             <h1 className="font-display mt-4 text-4xl tracking-tight text-slate-950 sm:text-5xl">
-              {parentView ? 'Parent-facing progress snapshot' : tutoringSectionMeta.dashboard.title}
+              {parentView ? 'Family progress snapshot' : tutoringSectionMeta.dashboard.title}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
               {parentView
                 ? 'A family-friendly snapshot of what changed this week, what comes next, and where to message the tutor.'
-                : 'Route-backed sections now split Students, Recaps, Progress, Schedule, Communication, and Settings into separate pages. Active view: Tutor POV.'}
+                : 'Use the tabs to move between students, recaps, progress, schedule, communication, and settings.'}
             </p>
           </div>
 

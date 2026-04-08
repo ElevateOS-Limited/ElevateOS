@@ -40,7 +40,7 @@ export default function Sidebar({ user, mobileOpen = false, onCloseMobile }: Sid
   const pathname = usePathname()
   const router = useRouter()
   const [collapsed, setCollapsed] = useState<boolean>(() => getStoredSidebarState()?.collapsed ?? false)
-  const [openGroups, setOpenGroups] = useState<string[]>(() => getStoredSidebarState()?.openGroups ?? ['dashboard', 'learn', 'plan', 'apply'])
+  const [openGroups, setOpenGroups] = useState<string[]>(() => getStoredSidebarState()?.openGroups ?? ['dashboard', 'learn', 'plan', 'account'])
   const [search, setSearch] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(0)
   const [showQuickActions, setShowQuickActions] = useState(false)

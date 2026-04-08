@@ -1,5 +1,7 @@
 import { prisma, DATABASE_URL_CONFIGURED } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
+import { normalizeRole } from '@/lib/auth/roles'
+import { getAccessibleTutoringStudentIds } from './access'
 import { buildTutoringDemoWorkspace, formatDateLabel, initialsForName, type TutoringAccessTier, type TutoringFeedback, type TutoringMetrics, type TutoringResource, type TutoringStudent, type TutoringSubmission, type TutoringTask, type TutoringTaskStatus, type TutoringWorkspaceSnapshot } from './mock-data'
 
 type WorkspaceSession = Awaited<ReturnType<typeof getSessionOrDemo>>
@@ -315,9 +317,17 @@ function mapResources(resources: Array<any>): TutoringResource[] {
   }))
 }
 
-async function queryWorkspaceData() {
+async function queryWorkspaceData(params: {
+  studentIds: string[]
+  includeTutorOnlyResources: boolean
+}) {
+  const visibleAccessTiers: Array<'FREE' | 'AI_PREMIUM' | 'TUTORING_PREMIUM' | 'TUTOR_ONLY'> = params.includeTutorOnlyResources
+    ? ['FREE', 'AI_PREMIUM', 'TUTORING_PREMIUM', 'TUTOR_ONLY']
+    : ['FREE', 'AI_PREMIUM', 'TUTORING_PREMIUM']
+
   const [taskRows, submissionRows, feedbackRows, resourceRows, studentTutorLinks, studentParentLinks, studentUsers] = await Promise.all([
     prisma.tutoringTask.findMany({
+      where: { studentUserId: { in: params.studentIds } },
       orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
       include: {
         student: {
@@ -425,6 +435,7 @@ async function queryWorkspaceData() {
       },
     }),
     prisma.tutoringSubmission.findMany({
+      where: { studentUserId: { in: params.studentIds } },
       orderBy: { submittedAt: 'desc' },
       include: {
         student: {
@@ -454,6 +465,9 @@ async function queryWorkspaceData() {
       },
     }),
     prisma.tutoringFeedback.findMany({
+      where: {
+        OR: [{ task: { studentUserId: { in: params.studentIds } } }, { submission: { studentUserId: { in: params.studentIds } } }],
+      },
       orderBy: { reviewedAt: 'desc' },
       include: {
         reviewer: {
@@ -492,6 +506,15 @@ async function queryWorkspaceData() {
       },
     }),
     prisma.tutoringResource.findMany({
+      where: {
+        OR: [
+          { studentUserId: { in: params.studentIds } },
+          {
+            studentUserId: null,
+            accessTier: { in: visibleAccessTiers },
+          },
+        ],
+      },
       orderBy: [{ createdAt: 'desc' }],
       include: {
         uploadedBy: {
@@ -503,6 +526,7 @@ async function queryWorkspaceData() {
       },
     }),
     prisma.tutoringStudentTutor.findMany({
+      where: { studentUserId: { in: params.studentIds } },
       include: {
         student: {
           select: { id: true, name: true },
@@ -513,6 +537,7 @@ async function queryWorkspaceData() {
       },
     }),
     prisma.tutoringStudentParent.findMany({
+      where: { studentUserId: { in: params.studentIds } },
       include: {
         student: {
           select: { id: true, name: true },
@@ -523,12 +548,7 @@ async function queryWorkspaceData() {
       },
     }),
     prisma.user.findMany({
-      where: {
-        OR: [
-          { tutoringTasksOwned: { some: {} } },
-          { studentProfile: { isNot: null } },
-        ],
-      },
+      where: { id: { in: params.studentIds } },
       select: {
         id: true,
         name: true,
@@ -580,9 +600,11 @@ export async function getTutoringWorkspaceSnapshot(session: WorkspaceSession): P
   }
 
   try {
-    const { taskRows, submissionRows, feedbackRows, resourceRows, studentTutorLinks, studentParentLinks, studentUsers } = await queryWorkspaceData()
+    const accessibleStudentIds = await getAccessibleTutoringStudentIds(session)
+    const normalizedRole = normalizeRole(session.user.role)
+    const includeTutorOnlyResources = normalizedRole === 'OWNER' || normalizedRole === 'ADMIN' || normalizedRole === 'TUTOR'
 
-    if (!taskRows.length && !submissionRows.length && !feedbackRows.length && !resourceRows.length) {
+    if (!accessibleStudentIds.length) {
       return buildTutoringDemoWorkspace({
         user: {
           name: session.user.name || 'Demo Tutor',
@@ -591,6 +613,11 @@ export async function getTutoringWorkspaceSnapshot(session: WorkspaceSession): P
         },
       })
     }
+
+    const { taskRows, submissionRows, feedbackRows, resourceRows, studentTutorLinks, studentParentLinks, studentUsers } = await queryWorkspaceData({
+      studentIds: accessibleStudentIds,
+      includeTutorOnlyResources,
+    })
 
     const tutorNamesByStudentId = new Map<string, string[]>()
     for (const link of studentTutorLinks) {

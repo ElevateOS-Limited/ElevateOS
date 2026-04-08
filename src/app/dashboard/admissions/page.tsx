@@ -77,9 +77,9 @@ export default function AdmissionsPage() {
       <div>
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
           <GraduationCap className="w-8 h-8 text-green-600" />
-          University Admissions Assistant
+          Admissions Support
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">Get AI-powered admission analysis and essay feedback for your target universities</p>
+        <p className="text-gray-500 dark:text-gray-400">Get admission analysis and essay feedback for your target universities</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-5">
