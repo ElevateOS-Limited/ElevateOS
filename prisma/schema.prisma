@@ -113,6 +113,15 @@ model User {
   studentProfile       StudentProfile?
   tutorProfile         TutorProfile?
   parentProfile        ParentProfile?
+  leadsCreated         Lead[] @relation("LeadCreator")
+  tutoringSessionNotesAuthored TutoringSessionNote[] @relation("TutoringSessionNoteCreator")
+  tutoringSessionNotesAsTutor TutoringSessionNote[] @relation("TutoringSessionNoteTutor")
+  tutoringSessionNotesForStudent TutoringSessionNote[] @relation("TutoringSessionNoteStudent")
+  tutoringParentReportsAuthored TutoringParentReport[] @relation("TutoringParentReportCreator")
+  tutoringParentReportsAsTutor TutoringParentReport[] @relation("TutoringParentReportTutor")
+  tutoringParentReportsForStudent TutoringParentReport[] @relation("TutoringParentReportStudent")
+  tutoringProgressSnapshotsAuthored TutoringProgressSnapshot[] @relation("TutoringProgressSnapshotCreator")
+  tutoringProgressSnapshotsForStudent TutoringProgressSnapshot[] @relation("TutoringProgressSnapshotStudent")
   tutoringTasksOwned   TutoringTask[] @relation("TutoringTaskStudent")
   tutoringTasksAssigned TutoringTask[] @relation("TutoringTaskAssigner")
   tutoringSubmissions  TutoringSubmission[] @relation("TutoringSubmissionStudent")
@@ -325,6 +334,26 @@ model Feedback {
   @@index([orgId, createdAt])
   @@index([orgId, userId, createdAt])
   @@index([orgId, category, createdAt])
+}
+
+model Lead {
+  id              String   @id @default(cuid())
+  email           String
+  roleInterest    String
+  source          String?
+  campaign        String?
+  message         String?  @db.Text
+  status          String   @default("new")
+  notes           String?  @db.Text
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       User?    @relation("LeadCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([email, createdAt])
+  @@index([roleInterest, createdAt])
+  @@index([status, createdAt])
+  @@index([source, campaign])
 }
 
 model ChangelogEntry {
@@ -553,6 +582,95 @@ model ParentProfile {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model TutoringSessionNote {
+  id               String   @id @default(cuid())
+  studentUserId    String
+  tutorUserId      String?
+  createdByUserId   String
+  sessionDate      DateTime @default(now())
+  subject         String?
+  topicsCovered   String[] @default([])
+  homeworkAssigned String[] @default([])
+  weakTopics      String[] @default([])
+  nextSteps       String[] @default([])
+  summary         String   @db.Text
+  rawNotes        String?  @db.Text
+  aiSummary       String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  student         User     @relation("TutoringSessionNoteStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  tutor           User?    @relation("TutoringSessionNoteTutor", fields: [tutorUserId], references: [id], onDelete: SetNull)
+  createdBy       User     @relation("TutoringSessionNoteCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  parentReports   TutoringParentReport[]
+  progressSnapshots TutoringProgressSnapshot[]
+
+  @@index([studentUserId, sessionDate])
+  @@index([tutorUserId, sessionDate])
+  @@index([createdByUserId, sessionDate])
+}
+
+model TutoringParentReport {
+  id               String   @id @default(cuid())
+  studentUserId    String
+  tutorUserId      String?
+  createdByUserId  String
+  sessionNoteId    String?
+  periodStart      DateTime
+  periodEnd        DateTime
+  topicsCovered    String[] @default([])
+  strengths        String[] @default([])
+  weaknesses       String[] @default([])
+  homeworkAssigned String[] @default([])
+  progressNote     String   @db.Text
+  generatedText    String   @db.Text
+  deliveryStatus   String   @default("draft")
+  channel          String   @default("in_app")
+  recipientEmail   String?
+  aiSummary        String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          User     @relation("TutoringParentReportStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  tutor            User?    @relation("TutoringParentReportTutor", fields: [tutorUserId], references: [id], onDelete: SetNull)
+  createdBy        User     @relation("TutoringParentReportCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  sessionNote      TutoringSessionNote? @relation(fields: [sessionNoteId], references: [id], onDelete: SetNull)
+  progressSnapshots TutoringProgressSnapshot[]
+
+  @@index([studentUserId, periodEnd])
+  @@index([createdByUserId, createdAt])
+  @@index([sessionNoteId])
+  @@index([channel, deliveryStatus, createdAt])
+}
+
+model TutoringProgressSnapshot {
+  id               String   @id @default(cuid())
+  studentUserId    String
+  createdByUserId  String
+  sessionNoteId    String?
+  parentReportId   String?
+  periodStart      DateTime
+  periodEnd        DateTime
+  headline         String
+  summary          String   @db.Text
+  completionRate   Int
+  submittedOnTimeRate Int
+  avgScore         Int
+  reviewLatencyHours Float?
+  openTasks        Int
+  weakTopics       String[] @default([])
+  metrics          Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          User     @relation("TutoringProgressSnapshotStudent", fields: [studentUserId], references: [id], onDelete: Cascade)
+  createdBy        User     @relation("TutoringProgressSnapshotCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  sessionNote      TutoringSessionNote? @relation(fields: [sessionNoteId], references: [id], onDelete: SetNull)
+  parentReport     TutoringParentReport? @relation(fields: [parentReportId], references: [id], onDelete: SetNull)
+
+  @@index([studentUserId, periodEnd])
+  @@index([parentReportId])
+  @@index([sessionNoteId])
+  @@index([createdByUserId, createdAt])
+}
+
 model TutoringStudentTutor {
   id               String   @id @default(cuid())
   studentUserId    String
@@ -620,6 +738,7 @@ model TutoringTask {
   completedAt      DateTime?
   priority         String              @default("medium")
   completionNote   String?             @db.Text
+  weakTopics       String[]            @default([])
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
   student          User                @relation("TutoringTaskStudent", fields: [studentUserId], references: [id], onDelete: Cascade)

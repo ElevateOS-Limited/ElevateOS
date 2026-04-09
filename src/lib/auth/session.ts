@@ -2,6 +2,7 @@ import type { Session } from 'next-auth'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/options'
 import { ensureDemoUser, DEMO_MODE, DEMO_PLAN } from '@/lib/auth/demo'
+import { hydrateSessionUser } from '@/lib/auth/canonical'
 import { buildDbContextFromSessionUser, enterDbContext } from '@/lib/db/rls'
 
 async function buildDemoSession(): Promise<Session> {
@@ -24,9 +25,10 @@ async function buildDemoSession(): Promise<Session> {
 export async function getSessionOrDemo(): Promise<Session | null> {
   const session = await getServerSession(authOptions)
   if (session?.user?.id) {
-    session.user.orgId = session.user.orgId?.trim() || session.user.id
-    enterDbContext(buildDbContextFromSessionUser(session.user))
-    return session
+    const hydrated = (await hydrateSessionUser(session)) ?? session
+    hydrated.user.orgId = hydrated.user.orgId?.trim() || hydrated.user.id
+    enterDbContext(buildDbContextFromSessionUser(hydrated.user))
+    return hydrated
   }
   if (!DEMO_MODE) return null
   const demoSession = await buildDemoSession()

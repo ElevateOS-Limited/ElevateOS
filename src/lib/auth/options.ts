@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma, DATABASE_URL_CONFIGURED } from "@/lib/prisma";
 import { ensureDemoUser, DEMO_MODE, DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/auth/demo";
+import { hydrateSessionUser } from "@/lib/auth/canonical";
 
 const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim()
 const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim()
@@ -15,7 +16,7 @@ export const authOptions: NextAuthOptions = {
   ...(DATABASE_URL_CONFIGURED ? { adapter: PrismaAdapter(prisma) } : {}),
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/auth/login",
+    signIn: "/login",
     error: "/auth/error",
   },
   providers: [
@@ -72,7 +73,7 @@ export const authOptions: NextAuthOptions = {
         session.user.plan = (token.plan as string) || "FREE";
         session.user.orgId = (token.orgId as string) || session.user.id;
       }
-      return session;
+      return (await hydrateSessionUser(session)) ?? session;
     },
   },
 };
