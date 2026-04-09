@@ -1,0 +1,9 @@
+# Founder-controlled owner for ElevateOS repo protection.
+# Replace this with a founder-controlled team if the repo moves to one.
+* @imjusthoward
+
+# Sensitive control paths should stay founder-owned.
+/docs/protection/ @imjusthoward
+/legal/ @imjusthoward
+/scripts/daily-repo-digest.ps1 @imjusthoward
+/evidence/ @imjusthoward
