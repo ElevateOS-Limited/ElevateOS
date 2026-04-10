@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { withServiceDbContext } from '@/lib/db/rls'
 
 function getGitCommit() {
   return (
@@ -24,18 +23,7 @@ export async function GET(req: Request) {
   const startedAt = Date.now()
   const detailed = healthAuthOk(req)
   const databaseUrlConfigured = Boolean(process.env.DATABASE_URL?.trim())
-
   const dbOk = databaseUrlConfigured
-    ? await withServiceDbContext(async () => {
-        try {
-          const { prisma } = await import('@/lib/prisma')
-          await prisma.$queryRaw`SELECT 1`
-          return true
-        } catch {
-          return false
-        }
-      })
-    : false
 
   const status = dbOk ? 'ok' : 'degraded'
 
