@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server'
-import { DATABASE_URL_CONFIGURED, prisma } from '@/lib/prisma'
-import { getConfiguredAIStatus } from '@/lib/ai/provider'
-import { GOOGLE_AUTH_CONFIGURED } from '@/lib/auth/options'
 import { withServiceDbContext } from '@/lib/db/rls'
 
 function getGitCommit() {
@@ -26,10 +23,12 @@ function healthAuthOk(req: Request): boolean {
 export async function GET(req: Request) {
   const startedAt = Date.now()
   const detailed = healthAuthOk(req)
+  const databaseUrlConfigured = Boolean(process.env.DATABASE_URL?.trim())
 
-  const dbOk = DATABASE_URL_CONFIGURED
+  const dbOk = databaseUrlConfigured
     ? await withServiceDbContext(async () => {
         try {
+          const { prisma } = await import('@/lib/prisma')
           await prisma.$queryRaw`SELECT 1`
           return true
         } catch {
@@ -51,6 +50,10 @@ export async function GET(req: Request) {
     return NextResponse.json(payload, { status: dbOk ? 200 : 503 })
   }
 
+  const [{ getConfiguredAIStatus }, { GOOGLE_AUTH_CONFIGURED }] = await Promise.all([
+    import('@/lib/ai/provider'),
+    import('@/lib/auth/options'),
+  ])
   const ai = getConfiguredAIStatus()
 
   const payload = {
