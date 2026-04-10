@@ -126,7 +126,7 @@ if ($existing.Count -gt 0) {
     "- Preserve auth, demo mode, and build stability.",
     "- Keep server-side RBAC and org-scope enforcement intact.",
     "",
-    "repo = imjusthoward/elevateos-demo",
+    "repo = ElevateOS-Limited/elevateos",
     "base branch = main",
     "",
     "## Acceptance checks run",

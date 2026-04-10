@@ -8,7 +8,7 @@ Standardize ElevateOS across DigitalOcean App Platform and Vercel so both hosts 
 
 ## Context
 
-- Repo path: `C:\Users\School\Downloads\Documents\GitHub\elevateos-demo`
+- Repo path: `C:\Users\School\Downloads\Documents\GitHub\elevateos`
 - Public DO host: `https://elevateos.org`
 - Public Vercel host: `https://elevateos-demo.vercel.app`
 - Current code now hides Google sign-in if the provider is not configured, exposes health diagnostics at `/api/health`, and allows a demo dashboard boot on hosts that have `DEMO_MODE=true` but no `DATABASE_URL`.

@@ -42,7 +42,7 @@ export async function GET(req: Request) {
   if (!detailed) {
     const payload = {
       status,
-      service: 'elevateos-demo',
+      service: 'elevateos',
       timestamp: new Date().toISOString(),
       db: { ok: dbOk },
       responseMs: Date.now() - startedAt,
@@ -54,7 +54,7 @@ export async function GET(req: Request) {
 
   const payload = {
     status,
-    service: 'elevateos-demo',
+    service: 'elevateos',
     env: process.env.NODE_ENV || 'unknown',
     buildVersion: process.env.APP_VERSION || 'v0.0.0',
     gitCommit: getGitCommit(),

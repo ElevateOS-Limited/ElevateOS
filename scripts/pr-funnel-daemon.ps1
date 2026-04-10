@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Continue'
 Set-Location (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location ..
 
-$repo = 'imjusthoward/elevateos-demo'
+$repo = 'ElevateOS-Limited/elevateos'
 $stateFile = '/tmp/funnel-a-daemon-state.json'
 $cooldownSec = 600
 

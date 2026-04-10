@@ -2,15 +2,15 @@
 
 ## Section 0: Repo baseline (facts only)
 
-- Canonical repo: `imjusthoward/elevateos-demo`
+- Canonical repo: `ElevateOS-Limited/elevateos`
 - Canonical base branch: `main`
-- Reviewer local clone path: `C:\Users\imjusthoward\Projects\elevateos-demo`
+- Reviewer local clone path: `C:\Users\School\Downloads\Documents\GitHub\elevateos`
 - Builder VPS path: `/root/.openclaw/workspace/edutech-demo`
 - Last synced commit hash before this board refresh: `b40d35d`
 
 ### Local run (currently working commands)
 ```powershell
-cd C:\Users\imjusthoward\Projects\elevateos-demo
+cd C:\Users\School\Downloads\Documents\GitHub\elevateos
 npm install
 npm run db:generate
 npm run build

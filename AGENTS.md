@@ -15,7 +15,7 @@ Do not optimize for enterprise abstractions, speculative scale, or broad platfor
 ## Source Of Truth
 - The repository is the source of truth. Existing behavior beats assumptions.
 - If this file and the code disagree, inspect the code first.
-- Canonical repo/base: `imjusthoward/elevateos-demo` on `main`.
+- Canonical repo/base: `ElevateOS-Limited/elevateos` on `main`.
 
 ## Execution Model
 - Default executor for reversible local repo work: Codex local.
