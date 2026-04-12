@@ -54,4 +54,4 @@ Minimum required environment variables:
   - `/healthz`
   - `/api/health`
 
-See `SETUP.md` and `docs/digitalocean-app-platform.md` for deployment details.
+See `SETUP.md` for deployment details.
