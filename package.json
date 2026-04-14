@@ -18,7 +18,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.80.0",
+    "@anthropic-ai/sdk": "^0.81.0",
     "@aws-sdk/client-s3": "^3.1017.0",
     "@aws-sdk/s3-request-presigner": "^3.1017.0",
     "@eslint-community/eslint-utils": "^4.9.1",
@@ -38,7 +38,7 @@
     "next": "^16.2.1",
     "next-auth": "^4.24.13",
     "next-themes": "^0.4.6",
-    "nodemailer": "^7.0.13",
+    "nodemailer": "^8.0.4",
     "openai": "^6.33.0",
     "pdf-parse": "^2.4.5",
     "pg": "^8.20.0",
@@ -71,7 +71,7 @@
     "isexe": "^4.0.0",
     "picocolors": "^1.1.1",
     "postcss": "^8",
-    "prisma": "^7.5.0",
+    "prisma": "^7.6.0",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
