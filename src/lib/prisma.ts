@@ -1,3 +1,4 @@
+import 'server-only'
 import { PrismaClient, type Prisma } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { getDbContext, type DbAccessContext } from '@/lib/db/rls'
