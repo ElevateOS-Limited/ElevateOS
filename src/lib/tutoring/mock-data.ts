@@ -164,13 +164,15 @@ export type TutoringWorkspaceSnapshot = {
 
 export function getTutoringNavId(pathname?: string | null): TutoringNavId {
   const normalized = (pathname || '').split(/[?#]/)[0].toLowerCase().replace(/\/+$/, '')
-  const dashboardPath = normalized.startsWith('/dashboard/partner')
-    ? normalized.slice('/dashboard/partner'.length) || '/dashboard'
-    : normalized.startsWith('/dashboard')
-      ? normalized.slice('/dashboard'.length) || '/dashboard'
-      : normalized
+  const segment = normalized.startsWith('/tutor-dashboard')
+    ? normalized.slice('/tutor-dashboard'.length) || '/'
+    : normalized.startsWith('/dashboard/partner')
+      ? normalized.slice('/dashboard/partner'.length) || '/'
+      : normalized.startsWith('/dashboard')
+        ? normalized.slice('/dashboard'.length) || '/'
+        : normalized
 
-  const cleaned = dashboardPath === '/' ? '/dashboard' : dashboardPath
+  const cleaned = segment === '/' || segment === '' ? '/dashboard' : segment
 
   const mapping: Array<[string, TutoringNavId]> = [
     ['/dashboard', 'dashboard'],
@@ -187,7 +189,6 @@ export function getTutoringNavId(pathname?: string | null): TutoringNavId {
   ]
 
   for (const [suffix, navId] of mapping) {
-    if (cleaned === `/dashboard${suffix === '/dashboard' ? '' : suffix}`) return navId
     if (cleaned === suffix || cleaned === `${suffix}/`) return navId
   }
 
@@ -195,16 +196,16 @@ export function getTutoringNavId(pathname?: string | null): TutoringNavId {
 }
 
 export const tutoringNavItems: Array<{ id: TutoringNavId; href: string; label: string; icon: LucideIcon; badge?: number }> = [
-  { id: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'students', href: '/dashboard/students', label: 'Students', icon: Users },
-  { id: 'tasks', href: '/dashboard/tasks', label: 'Tasks', icon: FileText, badge: 4 },
-  { id: 'feedback', href: '/dashboard/feedback', label: 'Feedback', icon: Sparkles, badge: 2 },
-  { id: 'reports', href: '/dashboard/reports', label: 'Reports', icon: FileText, badge: 1 },
-  { id: 'progress', href: '/dashboard/progress', label: 'Progress', icon: TrendingUp },
-  { id: 'resources', href: '/dashboard/resources', label: 'Resources', icon: Library },
-  { id: 'schedule', href: '/dashboard/schedule', label: 'Schedule', icon: CalendarClock },
-  { id: 'communication', href: '/dashboard/communication', label: 'Communication', icon: MessageSquare, badge: 2 },
-  { id: 'settings', href: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { id: 'dashboard', href: '/tutor-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'students', href: '/tutor-dashboard/students', label: 'Students', icon: Users },
+  { id: 'tasks', href: '/tutor-dashboard/tasks', label: 'Tasks', icon: FileText, badge: 4 },
+  { id: 'feedback', href: '/tutor-dashboard/feedback', label: 'Feedback', icon: Sparkles, badge: 2 },
+  { id: 'reports', href: '/tutor-dashboard/reports', label: 'Reports', icon: FileText, badge: 1 },
+  { id: 'progress', href: '/tutor-dashboard/progress', label: 'Progress', icon: TrendingUp },
+  { id: 'resources', href: '/tutor-dashboard/resources', label: 'Resources', icon: Library },
+  { id: 'schedule', href: '/tutor-dashboard/schedule', label: 'Schedule', icon: CalendarClock },
+  { id: 'communication', href: '/tutor-dashboard/communication', label: 'Communication', icon: MessageSquare, badge: 2 },
+  { id: 'settings', href: '/tutor-dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
 export const tutoringPovItems: TutoringPov[] = ['Student POV', 'Tutor POV', 'Parent POV']

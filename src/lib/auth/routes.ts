@@ -3,8 +3,8 @@ import { normalizeRole } from '@/lib/auth/roles'
 export const ROLE_HOME_PATHS = {
   OWNER: '/admin',
   ADMIN: '/admin',
-  TUTOR: '/tutors',
-  PARENT: '/parent-dashboard',
+  TUTOR: '/tutor-dashboard',
+  PARENT: '/student-dashboard',
   STUDENT: '/student-dashboard',
   USER: '/student-dashboard',
 } as const

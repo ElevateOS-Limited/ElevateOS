@@ -1,12 +1,16 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { ArrowRight, ClipboardList, MessageSquareText, Users } from 'lucide-react'
+import { getSessionOrDemo } from '@/lib/auth/session'
+import { getRoleHomePath } from '@/lib/auth/routes'
 import { LeadCaptureForm } from '@/components/public/LeadCaptureForm'
+import { OnboardingRolePicker } from '@/components/public/OnboardingRolePicker'
 import { leadInterestValues } from '@/lib/tutoring/contracts'
 
 type OnboardingPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     role?: string
-  }
+  }>
 }
 
 const steps = [
@@ -15,12 +19,39 @@ const steps = [
   'Tutor notes, student tasks, and parent summaries stay in one loop.',
 ]
 
-export default function OnboardingPage({ searchParams }: OnboardingPageProps) {
-  const requestedRole = (searchParams?.role || 'parent').toLowerCase()
+export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
+  const session = await getSessionOrDemo()
+  const params = await searchParams
+
+  // Authenticated users with a real role already are sent home immediately.
+  if (session?.user?.id && session.user.role && session.user.role !== 'USER') {
+    redirect(getRoleHomePath(session.user.role))
+  }
+
+  const requestedRole = (params?.role || 'parent').toLowerCase()
   const defaultRoleInterest = leadInterestValues.includes(requestedRole as (typeof leadInterestValues)[number])
     ? (requestedRole as (typeof leadInterestValues)[number])
     : 'parent'
 
+  // Authenticated user with no role assigned yet → show role picker.
+  if (session?.user?.id) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(245,201,111,.16),_transparent_28%),linear-gradient(180deg,#f8f5ef_0%,#ffffff_100%)] px-4 py-10 text-slate-950 dark:bg-slate-950 dark:text-white">
+        <div className="mx-auto max-w-3xl">
+          <header className="flex flex-col gap-4 rounded-[2rem] border border-slate-900/10 bg-white/85 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#9a5b00]">Almost there</p>
+              <h1 className="font-display mt-2 text-3xl tracking-tight">Choose how you want to use ElevateOS.</h1>
+            </div>
+          </header>
+
+          <OnboardingRolePicker className="mt-5" />
+        </div>
+      </div>
+    )
+  }
+
+  // Unauthenticated → show lead capture form.
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(245,201,111,.16),_transparent_28%),linear-gradient(180deg,#f8f5ef_0%,#ffffff_100%)] px-4 py-10 text-slate-950 dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-7xl">
@@ -84,10 +115,10 @@ export default function OnboardingPage({ searchParams }: OnboardingPageProps) {
           </article>
 
           <article className="rounded-[2rem] border border-slate-900/10 bg-[#f8f5ef] p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#9a5b00]">Lead capture</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#9a5b00]">Book your free trial lesson</p>
             <h2 className="mt-3 text-3xl font-semibold">Tell us the subject and the support level.</h2>
             <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-              This is the minimal intake we need before a family is routed into the tutoring workflow. We will follow up with the next step, not a long form.
+              We only need enough to match you with the right tutor. No long intake forms.
             </p>
 
             <div className="mt-5 rounded-[1.5rem] border border-slate-900/10 bg-white/85 p-4 dark:border-white/10 dark:bg-slate-950/40">

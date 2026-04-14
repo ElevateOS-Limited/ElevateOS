@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSiteVariantFromHost } from '@/lib/site'
 
 const blockedAgents = [
   /HTTrack/i,
@@ -40,18 +39,6 @@ export function applyRequestGuards(request: NextRequest) {
     const rewriteUrl = request.nextUrl.clone()
     if (!rewriteUrl.pathname.startsWith('/_next') && rewriteUrl.pathname !== '/favicon.ico') {
       rewriteUrl.pathname = '/activities'
-      return NextResponse.rewrite(rewriteUrl)
-    }
-  }
-
-  const siteVariant = getSiteVariantFromHost(host)
-  if (siteVariant === 'tutoring') {
-    const { pathname } = request.nextUrl
-
-    if (pathname === '/dashboard' || (pathname.startsWith('/dashboard/') && !pathname.startsWith('/dashboard/partner'))) {
-      const rewriteUrl = request.nextUrl.clone()
-      const suffix = pathname === '/dashboard' ? '' : pathname.slice('/dashboard'.length)
-      rewriteUrl.pathname = `/dashboard/partner${suffix}`
       return NextResponse.rewrite(rewriteUrl)
     }
   }
