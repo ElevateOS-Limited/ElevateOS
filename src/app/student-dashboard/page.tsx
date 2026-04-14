@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation'
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, FileText, Star } from 'lucide-react'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { getRoleHomePath, isStudentRole } from '@/lib/auth/routes'
-import { prisma } from '@/lib/prisma'
+import { prisma, DATABASE_URL_CONFIGURED } from '@/lib/prisma'
 import { fromDbTaskStatus } from '@/lib/tutoring/db'
+import { demoTutoringWorkspace } from '@/lib/tutoring/mock-data'
 
 function formatDate(value: Date | null | undefined) {
   if (!value) return 'TBD'
@@ -16,64 +17,118 @@ export default async function StudentDashboardPage() {
   if (!session?.user?.id) redirect('/login')
   if (!isStudentRole(session.user.role)) redirect(getRoleHomePath(session.user.role))
 
-  const [tasks, reports, notes, submissions] = await Promise.all([
-    prisma.tutoringTask.findMany({
-      where: { studentUserId: session.user.id },
-      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
-      include: {
-        resources: {
-          orderBy: { createdAt: 'asc' },
-          select: {
-            id: true,
-            title: true,
-            externalLink: true,
-            fileName: true,
+  type TaskRow = {
+    id: string
+    title: string
+    subject: string
+    topic: string
+    status: string
+    dueAt: Date | null
+    resources: { id: string; title: string; externalLink: string | null; fileName: string | null }[]
+    submissions: { id: string; submittedAt: Date }[]
+    feedback: { id: string; reviewedAt: Date | null; score: number | null; comments: string | null }[]
+  }
+  type ReportRow = { periodEnd: Date | null }
+  type NoteRow = { id: string; summary: string; subject: string | null; sessionDate: Date | null }
+  type SubmissionRow = { id: string; submittedAt: Date; task: { id: string; title: string } }
+
+  let tasks: TaskRow[]
+  let reports: ReportRow[]
+  let notes: NoteRow[]
+  let submissions: SubmissionRow[]
+
+  if (!DATABASE_URL_CONFIGURED) {
+    tasks = demoTutoringWorkspace.tasks.slice(0, 6).map((t) => ({
+      id: t.id,
+      title: t.title,
+      subject: t.subject,
+      topic: t.topic,
+      status: t.status.toUpperCase(),
+      dueAt: t.dueAt ? new Date(t.dueAt) : null,
+      resources: t.resourceTitles.map((title, i) => ({
+        id: `res-${t.id}-${i}`,
+        title,
+        externalLink: null,
+        fileName: null,
+      })),
+      submissions: t.submittedAt ? [{ id: `sub-${t.id}`, submittedAt: new Date(t.submittedAt) }] : [],
+      feedback: demoTutoringWorkspace.feedback
+        .filter((f) => f.taskId === t.id)
+        .slice(0, 1)
+        .map((f) => ({
+          id: f.id,
+          reviewedAt: new Date(f.reviewedAt),
+          score: f.score,
+          comments: f.comments,
+        })),
+    }))
+    reports = []
+    notes = []
+    submissions = demoTutoringWorkspace.submissions.slice(0, 3).map((s) => ({
+      id: s.id,
+      submittedAt: new Date(s.submittedAt),
+      task: { id: s.taskId, title: s.taskTitle },
+    }))
+  } else {
+    ;[tasks, reports, notes, submissions] = await Promise.all([
+      prisma.tutoringTask.findMany({
+        where: { studentUserId: session.user.id },
+        orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
+        include: {
+          resources: {
+            orderBy: { createdAt: 'asc' },
+            select: {
+              id: true,
+              title: true,
+              externalLink: true,
+              fileName: true,
+            },
+          },
+          submissions: {
+            orderBy: { submittedAt: 'desc' },
+            take: 1,
+            select: {
+              id: true,
+              submittedAt: true,
+            },
+          },
+          feedback: {
+            orderBy: { reviewedAt: 'desc' },
+            take: 1,
+            select: {
+              id: true,
+              reviewedAt: true,
+              score: true,
+              comments: true,
+            },
           },
         },
-        submissions: {
-          orderBy: { submittedAt: 'desc' },
-          take: 1,
-          select: {
-            id: true,
-            submittedAt: true,
+      }),
+      prisma.tutoringParentReport.findMany({
+        where: { studentUserId: session.user.id },
+        orderBy: { periodEnd: 'desc' },
+        take: 3,
+      }),
+      prisma.tutoringSessionNote.findMany({
+        where: { studentUserId: session.user.id },
+        orderBy: { sessionDate: 'desc' },
+        take: 3,
+      }),
+      prisma.tutoringSubmission.findMany({
+        where: { studentUserId: session.user.id },
+        orderBy: { submittedAt: 'desc' },
+        take: 3,
+        include: {
+          task: {
+            select: {
+              id: true,
+              title: true,
+            },
           },
         },
-        feedback: {
-          orderBy: { reviewedAt: 'desc' },
-          take: 1,
-          select: {
-            id: true,
-            reviewedAt: true,
-            score: true,
-            comments: true,
-          },
-        },
-      },
-    }),
-    prisma.tutoringParentReport.findMany({
-      where: { studentUserId: session.user.id },
-      orderBy: { periodEnd: 'desc' },
-      take: 3,
-    }),
-    prisma.tutoringSessionNote.findMany({
-      where: { studentUserId: session.user.id },
-      orderBy: { sessionDate: 'desc' },
-      take: 3,
-    }),
-    prisma.tutoringSubmission.findMany({
-      where: { studentUserId: session.user.id },
-      orderBy: { submittedAt: 'desc' },
-      take: 3,
-      include: {
-        task: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-    }),
-  ])
+      }),
+    ])
+  }
 
   const totalTasks = tasks.length
   const reviewedTasks = tasks.filter((task) => task.feedback.length > 0).length
