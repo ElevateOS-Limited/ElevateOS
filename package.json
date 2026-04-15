@@ -20,7 +20,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.89.0",
     "@aws-sdk/client-s3": "^3.1017.0",
-    "@aws-sdk/s3-request-presigner": "^3.1017.0",
+    "@aws-sdk/s3-request-presigner": "^3.1030.0",
     "@eslint-community/eslint-utils": "^4.9.1",
     "@google/genai": "^1.46.0",
     "@jridgewell/sourcemap-codec": "^1.5.5",
