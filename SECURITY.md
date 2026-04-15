@@ -1,21 +1,31 @@
 # Security Policy
 
-## Supported Versions
-
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
-
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+**Do not open a public issue for security vulnerabilities.**
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Use GitHub's [private vulnerability reporting](../../security/advisories/new) to report security issues confidentially. We will acknowledge within 72 hours and provide a remediation timeline.
+
+## Supported Versions
+
+ElevateOS follows continuous deployment. Only the current production release at elevateos.org is supported.
+
+| Track   | Supported |
+|---------|-----------|
+| main    | ✅        |
+| Older   | ❌        |
+
+## Scope
+
+In scope: authentication flows, payment processing, user data handling, API endpoints, session management.
+
+Out of scope: third-party services (Stripe, NextAuth providers), rate limiting on development environments.
+
+## Disclosure Policy
+
+1. Vulnerability reported privately
+2. Confirmed and triaged within 72 hours
+3. Fix developed and reviewed in a private branch
+4. Patch deployed to production
+5. Security advisory published
+6. Reporter credited (unless anonymity preferred)
