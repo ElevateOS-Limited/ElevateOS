@@ -1,1 +1,9 @@
+# Global owner
 * @imjusthoward
+
+# Payment and auth — extra eyes
+/app/api/auth/** @imjusthoward
+/app/api/webhooks/** @imjusthoward
+/lib/stripe/** @imjusthoward
+/lib/auth/** @imjusthoward
+/prisma/** @imjusthoward
