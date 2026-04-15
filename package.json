@@ -26,7 +26,7 @@
     "@jridgewell/sourcemap-codec": "^1.5.5",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@prisma/adapter-pg": "^7.5.0",
-    "@prisma/client": "^7.5.0",
+    "@prisma/client": "^7.7.0",
     "@stripe/stripe-js": "^9.0.0",
     "@tanstack/react-query": "^5.95.2",
     "ai": "^6.0.138",
