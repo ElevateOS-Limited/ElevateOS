@@ -17,8 +17,8 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://elevateos.org'),
-  title: 'ElevateOS | IB AI Revision and Tutoring Workspace',
-  description: 'IB-first AI revision on elevateos.org and the tutoring execution loop on tutoring.elevateos.org, with tasks, submissions, feedback, and weekly reports.',
+  title: 'ElevateOS | Student Planning and Tutoring Workspace',
+  description: 'ElevateOS combines college planning, activity tracking, internship discovery, and tutoring execution across elevateos.org and tutoring.elevateos.org.',
   applicationName: 'ElevateOS',
   authors: [{ name: 'Howard' }],
   creator: 'Howard',

@@ -68,16 +68,16 @@ export default function LoginPage() {
             </div>
             <div>
               <p className="text-lg font-semibold">ElevateOS</p>
-              <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Tutoring execution system</p>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Student planning and tutoring workspace</p>
             </div>
           </Link>
 
           <h1 className="font-display mt-8 text-5xl leading-[0.95] tracking-tight sm:text-6xl">
-            Sign in and go straight to the right tutoring view.
+            Sign in and go straight to the right workspace.
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-8 text-slate-600 dark:text-slate-300">
-            Students land on tasks, tutors land on the workspace, parents land on the report view, and admins land on the management panel.
+            Students land on planning, tutors land on the execution view, parents land on the report view, and admins land on the management panel.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">

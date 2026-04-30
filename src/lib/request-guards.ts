@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getSiteVariantFromHost } from '@/lib/site'
 
 const blockedAgents = [
   /HTTrack/i,
@@ -37,6 +38,16 @@ export function applyRequestGuards(request: NextRequest) {
   }
 
   const host = (request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.hostname).toLowerCase()
+
+  if (getSiteVariantFromHost(host) === 'tutoring') {
+    const rewriteUrl = request.nextUrl.clone()
+    if (!rewriteUrl.pathname.startsWith('/_next') && rewriteUrl.pathname !== '/favicon.ico') {
+      if (rewriteUrl.pathname === '/dashboard' || rewriteUrl.pathname.startsWith('/dashboard/')) {
+        rewriteUrl.pathname = rewriteUrl.pathname.replace(/^\/dashboard/, '/tutor-dashboard')
+        return NextResponse.rewrite(rewriteUrl)
+      }
+    }
+  }
 
   if (host === 'activities.thinkcollegelevel.com') {
     const rewriteUrl = request.nextUrl.clone()
