@@ -92,13 +92,14 @@ export default async function Home() {
             <a href="#workflow" className="hover:text-slate-950 dark:hover:text-white">Workflow</a>
             <a href="#audience" className="hover:text-slate-950 dark:hover:text-white">Who it serves</a>
             <a href="#plans" className="hover:text-slate-950 dark:hover:text-white">Plans</a>
+            <Link href="/demo" className="hover:text-slate-950 dark:hover:text-white">Demo</Link>
           </div>
 
           <div className="flex items-center gap-2">
             <Link href="/pricing" className="hidden rounded-full border border-slate-900/10 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:text-slate-200 dark:hover:text-white sm:inline-flex">
               Pricing
             </Link>
-            <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-[#f8f5ef] transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
+            <Link href="/demo" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-[#f8f5ef] transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
               Open demo <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -125,8 +126,8 @@ export default async function Home() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-[#f8f5ef] shadow-lg shadow-slate-950/10 transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
-                Open the workspace <ArrowRight className="h-4 w-4" />
+              <Link href="/demo" className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-[#f8f5ef] shadow-lg shadow-slate-950/10 transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
+                See the demo <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/pricing" className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-900/10 bg-white/80 px-6 py-3 text-sm font-semibold text-slate-700 backdrop-blur hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white">
                 Review plans
@@ -352,8 +353,8 @@ export default async function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition-transform hover:-translate-y-0.5">
-                Open demo <ArrowRight className="h-4 w-4" />
+              <Link href="/demo" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition-transform hover:-translate-y-0.5">
+                See the demo <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/auth/signup" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">
                 Create account
