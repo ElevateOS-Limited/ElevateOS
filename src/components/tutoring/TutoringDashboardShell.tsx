@@ -59,9 +59,9 @@ function TutoringSidebar({
       </div>
 
       <div className="flex items-center gap-2 border-b border-[#334155] px-5 py-[13px]">
-        <div className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#DF5B30]/20 text-[11px] font-semibold text-[#DF5B30]">JC</div>
+        <div className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#DF5B30]/20 text-[11px] font-semibold text-[#DF5B30]">AP</div>
         <div className="min-w-0">
-          <div className="text-[13px] font-medium text-[#F8F9FA]">James Chen</div>
+          <div className="text-[13px] font-medium text-[#F8F9FA]">Avery Park</div>
           <div className="text-[11px] text-[#F8F9FA]/70">Tutor</div>
         </div>
       </div>

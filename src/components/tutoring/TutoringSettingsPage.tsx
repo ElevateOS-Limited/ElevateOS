@@ -19,11 +19,11 @@ export default function TutoringSettingsPage() {
         preferredChannel: 'Email',
       }
     : {
-        tutorName: 'James Chen',
+        tutorName: 'Avery Park',
         emailReports: true,
         smsReminders: false,
         defaultSubject: 'Physics',
-        signature: 'James Chen · Tutor',
+        signature: 'Avery Park · Tutor',
       })
 
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
