@@ -30,6 +30,9 @@ export function applyRequestGuards(request: NextRequest) {
   const query = request.nextUrl.search || ''
 
   if (blockedAgents.some((pattern) => pattern.test(userAgent)) || badQuery.test(query)) {
+    if (request.nextUrl.pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     return new NextResponse('Forbidden', { status: 403 })
   }
 

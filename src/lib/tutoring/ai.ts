@@ -1,5 +1,5 @@
 import { generateJson } from '@/lib/ai/provider'
-import { useStaticDemoResponses } from '@/lib/demo-ai'
+import { shouldUseStaticDemoResponses } from '@/lib/demo-ai'
 import type {
   TutoringParentSummaryDraftInput,
   TutoringSessionSummaryInput,
@@ -66,7 +66,7 @@ function safeTruncate(value: string | undefined, max = 1200) {
 }
 
 export async function draftSessionSummary(input: TutoringSessionSummaryInput): Promise<TutoringAiSummaryResult> {
-  if (useStaticDemoResponses()) return fallbackSessionSummary(input)
+  if (shouldUseStaticDemoResponses()) return fallbackSessionSummary(input)
 
   const fallback = fallbackSessionSummary(input)
 
@@ -123,7 +123,7 @@ Return JSON with:
 }
 
 export async function draftParentReport(input: TutoringParentSummaryDraftInput): Promise<TutoringParentReportDraftResult> {
-  if (useStaticDemoResponses()) return fallbackParentSummary(input)
+  if (shouldUseStaticDemoResponses()) return fallbackParentSummary(input)
 
   const fallback = fallbackParentSummary(input)
 

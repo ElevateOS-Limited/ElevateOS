@@ -132,7 +132,9 @@ export default async function StudentDashboardPage() {
 
   const totalTasks = tasks.length
   const reviewedTasks = tasks.filter((task) => task.feedback.length > 0).length
-  const dueSoon = tasks.filter((task) => task.dueAt && task.dueAt <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)).length
+  const dueSoonCutoff = new Date()
+  dueSoonCutoff.setDate(dueSoonCutoff.getDate() + 7)
+  const dueSoon = tasks.filter((task) => task.dueAt && task.dueAt <= dueSoonCutoff).length
   const latestFeedback = tasks.find((task) => task.feedback[0])?.feedback[0] || null
   const latestReport = reports[0] || null
 
