@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ArrowRight, ChevronDown, MessageSquare, Plus, Search } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import {
+  getTutoringStudentsForPov,
   initialStudents,
   initialsForName,
   isParentPov,
@@ -71,9 +72,10 @@ export default function TutoringStudentsPageClient() {
     }
   }, [data?.students])
 
+  const povStudents = getTutoringStudentsForPov(students, activePov)
   const visibleStudents = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    const filtered = students.filter((student) => {
+    const filtered = povStudents.filter((student) => {
       const matchesQuery =
         !needle ||
         [student.name, student.subject, student.grade, student.nextSession, student.recap, student.note]
@@ -107,10 +109,10 @@ export default function TutoringStudentsPageClient() {
       if (sortKey === 'next') return nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession) || left.name.localeCompare(right.name)
       return left.name.localeCompare(right.name)
     })
-  }, [students, query, parentView, filterKey, sortKey])
+  }, [povStudents, query, parentView, filterKey, sortKey])
 
   const selectedStudent = visibleStudents.find((student) => student.id === selectedId) ?? visibleStudents[0] ?? null
-  const summaryStudents = visibleStudents.length > 0 ? visibleStudents : students
+  const summaryStudents = visibleStudents.length > 0 ? visibleStudents : povStudents
   const accelerating = summaryStudents.filter((student) => student.status === 'Improving').length
   const steady = summaryStudents.filter((student) => student.status === 'Stable').length
   const intervention = summaryStudents.filter((student) => student.status === 'Declining').length
@@ -169,12 +171,12 @@ export default function TutoringStudentsPageClient() {
         <div>
           <div className="text-[10.5px] font-semibold uppercase tracking-[0.7px] text-[#9B9B9B]">Students</div>
           <div className="mt-1 font-display text-[20px] tracking-[-0.3px] text-[#1A1A1A]">
-            {parentView ? 'Family roster snapshot' : studentView ? 'Student roster snapshot' : 'Your current roster'}
+            {parentView ? 'Family snapshot' : studentView ? 'Student profile' : 'Student list'}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#4A4A4A]">
-            <span className="rounded-full border border-[#E9ECEF] bg-white px-3 py-1">Viewing: {activePov}</span>
+            <span className="rounded-full border border-[#E9ECEF] bg-white px-3 py-1">{parentView ? 'Family' : studentView ? 'Student' : 'Tutor'}</span>
             <span className="rounded-full border border-[#E9ECEF] bg-white px-3 py-1">
-              Showing: {visibleStudents.length} of {students.length}
+              {parentView || studentView ? 'Showing current student' : `Showing ${visibleStudents.length} of ${students.length}`}
             </span>
             {query || (!parentView && (filterKey !== 'all' || sortKey !== 'name')) ? (
               <button type="button" onClick={clearFilters} className="rounded-full border border-[#E9ECEF] bg-white px-3 py-1 text-[#DF5B30] transition-colors hover:bg-[#F8F9FA]">
@@ -203,7 +205,7 @@ export default function TutoringStudentsPageClient() {
           </Link>
         ) : studentView ? (
           <div className="rounded-[8px] border border-[#E9ECEF] bg-[#F8F9FA] px-3 py-2 text-[11px] font-medium text-[#4A4A4A]">
-            Read-only student view
+            Read only
           </div>
         ) : (
           <button
@@ -279,7 +281,7 @@ export default function TutoringStudentsPageClient() {
         <section className="overflow-hidden rounded-[16px] border border-[#E9ECEF] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9ECEF] px-[18px] py-[15px]">
             <div className="font-display text-[14px] text-[#1E293B]">
-              {parentView ? `Family roster (${visibleStudents.length})` : studentView ? `Student roster (${visibleStudents.length})` : `All Students (${visibleStudents.length})`}
+              {parentView ? `Family snapshot (${visibleStudents.length})` : studentView ? `Student profile (${visibleStudents.length})` : `Student list (${visibleStudents.length})`}
             </div>
             {!parentView && !studentView ? (
               <div className="flex items-center gap-[7px]">
@@ -348,7 +350,7 @@ export default function TutoringStudentsPageClient() {
               </div>
             ) : (
               <div className="rounded-full border border-[#E9ECEF] bg-[#F8F9FA] px-3 py-1 text-[11px] font-medium text-[#4A4A4A]">
-                Read-only family view
+                Read only
               </div>
             )}
           </div>
@@ -418,14 +420,14 @@ export default function TutoringStudentsPageClient() {
                     <td className="px-[18px] py-[24px]" colSpan={8}>
                       <div className="rounded-[12px] border border-dashed border-[#E9ECEF] bg-[#F8F9FA] p-6 text-center">
                         <p className="text-[14px] font-semibold text-[#1E293B]">
-                          {parentView ? 'No family-visible sessions match the current search.' : studentView ? 'No student-visible sessions match the current search.' : 'No students match the current filter.'}
+                          {parentView ? 'No parent updates match the current search.' : studentView ? 'No student matches the current search.' : 'No students match the current filter.'}
                         </p>
                         <p className="mt-1 text-[12px] text-[#6B6B6B]">
                           {parentView
-                            ? 'Try another search term or open Communication to request a tutor update.'
+                            ? 'Try another search term or open Messages to request a tutor update.'
                             : studentView
-                              ? 'Try a broader search or clear the filter to restore the student roster.'
-                              : 'Try a broader search or clear the filter to restore the full roster.'}
+                              ? 'Clear the search to restore your profile.'
+                              : 'Try a broader search or clear the filter to restore the full list.'}
                         </p>
                         <div className="mt-4 flex flex-wrap justify-center gap-2">
                           <button type="button" onClick={clearFilters} className="inline-flex items-center gap-2 rounded-[8px] bg-[#3B82F6] px-[15px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-[#60A5FA]">
@@ -482,7 +484,7 @@ export default function TutoringStudentsPageClient() {
             <div className="text-[12px] font-semibold text-[#4A4A4A]">📊 Avg Progress</div>
             <div className="mt-1 text-[22px] font-bold text-[#3B82F6]">{averageProgress ? `${averageProgress}%` : '—'}</div>
             <div className="mt-1 text-[11px] text-[#6B6B6B]">
-              {parentView ? 'Showing family-visible students in the current view' : `Showing ${visibleStudents.length} of ${students.length} students`}
+              {parentView ? 'Showing the current student' : `Showing ${visibleStudents.length} of ${students.length} students`}
             </div>
           </div>
 
@@ -587,7 +589,7 @@ export default function TutoringStudentsPageClient() {
             ) : (
               <p className="text-[12px] leading-5 text-[#6B6B6B]">
                 {parentView
-                  ? 'No family-visible student matches the current search. Open Communication to ask the tutor for a fresh update.'
+                  ? 'No student matches the current search. Open Messages to ask the tutor for a fresh update.'
                   : 'No student matches the current filter. Clear the view or add a new student to continue.'}
               </p>
             )}

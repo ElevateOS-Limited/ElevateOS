@@ -6,6 +6,7 @@ import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 import {
   demoTutoringWorkspace,
+  getTutoringStudentsForPov,
   accessTierLabel,
   isParentPov,
   isStudentPov,
@@ -26,6 +27,9 @@ export default function TutoringResourcesPage() {
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
   const tutorView = isTutorPov(activePov)
+  const students = data?.students ?? demoTutoringWorkspace.students
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
+  const visibleStudentIds = useMemo(() => new Set(visibleStudents.map((student) => student.id)), [visibleStudents])
   const [selectedResourceId, setSelectedResourceId] = useState<string>('')
   const [kindFilter, setKindFilter] = useState<TutoringResourceKind | 'all'>('all')
   const [tierFilter, setTierFilter] = useState<TutoringAccessTier | 'all'>('all')
@@ -40,9 +44,10 @@ export default function TutoringResourcesPage() {
     return resources.filter((resource) => {
       const kindMatches = kindFilter === 'all' || resource.kind === kindFilter
       const tierMatches = tierFilter === 'all' || resource.accessTier === tierFilter
-      return kindMatches && tierMatches
+      const studentMatches = tutorView || !resource.studentId || visibleStudentIds.has(resource.studentId)
+      return kindMatches && tierMatches && studentMatches
     })
-  }, [resources, kindFilter, tierFilter])
+  }, [resources, kindFilter, tierFilter, tutorView, visibleStudentIds])
 
   const selectedResource = useMemo(
     () => filteredResources.find((resource) => resource.id === selectedResourceId) ?? filteredResources[0] ?? null,
@@ -86,9 +91,9 @@ export default function TutoringResourcesPage() {
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
-              ? 'Parents only need a high-level view of what is supporting the current week. Resource access stays simple and legible.'
+              ? 'Parents only need a high-level view of what is supporting the current week.'
               : studentView
-                ? 'Students can open the same files their tutor uses, with a lighter view focused on what is due next.'
+                ? 'Students can open the files tied to their work, with a lighter view focused on what is due next.'
                 : 'Tutors can switch between lesson files, practice banks, model answers, and tutor notes without leaving the dashboard.'}
           </p>
 
@@ -247,7 +252,7 @@ export default function TutoringResourcesPage() {
           </div>
           <p className="mt-3 text-sm leading-7 text-slate-600">
             {parentView
-              ? 'Families do not upload here, but this panel shows the same structure the tutor uses to add lesson files, answer keys, or study notes.'
+              ? 'Families do not upload here, but this panel shows the same structure used to add lesson files, answer keys, or study notes.'
               : studentView
                 ? 'Students can browse and open files here. Uploads stay with the tutor.'
                 : 'Keep uploads simple: choose the access tier, link the task, and store the file in one place.'}
@@ -258,7 +263,7 @@ export default function TutoringResourcesPage() {
             </div>
           ) : (
             <div className="mt-4 rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
-              Read-only in this view. Open a file to review the next session plan.
+              Open a file to review the next session plan.
             </div>
           )}
         </div>

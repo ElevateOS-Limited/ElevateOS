@@ -3,7 +3,17 @@
 import Link from 'next/link'
 import { ArrowRight, FileText, TrendingUp, Users } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { initialStudents, isParentPov, isStudentPov, nextSessionKey, progressLabel, tutoringSectionMeta } from './tutoring-data'
+import {
+  getFocusedTutoringStudent,
+  getTutoringStudentsForPov,
+  initialStudents,
+  isParentPov,
+  isStudentPov,
+  isTutorPov,
+  nextSessionKey,
+  progressLabel,
+  tutoringSectionMeta,
+} from './tutoring-data'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringOverviewPage() {
@@ -11,24 +21,27 @@ export default function TutoringOverviewPage() {
   const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
+  const tutorView = isTutorPov(activePov)
   const students = data?.students ?? initialStudents
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
+  const focusedStudent = getFocusedTutoringStudent(visibleStudents)
 
-  const totalStudents = students.length
-  const accelerating = students.filter((student) => student.status === 'Improving').length
-  const steady = students.filter((student) => student.status === 'Stable').length
-  const intervention = students.filter((student) => student.status === 'Declining').length
-  const averageProgress = (students.reduce((sum, student) => sum + student.progress, 0) / Math.max(1, totalStudents)).toFixed(1)
-  const upcoming = [...students].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, 4)
-  const priorityStudents = students.filter((student) => student.status === 'Declining').slice(0, 3)
+  const totalStudents = visibleStudents.length
+  const accelerating = visibleStudents.filter((student) => student.status === 'Improving').length
+  const steady = visibleStudents.filter((student) => student.status === 'Stable').length
+  const intervention = visibleStudents.filter((student) => student.status === 'Declining').length
+  const averageProgress = (visibleStudents.reduce((sum, student) => sum + student.progress, 0) / Math.max(1, totalStudents)).toFixed(1)
+  const upcoming = [...visibleStudents].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, tutorView ? 4 : 1)
+  const priorityStudents = tutorView ? visibleStudents.filter((student) => student.status === 'Declining').slice(0, 3) : upcoming.slice(0, 1)
   const visibleLinks = parentView
     ? [
-        { href: '/dashboard/tasks', label: 'Tasks', desc: 'See what has been assigned and what is due next.' },
+        { href: '/dashboard/tasks', label: 'Tasks', desc: 'See what is assigned and what is due next.' },
         { href: '/dashboard/feedback', label: 'Feedback', desc: 'Read the latest review snapshots and next actions.' },
-        { href: '/dashboard/reports', label: 'Reports', desc: 'Open the weekly family summary with AI-compressed notes.' },
-        { href: '/dashboard/recaps', label: 'Recaps', desc: 'Read parent-ready session notes and follow-ups.' },
+        { href: '/dashboard/reports', label: 'Reports', desc: 'Open the weekly family summary.' },
+        { href: '/dashboard/recaps', label: 'Recaps', desc: 'Read the latest session notes.' },
         { href: '/dashboard/progress', label: 'Progress', desc: 'See growth trends and the next milestones.' },
         { href: '/dashboard/resources', label: 'Resources', desc: 'Review lesson files and support material.' },
-        { href: '/dashboard/communication', label: 'Communication', desc: 'Open parent messages and tutor replies.' },
+        { href: '/dashboard/communication', label: 'Messages', desc: 'Open family messages and tutor replies.' },
         { href: '/dashboard/schedule', label: 'Schedule', desc: 'Check upcoming sessions and timing.' },
       ]
     : studentView
@@ -38,10 +51,10 @@ export default function TutoringOverviewPage() {
           { href: '/dashboard/schedule', label: 'Schedule', desc: 'See upcoming sessions and due dates.' },
           { href: '/dashboard/recaps', label: 'Recaps', desc: 'Review the latest session summary.' },
           { href: '/dashboard/resources', label: 'Resources', desc: 'Open files and practice material.' },
-          { href: '/dashboard/communication', label: 'Communication', desc: 'Messages with your tutor.' },
+          { href: '/dashboard/communication', label: 'Messages', desc: 'Messages with your tutor.' },
         ]
       : [
-          { href: '/dashboard/students', label: 'Students', desc: 'Roster, filters, and student notes.' },
+          { href: '/dashboard/students', label: 'Students', desc: 'Student list, filters, and notes.' },
           { href: '/dashboard/tasks', label: 'Tasks', desc: 'Weekly assignments, deadlines, and submission flow.' },
           { href: '/dashboard/feedback', label: 'Feedback', desc: 'Reviewed work, weak areas, and next steps.' },
           { href: '/dashboard/reports', label: 'Reports', desc: 'Build the weekly parent summary from the latest session notes.' },
@@ -60,9 +73,9 @@ export default function TutoringOverviewPage() {
       ]
     : studentView
       ? [
-          { label: 'Open sessions', value: upcoming.length, icon: <Users className="h-5 w-5 text-[#d97706]" /> },
-          { label: 'Avg progress', value: `${averageProgress}%`, icon: <TrendingUp className="h-5 w-5 text-[#d97706]" /> },
-          { label: 'Focus areas', value: intervention, icon: <FileText className="h-5 w-5 text-[#d97706]" /> },
+          { label: 'Sessions', value: focusedStudent?.sessions ?? 0, icon: <Users className="h-5 w-5 text-[#d97706]" /> },
+          { label: 'Progress', value: `${focusedStudent?.progress ?? 0}%`, icon: <TrendingUp className="h-5 w-5 text-[#d97706]" /> },
+          { label: 'Tasks', value: focusedStudent?.todayTasks.length ?? 0, icon: <FileText className="h-5 w-5 text-[#d97706]" /> },
         ]
       : [
           { label: 'Students', value: totalStudents, icon: <Users className="h-5 w-5 text-[#d97706]" /> },
@@ -84,7 +97,7 @@ export default function TutoringOverviewPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
               {parentView
-                ? 'A family-friendly snapshot of what changed this week, what comes next, and where to message the tutor.'
+                ? 'See what changed this week, what comes next, and where to message the tutor.'
                 : studentView
                   ? 'Use the tabs to move between your tasks, recaps, progress, schedule, communication, and resources.'
                   : 'Use the tabs to move between students, recaps, progress, schedule, communication, and settings.'}
@@ -115,37 +128,50 @@ export default function TutoringOverviewPage() {
               </h2>
             </div>
             <Link href={parentView ? '/dashboard/recaps' : studentView ? '/dashboard/tasks' : '/dashboard/students'} className="text-sm font-medium text-slate-600 hover:text-slate-950">
-              {parentView ? 'Open recaps' : studentView ? 'Open tasks' : 'Open roster'}
+              {parentView ? 'Open recaps' : studentView ? 'Open tasks' : 'Open students'}
             </Link>
           </div>
 
           <div className="mt-5 space-y-3">
-            {(priorityStudents.length ? priorityStudents : upcoming.slice(0, 3)).map((student, index) => (
-              <div key={student.id} className="rounded-2xl border border-slate-900/10 bg-[#f8f5ef] p-4">
+            {studentView && focusedStudent ? (
+              <div className="rounded-2xl border border-slate-900/10 bg-[#f8f5ef] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-slate-950">{index + 1}. {student.name}</p>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{student.subject} · {student.grade}</p>
+                    <p className="text-sm font-semibold text-slate-950">{focusedStudent.name}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{focusedStudent.subject} · {focusedStudent.grade}</p>
                   </div>
-                  <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
-                    {parentView ? 'Parent update' : studentView ? 'Student note' : progressLabel(student.status)}
+                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
+                    Student note
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  {parentView
-                    ? `Focus on ${student.subject.toLowerCase()} and the next session at ${student.nextSession}. ${student.recap}`
-                    : studentView
-                      ? student.recap
-                      : student.note}
-                </p>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{focusedStudent.note}</p>
               </div>
-            ))}
+            ) : (
+              (priorityStudents.length ? priorityStudents : upcoming.slice(0, 3)).map((student, index) => (
+                <div key={student.id} className="rounded-2xl border border-slate-900/10 bg-[#f8f5ef] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-950">{index + 1}. {student.name}</p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{student.subject} · {student.grade}</p>
+                    </div>
+                    <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                      {parentView ? 'Parent update' : progressLabel(student.status)}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">
+                    {parentView
+                      ? `Focus on ${student.subject.toLowerCase()} and the next session at ${student.nextSession}. ${student.recap}`
+                      : student.note}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </article>
 
         <article className="rounded-[1.5rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">{parentView ? 'Upcoming family view' : studentView ? 'Upcoming student view' : 'Upcoming'}</p>
-          <h2 className="mt-2 text-2xl font-semibold">{parentView ? 'Next sessions and what to expect' : studentView ? 'Next sessions and what to review' : 'Next sessions and timing'}</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">{parentView ? 'Upcoming family view' : studentView ? 'Upcoming student schedule' : 'Upcoming'}</p>
+          <h2 className="mt-2 text-2xl font-semibold">{parentView ? 'Next sessions and what to expect' : studentView ? 'Next session and what to review' : 'Next sessions and timing'}</h2>
 
           <div className="mt-5 space-y-3">
             {upcoming.map((student) => (
@@ -160,7 +186,7 @@ export default function TutoringOverviewPage() {
                     <p className="text-xs text-white/55">{student.progress}% progress</p>
                   </div>
                 </div>
-                {parentView ? <p className="mt-2 text-sm leading-6 text-white/70">Bring one question to the next session and review the recap after class.</p> : studentView ? <p className="mt-2 text-sm leading-6 text-white/70">Keep this session close, finish the open task, and bring one question to class.</p> : null}
+                {parentView ? <p className="mt-2 text-sm leading-6 text-white/70">Bring one question to the next session and review the recap after class.</p> : studentView ? <p className="mt-2 text-sm leading-6 text-white/70">{student.note}</p> : null}
               </div>
             ))}
           </div>
@@ -184,7 +210,7 @@ export default function TutoringOverviewPage() {
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#d97706]">Navigation</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-950">{parentView ? 'Open the family-friendly pages' : studentView ? 'Open the student pages' : 'Jump into the right page'}</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950">{parentView ? 'Open the family pages' : studentView ? 'Open your pages' : 'Jump into the right page'}</h2>
             </div>
           </div>
 

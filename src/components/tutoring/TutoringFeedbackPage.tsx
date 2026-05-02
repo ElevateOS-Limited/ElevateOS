@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CheckCircle2, Sparkles, Star } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 import {
   demoTutoringWorkspace,
+  getTutoringStudentsForPov,
   formatDateTimeLabel,
   isParentPov,
   isStudentPov,
+  isTutorPov,
   taskStatusClasses,
   taskStatusLabel,
   tutoringSectionMeta,
@@ -17,11 +19,15 @@ import {
 export default function TutoringFeedbackPage() {
   const { activePov } = useTutoringUi()
   const { data, isLoading, error } = useTutoringWorkspace()
-  const tasks = data?.tasks ?? demoTutoringWorkspace.tasks
-  const submissions = data?.submissions ?? demoTutoringWorkspace.submissions
-  const feedback = data?.feedback ?? demoTutoringWorkspace.feedback
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
+  const tutorView = isTutorPov(activePov)
+  const students = data?.students ?? demoTutoringWorkspace.students
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
+  const visibleStudentIds = new Set(visibleStudents.map((student) => student.id))
+  const tasks = (data?.tasks ?? demoTutoringWorkspace.tasks).filter((task) => tutorView || visibleStudentIds.has(task.studentId))
+  const submissions = (data?.submissions ?? demoTutoringWorkspace.submissions).filter((submission) => tutorView || visibleStudentIds.has(submission.studentId))
+  const feedback = (data?.feedback ?? demoTutoringWorkspace.feedback).filter((item) => tutorView || visibleStudentIds.has(item.studentId))
   const [selectedFeedbackId, setSelectedFeedbackId] = useState<string>('')
 
   useEffect(() => {
@@ -30,28 +36,26 @@ export default function TutoringFeedbackPage() {
     }
   }, [feedback, selectedFeedbackId])
 
-  const selectedFeedback = useMemo(() => feedback.find((item) => item.id === selectedFeedbackId) ?? feedback[0] ?? null, [feedback, selectedFeedbackId])
+  const selectedFeedback = feedback.find((item) => item.id === selectedFeedbackId) ?? feedback[0] ?? null
   const selectedSubmission = selectedFeedback ? submissions.find((submission) => submission.id === selectedFeedback.submissionId || submission.taskId === selectedFeedback.taskId) ?? null : null
   const selectedTask = selectedFeedback ? tasks.find((task) => task.id === selectedFeedback.taskId) ?? null : null
 
-  const metrics = useMemo(() => {
-    const scores = feedback.map((item) => item.score).filter((score): score is number => typeof score === 'number')
-    const averageScore = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0
-    const reviewCount = feedback.length
-    const weakTopics = new Map<string, number>()
+  const scores = feedback.map((item) => item.score).filter((score): score is number => typeof score === 'number')
+  const averageScore = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0
+  const reviewCount = feedback.length
+  const weakTopics = new Map<string, number>()
 
-    for (const item of feedback) {
-      for (const topic of item.weakTopics) {
-        weakTopics.set(topic, (weakTopics.get(topic) || 0) + 1)
-      }
+  for (const item of feedback) {
+    for (const topic of item.weakTopics) {
+      weakTopics.set(topic, (weakTopics.get(topic) || 0) + 1)
     }
+  }
 
-    return {
-      averageScore,
-      reviewCount,
-      weakTopics: Array.from(weakTopics.entries()).sort((left, right) => right[1] - left[1]).slice(0, 5),
-    }
-  }, [feedback])
+  const metrics = {
+    averageScore,
+    reviewCount,
+    weakTopics: Array.from(weakTopics.entries()).sort((left, right) => right[1] - left[1]).slice(0, 5),
+  }
 
   if (isLoading && !data) {
     return <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-6 text-sm text-slate-500 shadow-sm">Loading feedback…</div>

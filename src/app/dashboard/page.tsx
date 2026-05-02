@@ -64,7 +64,7 @@ export default function DashboardPage() {
     { href: '/dashboard/planner', label: 'Activity Planner', icon: CalendarClock, desc: 'Map open time to meaningful activity slots.' },
     { href: '/dashboard/paper-scan', label: 'Paper Scanner', icon: ScanLine, desc: 'Mark right or wrong from photographed papers.' },
     { href: '/dashboard/extracurriculars', label: 'EC Scoring', icon: Trophy, desc: 'Score extracurricular strength against targets.' },
-    { href: 'https://tutoring.elevateos.org/dashboard', label: 'Tutoring Dashboard', icon: Users, desc: 'Sessions, recaps, and follow-ups for tutors and parents.' },
+    { href: 'https://tutoring.elevateos.org/dashboard', label: 'Tutor hub', icon: Users, desc: 'Sessions, recaps, and follow-ups.' },
   ]
 
   const now = new Date()

@@ -76,9 +76,9 @@ export default async function OnboardingPage({ searchParams }: OnboardingPagePro
             <h2 className="mt-3 text-3xl font-semibold">Choose the role that matches the real workflow.</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {[
-                ['student', 'Student view', 'Tasks, deadlines, submissions, and feedback.'],
-                ['parent', 'Parent view', 'Concise weekly summaries and next actions.'],
-                ['tutor', 'Tutor view', 'Assign, review, note, and report.'],
+                ['student', 'Student', 'Tasks, deadlines, submissions, and feedback.'],
+                ['parent', 'Parent', 'Concise weekly summaries and next actions.'],
+                ['tutor', 'Tutor', 'Assign, review, note, and report.'],
                 ['other', 'Other', 'Use if you are coordinating the family intake.'],
               ].map(([role, title, copy]) => (
                 <Link

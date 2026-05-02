@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CalendarClock, CheckCircle2, Clock3 } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { initialStudents, isParentPov, isStudentPov, isTutorPov, nextSessionKey } from './tutoring-data'
+import { getTutoringStudentsForPov, initialStudents, isParentPov, isStudentPov, isTutorPov, nextSessionKey } from './tutoring-data'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -40,7 +40,8 @@ export default function TutoringSchedulePage() {
   const [blockedDates, setBlockedDates] = useState<string[]>([])
 
   const students = data?.students ?? initialStudents
-  const upcoming = useMemo(() => [...students].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, 5), [students])
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
+  const upcoming = useMemo(() => [...visibleStudents].sort((left, right) => nextSessionKey(left.nextSession) - nextSessionKey(right.nextSession)).slice(0, tutorView ? 5 : 1), [tutorView, visibleStudents])
   const openDays = Object.values(availability).filter((value) => value === 'open').length
   const todayIso = toIsoDate(new Date())
 
@@ -59,8 +60,8 @@ export default function TutoringSchedulePage() {
             {parentView
               ? 'View confirmed appointments, upcoming time blocks, and who to contact if a session needs to move.'
               : studentView
-                ? 'Review confirmed sessions, upcoming deadlines, and what to prep before the next class. Active view: Student view.'
-                : 'Manage open days, blocked dates, and upcoming tutoring slots without leaving the dashboard. Active view: Tutor view.'}
+                ? 'Review confirmed sessions, upcoming deadlines, and what to prep before the next class.'
+                : 'Manage open days, blocked dates, and upcoming tutoring slots without leaving the dashboard.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -191,7 +192,7 @@ export default function TutoringSchedulePage() {
           <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Calendar notes</div>
             <div className="mt-4 rounded-[1rem] bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
-              {parentView ? 'Family view is read-only. Use Communication if a date needs to move.' : 'Student view is read-only. Use Communication if a date needs to move.'}
+              {parentView ? 'Family-only access. Use Messages if a date needs to move.' : 'Student-only access. Use Messages if a date needs to move.'}
             </div>
           </div>
         )}

@@ -19,10 +19,10 @@ function buildInitialForm(activePov: TutoringPov): Record<string, string | boole
 
   if (isStudentPov(activePov)) {
     return {
-      studentName: 'Aiko Tanaka',
+      studentName: 'Aiko Sato',
       emailReports: true,
       smsReminders: false,
-      studyFocus: 'Physics',
+      studyFocus: 'Physics HL',
       quietHours: '9:00 PM - 7:00 AM',
       weeklySummary: 'Weekly',
     } as Record<string, string | boolean>
@@ -268,7 +268,7 @@ export default function TutoringSettingsPage() {
               ? 'Parents see a family snapshot: progress, next sessions, and message history.'
               : studentView
                 ? 'Students see a focused view: reminders, study goals, and the next session.'
-                : 'Tutors see the editable dashboard: profile, recaps, and scheduling settings.'}
+                : 'Tutors can edit profile details, recaps, and scheduling settings.'}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {tutoringPovItems.map((pov) => (
@@ -292,7 +292,7 @@ export default function TutoringSettingsPage() {
           <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
             <li>• Update notifications before each session if the schedule changes.</li>
             <li>• Keep profile details current so the dashboard stays useful.</li>
-            <li>• Each sidebar item opens its own page.</li>
+            <li>• Use the menu above to move between sections.</li>
           </ul>
           <Link href="/auth/login" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[#f8f5ef]">
             Sign out

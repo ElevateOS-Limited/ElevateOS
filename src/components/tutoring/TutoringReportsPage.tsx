@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckCircle2, Download, FileText, RefreshCw, Sparkles, TrendingUp } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
-import { demoTutoringWorkspace, isParentPov, isStudentPov, tutoringSectionMeta } from './tutoring-data'
+import { demoTutoringWorkspace, getTutoringStudentsForPov, isParentPov, isStudentPov, tutoringSectionMeta } from './tutoring-data'
 import type { WeeklyParentReport } from '@/lib/tutoring/report'
 
 async function fetchWeeklyReport(studentId: string): Promise<WeeklyParentReport> {
@@ -35,7 +35,7 @@ export default function TutoringReportsPage() {
   const { data, isLoading, error } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
-  const students = data?.students ?? demoTutoringWorkspace.students
+  const students = getTutoringStudentsForPov(data?.students ?? demoTutoringWorkspace.students, activePov)
   const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || '')
   const [report, setReport] = useState<WeeklyParentReport | null>(null)
   const [loadingReport, setLoadingReport] = useState(false)

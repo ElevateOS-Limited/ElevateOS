@@ -1,15 +1,17 @@
 'use client'
 
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import { CheckCircle2, FileText, Paperclip, Send, Sparkles } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 import {
   demoTutoringWorkspace,
+  getTutoringStudentsForPov,
   formatDateLabel,
   formatDateTimeLabel,
   isParentPov,
   isStudentPov,
+  isTutorPov,
   taskStatusClasses,
   taskStatusLabel,
   tutoringSectionMeta,
@@ -18,12 +20,16 @@ import {
 export default function TutoringTasksPage() {
   const { activePov } = useTutoringUi()
   const { data, isLoading, error } = useTutoringWorkspace()
-  const tasks = data?.tasks ?? demoTutoringWorkspace.tasks
-  const submissions = data?.submissions ?? demoTutoringWorkspace.submissions
-  const resources = data?.resources ?? demoTutoringWorkspace.resources
-  const feedback = data?.feedback ?? demoTutoringWorkspace.feedback
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
+  const tutorView = isTutorPov(activePov)
+  const students = data?.students ?? demoTutoringWorkspace.students
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
+  const visibleStudentIds = new Set(visibleStudents.map((student) => student.id))
+  const tasks = (data?.tasks ?? demoTutoringWorkspace.tasks).filter((task) => tutorView || visibleStudentIds.has(task.studentId))
+  const submissions = (data?.submissions ?? demoTutoringWorkspace.submissions).filter((submission) => tutorView || visibleStudentIds.has(submission.studentId))
+  const resources = (data?.resources ?? demoTutoringWorkspace.resources).filter((resource) => tutorView || !resource.studentId || visibleStudentIds.has(resource.studentId))
+  const feedback = (data?.feedback ?? demoTutoringWorkspace.feedback).filter((item) => tutorView || visibleStudentIds.has(item.studentId))
   const [selectedTaskId, setSelectedTaskId] = useState<string>('')
   const [submissionText, setSubmissionText] = useState('')
   const [submissionLink, setSubmissionLink] = useState('')
@@ -36,7 +42,7 @@ export default function TutoringTasksPage() {
     }
   }, [selectedTaskId, tasks])
 
-  const selectedTask = useMemo(() => tasks.find((task) => task.id === selectedTaskId) ?? tasks[0] ?? null, [selectedTaskId, tasks])
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? tasks[0] ?? null
   const selectedSubmission = selectedTask ? submissions.find((submission) => submission.taskId === selectedTask.id) ?? null : null
   const selectedFeedback = selectedTask ? feedback.find((item) => item.taskId === selectedTask.id) ?? null : null
   const selectedResources = selectedTask ? resources.filter((resource) => resource.taskId === selectedTask.id) : []
@@ -50,19 +56,12 @@ export default function TutoringTasksPage() {
     setSubmittedTaskId(currentSubmission?.taskId || null)
   }, [selectedTask, submissions])
 
-  const summary = useMemo(() => {
-    const assigned = tasks.filter((task) => task.status === 'assigned').length
-    const submitted = tasks.filter((task) => task.status === 'submitted').length
-    const reviewed = tasks.filter((task) => task.status === 'reviewed' || task.status === 'completed').length
-    const overdue = tasks.filter((task) => task.status === 'overdue').length
-
-    return [
-      { label: 'Assigned', value: assigned },
-      { label: 'Submitted', value: submitted },
-      { label: 'Reviewed', value: reviewed },
-      { label: 'Overdue', value: overdue },
-    ]
-  }, [tasks])
+  const summary = [
+    { label: 'Assigned', value: tasks.filter((task) => task.status === 'assigned').length },
+    { label: 'Submitted', value: tasks.filter((task) => task.status === 'submitted').length },
+    { label: 'Reviewed', value: tasks.filter((task) => task.status === 'reviewed' || task.status === 'completed').length },
+    { label: 'Overdue', value: tasks.filter((task) => task.status === 'overdue').length },
+  ]
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -92,7 +91,7 @@ export default function TutoringTasksPage() {
             {tutoringSectionMeta.tasks.title}
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Family view of weekly assignments' : studentView ? 'Today’s assignments and uploads' : 'Weekly assignments and submissions'}
+            {parentView ? 'Family assignments and due dates' : studentView ? 'Today’s assignments and uploads' : 'Weekly assignments and submissions'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView

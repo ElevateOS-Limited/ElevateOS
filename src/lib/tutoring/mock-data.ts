@@ -12,7 +12,7 @@ export type TutoringNavId =
   | 'communication'
   | 'settings'
 
-export type TutoringPov = 'Student view' | 'Tutor view' | 'Parent view'
+export type TutoringPov = 'Student' | 'Tutor' | 'Parent'
 export type TutoringTaskStatus = 'assigned' | 'submitted' | 'reviewed' | 'overdue' | 'completed'
 export type TutoringResourceKind = 'lesson_file' | 'question_bank' | 'model_answer' | 'tutor_resource'
 export type TutoringAccessTier = 'free' | 'ai_premium' | 'tutoring_premium' | 'tutor_only'
@@ -47,6 +47,8 @@ export type Student = TutoringStudent
 export type StudentStatus = TutoringStudent['status']
 export type FilterKey = 'all' | 'improving' | 'stable' | 'declining'
 export type SortKey = 'name' | 'progress' | 'sessions' | 'next'
+
+export const demoStudentId = 'aiko-sato'
 
 export type TutoringTask = {
   id: string
@@ -208,60 +210,73 @@ export const tutoringNavItems: Array<{ id: TutoringNavId; href: string; label: s
   { id: 'settings', href: '/tutor-dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
-export const tutoringPovItems: TutoringPov[] = ['Student view', 'Tutor view', 'Parent view']
+export const tutoringPovItems: TutoringPov[] = ['Student', 'Tutor', 'Parent']
 
 export function isStudentPov(pov: TutoringPov) {
-  return pov === 'Student view'
+  return pov === 'Student'
 }
 
 export function isTutorPov(pov: TutoringPov) {
-  return pov === 'Tutor view'
+  return pov === 'Tutor'
 }
 
 export function isParentPov(pov: TutoringPov) {
-  return pov === 'Parent view'
+  return pov === 'Parent'
+}
+
+export function getFocusedTutoringStudent(students: TutoringStudent[]) {
+  return students.find((student) => student.id === demoStudentId) ?? students[0] ?? null
+}
+
+export function getTutoringStudentsForPov(students: TutoringStudent[], pov: TutoringPov) {
+  if (isTutorPov(pov)) {
+    return students
+  }
+
+  const focusedStudent = getFocusedTutoringStudent(students)
+  return focusedStudent ? [focusedStudent] : []
 }
 
 export const tutoringSectionMeta: Record<TutoringNavId, { title: string; description: string }> = {
   dashboard: {
     title: 'Dashboard',
-    description: 'Execution snapshot with tasks, submissions, and the next moves.',
+    description: 'At-a-glance view of tasks, progress, and next steps.',
   },
   students: {
     title: 'Students',
-    description: 'Assigned students, linked parents, linked tutors, and entitlement context.',
+    description: 'Student profiles, family links, and tutor notes.',
   },
   tasks: {
     title: 'Tasks',
-    description: 'Weekly assignments, deadlines, resource links, and submission actions.',
+    description: 'Assignments, due dates, and submission links.',
   },
   feedback: {
     title: 'Feedback',
-    description: 'Reviewed work, weak-topic tags, scores, and next actions.',
+    description: 'Review notes, scores, and next actions.',
   },
   reports: {
     title: 'Reports',
-    description: 'Weekly parent summaries, execution metrics, and AI-assisted recaps.',
+    description: 'Weekly summaries and progress signals.',
   },
   progress: {
     title: 'Progress',
-    description: 'Completion, score trend, review turnaround, and consistency.',
+    description: 'Completion, score trend, and review turnaround.',
   },
   resources: {
     title: 'Resources',
-    description: 'Lesson files, question banks, model answers, and tutor-only references.',
+    description: 'Lesson files, practice banks, and model answers.',
   },
   schedule: {
     title: 'Schedule',
-    description: 'Weekly availability and upcoming due dates.',
+    description: 'Weekly availability and upcoming sessions.',
   },
   communication: {
     title: 'Communication',
-    description: 'Parent, tutor, and student updates in one queue.',
+    description: 'Messages with students and families.',
   },
   settings: {
     title: 'Settings',
-    description: 'View defaults, notifications, and dashboard preferences.',
+    description: 'Preferences and notification settings.',
   },
 }
 
@@ -709,7 +724,7 @@ const resources: TutoringResource[] = [
     topic: 'Weekly review',
     kind: 'tutor_resource',
     accessTier: 'tutor_only',
-    summary: 'Internal workflow checklist for session planning, review, and parent updates.',
+    summary: 'Session planning checklist for review and parent updates.',
     uploadedBy: 'Avery Park',
   },
   {
@@ -738,6 +753,28 @@ const messages: TutoringMessage[] = [
     detail: 'Parent wants to see one timed set before Thursday. Reply with a clear prep plan and a short recap attachment.',
     updatedAt: 'Today 6:45 PM',
     unread: true,
+  },
+  {
+    id: 'message-student-aiko',
+    studentId: 'aiko-sato',
+    studentName: 'Aiko Sato',
+    channel: 'Student',
+    subject: 'Rotational motion drill',
+    lastMessage: 'I finished the drill and marked the step I want to review.',
+    detail: 'Aiko wants a short note on one tricky step before the next session. Reply with a quick encouragement and the next practice set.',
+    updatedAt: 'Today 4:05 PM',
+    unread: false,
+  },
+  {
+    id: 'message-tutor-aiko',
+    studentId: 'aiko-sato',
+    studentName: 'Aiko Sato',
+    channel: 'Tutor',
+    subject: 'Physics follow-up',
+    lastMessage: 'Please review the recap before Thursday.',
+    detail: 'Avery wants the student to review the recap and bring one question to class.',
+    updatedAt: 'Yesterday',
+    unread: false,
   },
   {
     id: 'message-student-kenji',

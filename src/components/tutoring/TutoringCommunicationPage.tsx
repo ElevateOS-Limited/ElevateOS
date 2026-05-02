@@ -4,8 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, MessageSquare, Send } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { tutoringThreads } from './tutoring-data'
-import { isParentPov, isStudentPov, isTutorPov } from './tutoring-data'
+import { demoStudentId, tutoringThreads, isParentPov, isStudentPov } from './tutoring-data'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringCommunicationPage() {
@@ -16,21 +15,24 @@ export default function TutoringCommunicationPage() {
   const [draft, setDraft] = useState('')
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
-  const tutorView = isTutorPov(activePov)
-  const visibleThreads = parentView ? threads.filter((thread) => thread.channel === 'Parent') : studentView ? threads.filter((thread) => thread.channel !== 'Parent') : threads
+
+  const visibleThreads = parentView
+    ? threads.filter((thread) => thread.studentId === demoStudentId && thread.channel === 'Parent')
+    : studentView
+      ? threads.filter((thread) => thread.studentId === demoStudentId && thread.channel !== 'Parent')
+      : threads
+
   const selectedThread = useMemo(
     () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? visibleThreads[0],
     [selectedThreadId, visibleThreads],
   )
 
-  const queueLabel = parentView ? 'Parent updates' : studentView ? 'Student inbox' : tutorView ? 'Queue summary' : 'Queue summary'
+  const queueLabel = parentView ? 'Family updates' : studentView ? 'Student inbox' : 'Messages'
   const helperLabel = parentView
     ? 'Reply in parent-friendly language and keep the next step clear.'
     : studentView
       ? 'Keep tutor messages, reminders, and follow-ups in one place.'
-      : tutorView
-        ? 'Replies stay organized here, and each sidebar action has its own page.'
-        : 'Replies stay organized here, and each sidebar action has its own page.'
+      : 'Keep replies organized here so follow-ups stay easy to find.'
 
   return (
     <div className="grid gap-4 xl:grid-cols-[1.05fr_.95fr]">
@@ -45,10 +47,10 @@ export default function TutoringCommunicationPage() {
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
-              ? 'Only household-facing messages are shown here so a parent can review progress without tutor-only noise.'
+              ? 'Only the latest parent updates are shown here.'
               : studentView
-                ? 'Keep your tutor messages and student-facing updates in one place. Active view: Student view.'
-                : 'Keep parent, tutor, and student conversations in one place. Active view: Tutor view.'}
+                ? 'Keep your tutor messages and reminders in one place.'
+                : 'Keep parent, tutor, and student conversations in one place.'}
           </p>
         </div>
 
@@ -62,15 +64,15 @@ export default function TutoringCommunicationPage() {
                 'w-full rounded-[1.25rem] border p-4 text-left transition-all',
                 selectedThread?.id === thread.id ? 'border-[#3B82F6] bg-[#EFF6FF] shadow-sm' : 'border-slate-900/10 bg-white hover:-translate-y-0.5 hover:shadow-md',
               ].join(' ')}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-950">{thread.studentName}</p>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Family update' : studentView ? `${thread.channel} · ${thread.subject}` : `${thread.channel} · ${thread.subject}`}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{thread.updatedAt}</p>
-                    {thread.unread ? <p className="mt-1 text-xs font-semibold text-[#d97706]">Unread</p> : null}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-950">{thread.studentName}</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Family update' : `${thread.channel} · ${thread.subject}`}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{thread.updatedAt}</p>
+                  {thread.unread ? <p className="mt-1 text-xs font-semibold text-[#d97706]">Unread</p> : null}
                 </div>
               </div>
               <p className="mt-3 text-sm leading-7 text-slate-600">{thread.lastMessage}</p>
@@ -113,7 +115,12 @@ export default function TutoringCommunicationPage() {
                     ? ['Thanks, I’ll review this', 'I will work on this before class', 'Can we go over this next session?']
                     : ['Thanks for the update', 'I’ll send the recap tonight', 'Let’s review this in the next session']
                 ).map((snippet) => (
-                  <button key={snippet} type="button" onClick={() => setDraft(snippet)} className="rounded-full border border-slate-900/10 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-[#f8f5ef]">
+                  <button
+                    key={snippet}
+                    type="button"
+                    onClick={() => setDraft(snippet)}
+                    className="rounded-full border border-slate-900/10 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-[#f8f5ef]"
+                  >
                     {snippet}
                   </button>
                 ))}
@@ -136,7 +143,7 @@ export default function TutoringCommunicationPage() {
         <div className="rounded-[1.25rem] border border-slate-900/10 bg-slate-950 p-5 text-white shadow-lg shadow-slate-950/10">
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c06d]">{queueLabel}</div>
           <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-            {[ 
+            {[
               ['Unread', visibleThreads.filter((thread) => thread.unread).length],
               [parentView ? 'Families' : studentView ? 'Tutor' : 'Parent', visibleThreads.filter((thread) => thread.channel === 'Parent').length],
               [parentView ? 'Visible' : studentView ? 'Student' : 'Need reply', visibleThreads.length],
@@ -147,9 +154,7 @@ export default function TutoringCommunicationPage() {
               </div>
             ))}
           </div>
-          <p className="mt-4 text-sm leading-7 text-white/75">
-            {helperLabel}
-          </p>
+          <p className="mt-4 text-sm leading-7 text-white/75">{helperLabel}</p>
         </div>
       </aside>
     </div>

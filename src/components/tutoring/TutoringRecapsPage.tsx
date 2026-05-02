@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, FileText, Search } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import {
+  getTutoringStudentsForPov,
   initialStudents,
   isParentPov,
   isStudentPov,
@@ -21,19 +22,20 @@ export default function TutoringRecapsPage() {
   const parentView = isParentPov(activePov)
   const studentView = isStudentPov(activePov)
   const students = data?.students ?? initialStudents
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
   const [query, setQuery] = useState('')
   const [filterKey, setFilterKey] = useState<FilterKey>('all')
-  const [selectedId, setSelectedId] = useState(students[0].id)
+  const [selectedId, setSelectedId] = useState(visibleStudents[0]?.id ?? students[0].id)
 
   const filteredStudents = useMemo(() => {
     const needle = query.trim().toLowerCase()
 
-    return students.filter((student) => {
+    return visibleStudents.filter((student) => {
       const matchesQuery = !needle || [student.name, student.subject, student.grade, student.recap, student.note].join(' ').toLowerCase().includes(needle)
       const matchesFilter = filterKey === 'all' || (filterKey === 'improving' && student.status === 'Improving') || (filterKey === 'stable' && student.status === 'Stable') || (filterKey === 'declining' && student.status === 'Declining')
       return matchesQuery && matchesFilter
     })
-  }, [students, query, filterKey])
+  }, [visibleStudents, query, filterKey])
 
   const selectedStudent = filteredStudents.find((student) => student.id === selectedId) ?? filteredStudents[0] ?? null
   const recapCount = filteredStudents.length
@@ -51,22 +53,22 @@ export default function TutoringRecapsPage() {
                 Recaps
               </div>
               <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-                {parentView ? 'Recent family-friendly updates' : studentView ? 'Recent session summaries' : 'Recent session summaries'}
+                {parentView ? 'Recent parent updates' : studentView ? 'Your recent session summaries' : 'Recent session summaries'}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
                 {parentView
-                  ? 'Read the short version of each recap before the next family check-in. The text stays simple and parent-facing.'
+                  ? 'Read the short version of each recap before the next check-in. The text stays simple and parent-facing.'
                   : studentView
-                    ? 'Read the short version of each recap, review the next note, and keep the view aligned with Student view.'
-                    : 'Keep tutor notes ready for a parent update, a follow-up message, or the next session plan. Active view: Tutor view.'}
+                    ? 'Read the short version of each recap and review the next note before class.'
+                    : 'Keep tutor notes ready for a parent update, a follow-up message, or the next session plan.'}
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-[1.25rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-center">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Shown' : 'Visible'}</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-950">{recapCount}</p>
-              </div>
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Shown' : 'Visible'}</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">{recapCount}</p>
+            </div>
               <div className="rounded-[1.25rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-center">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Follow up' : 'Declining'}</p>
                 <p className="mt-2 text-2xl font-semibold text-slate-950">{attentionCount}</p>
@@ -92,11 +94,11 @@ export default function TutoringRecapsPage() {
 
             {parentView ? (
               <div className="rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] px-4 py-3 text-sm leading-7 text-slate-600">
-                These summaries are trimmed for parent viewing. Use Communication for the full thread.
+                These summaries are trimmed for parents. Use Messages for the full thread.
               </div>
             ) : studentView ? (
               <div className="rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] px-4 py-3 text-sm leading-7 text-slate-600">
-                These recaps are written for student use. Use Communication to message your tutor.
+                These recaps are written for student use. Use Messages to message your tutor.
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#4A4A4A]">
@@ -132,8 +134,8 @@ export default function TutoringRecapsPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-slate-950">{student.name}</p>
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{student.subject} · {student.grade} · {student.nextSession}</p>
-                </div>
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{student.subject} · {student.grade} · {student.nextSession}</p>
+              </div>
                 <span className={['rounded-full border px-3 py-1 text-xs font-semibold', statusClasses(student.status)].join(' ')}>
                   {parentView ? 'Parent note' : progressLabel(student.status)}
                 </span>

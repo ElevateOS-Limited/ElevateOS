@@ -4,7 +4,16 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, TrendingUp } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { initialStudents, isParentPov, isStudentPov, isTutorPov, progressColor, progressLabel, statusClasses } from './tutoring-data'
+import {
+  getTutoringStudentsForPov,
+  initialStudents,
+  isParentPov,
+  isStudentPov,
+  isTutorPov,
+  progressColor,
+  progressLabel,
+  statusClasses,
+} from './tutoring-data'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringProgressPage() {
@@ -14,9 +23,10 @@ export default function TutoringProgressPage() {
   const studentView = isStudentPov(activePov)
   const tutorView = isTutorPov(activePov)
   const students = data?.students ?? initialStudents
-  const [selectedId, setSelectedId] = useState(students[0].id)
+  const visibleStudents = getTutoringStudentsForPov(students, activePov)
+  const [selectedId, setSelectedId] = useState(visibleStudents[0]?.id ?? students[0].id)
 
-  const sortedStudents = useMemo(() => [...students].sort((left, right) => right.progress - left.progress || left.name.localeCompare(right.name)), [students])
+  const sortedStudents = useMemo(() => [...visibleStudents].sort((left, right) => right.progress - left.progress || left.name.localeCompare(right.name)), [visibleStudents])
   const selectedStudent = sortedStudents.find((student) => student.id === selectedId) ?? sortedStudents[0]
   const accelerating = sortedStudents.filter((student) => student.status === 'Improving').length
   const steady = sortedStudents.filter((student) => student.status === 'Stable').length
@@ -61,8 +71,8 @@ export default function TutoringProgressPage() {
             {parentView
               ? 'See how each student is moving, what is coming up next, and which class needs a nudge at home.'
               : studentView
-                ? 'Track your growth, review the next session, and keep the current view aligned with Student view.'
-                : 'Track growth across the roster, isolate students who need a reset, and keep the current view aligned with Tutor view.'}
+                ? 'Track your growth, review the next session, and keep your plan tight.'
+                : 'Track growth across students, isolate anyone who needs a reset, and keep priorities tight.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -78,11 +88,11 @@ export default function TutoringProgressPage() {
         <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Family trend' : 'Roster trend'}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Family trend' : 'Progress trend'}</p>
               <h2 className="mt-1 text-xl font-semibold text-slate-950">{parentView ? 'How the week looks at a glance' : 'Sorted by progress'}</h2>
             </div>
             <Link href="/dashboard/students" className="text-sm font-medium text-slate-600 hover:text-slate-950">
-              {parentView ? 'Open family roster' : studentView ? 'Open tasks' : 'Open roster'}
+              {parentView ? 'Open recaps' : studentView ? 'Open tasks' : 'Open students'}
             </Link>
           </div>
 

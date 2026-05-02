@@ -7,6 +7,7 @@ import { LogOut, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   getTutoringNavId,
+  isTutorPov,
   tutoringNavItems,
   tutoringPovItems,
   tutoringSectionMeta,
@@ -35,6 +36,7 @@ export function useTutoringUi() {
 function TutoringSidebar({
   activeNav,
   activePov,
+  navItems,
   mobile = false,
   povLabel,
   onClose,
@@ -42,6 +44,7 @@ function TutoringSidebar({
 }: {
   activeNav: TutoringNavId
   activePov: TutoringPov
+  navItems: typeof tutoringNavItems
   mobile?: boolean
   povLabel: string
   onClose: () => void
@@ -67,7 +70,7 @@ function TutoringSidebar({
 
       <nav className="flex-1 overflow-y-auto px-[10px] py-[10px]">
         <div className="mb-[3px] mt-3 px-[10px] text-[10px] font-semibold uppercase tracking-[0.9px] text-[#9B9B9B]">Main</div>
-        {tutoringNavItems.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon
           const active = item.id === activeNav
 
@@ -128,10 +131,14 @@ function TutoringSidebar({
 export default function TutoringDashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [activePov, setActivePov] = useState<TutoringPov>('Tutor view')
+  const [activePov, setActivePov] = useState<TutoringPov>('Tutor')
 
   const activeNav = useMemo(() => getTutoringNavId(pathname), [pathname])
   const section = tutoringSectionMeta[activeNav]
+  const navItems = useMemo(
+    () => tutoringNavItems.filter((item) => isTutorPov(activePov) || item.id !== 'students'),
+    [activePov],
+  )
   const povLabel = activePov
 
   return (
@@ -140,7 +147,7 @@ export default function TutoringDashboardShell({ children }: { children: ReactNo
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(223,91,48,0.08),transparent_28%),radial-gradient(circle_at_90%_20%,rgba(255,255,255,0.03),transparent_24%)]" />
 
         <aside className="hidden shrink-0 border-r border-[#334155] bg-[#1E293B] lg:flex">
-          <TutoringSidebar activeNav={activeNav} activePov={activePov} onClose={() => setMobileOpen(false)} onSetActivePov={setActivePov} povLabel={povLabel} />
+          <TutoringSidebar activeNav={activeNav} activePov={activePov} navItems={navItems} onClose={() => setMobileOpen(false)} onSetActivePov={setActivePov} povLabel={povLabel} />
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -192,7 +199,7 @@ export default function TutoringDashboardShell({ children }: { children: ReactNo
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <TutoringSidebar activeNav={activeNav} activePov={activePov} mobile onClose={() => setMobileOpen(false)} onSetActivePov={setActivePov} povLabel={povLabel} />
+              <TutoringSidebar activeNav={activeNav} activePov={activePov} navItems={navItems} mobile onClose={() => setMobileOpen(false)} onSetActivePov={setActivePov} povLabel={povLabel} />
             </aside>
           </div>
         ) : null}
