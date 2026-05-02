@@ -54,7 +54,7 @@ export default function TutoringRecapsPage() {
               <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
                 {parentView
                   ? 'Read the short version of each recap before the next family check-in. The text stays simple and parent-facing.'
-                  : 'Keep tutor notes ready for a parent update, a follow-up message, or the next session plan. Active view: Tutor POV.'}
+                  : 'Keep tutor notes ready for a parent update, a follow-up message, or the next session plan. Active view: Tutor view.'}
               </p>
             </div>
 

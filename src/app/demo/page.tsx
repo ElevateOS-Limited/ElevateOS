@@ -148,7 +148,7 @@ export default function DemoPage() {
           </div>
           <div>
             <p className="text-lg font-semibold tracking-tight">ElevateOS</p>
-            <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Pitch demo</p>
+            <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Product demo</p>
           </div>
         </Link>
 
@@ -160,7 +160,7 @@ export default function DemoPage() {
             Pricing
           </Link>
           <Link href="/dashboard" className="hover:text-slate-950 dark:hover:text-white">
-            Workspace
+            Dashboard
           </Link>
         </nav>
 
@@ -183,16 +183,16 @@ export default function DemoPage() {
             </div>
 
             <h1 className="font-display mt-6 max-w-3xl text-5xl leading-[1.04] tracking-tight sm:text-6xl lg:text-7xl">
-              The student planning workspace, shown end to end.
+              The student planning dashboard, shown end to end.
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-              This is the public demo for the product reviewers. It shows the study assistant, worksheet generation, progress tracking, admissions planning, and the weekly planner in one flow.
+              This is the public demo for students and families. It shows the study assistant, worksheet generation, progress tracking, admissions planning, and the weekly planner in one flow.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3 text-sm font-semibold">
               <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-white shadow-lg shadow-slate-950/10 transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
-                Open workspace <ArrowRight className="h-4 w-4" />
+                Open dashboard <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/onboarding" className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/80 px-6 py-3 text-slate-700 backdrop-blur transition hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white">
                 Create account
@@ -229,11 +229,11 @@ export default function DemoPage() {
             </div>
 
             <div className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10 dark:border-white/10">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">Why this works for the pitch</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">Why this works for the demo</p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-white/75">
-                <p>1. The reviewer sees a real student profile instead of a raw spec dump.</p>
+                <p>1. The visitor sees a real student profile instead of a raw spec dump.</p>
                 <p>2. Every feature is tied to a visible artifact: chat, worksheet, progress, admissions, planner.</p>
-                <p>3. The demo can be opened without an account, then handed off into the real workspace when needed.</p>
+                <p>3. The demo can be opened without an account, then handed off into the full dashboard when needed.</p>
               </div>
               <div className="mt-5 flex flex-wrap gap-2">
                 <Pill>Yuki Tanaka</Pill>
@@ -248,7 +248,7 @@ export default function DemoPage() {
           <SectionHeading
             eyebrow="Interactive demo"
             title="Five tabbed views, one coherent product story."
-            copy="Use the tabs to move through the core product surfaces in the order a reviewer naturally expects to see them."
+            copy="Use the tabs to move through the core product surfaces in the order a visitor naturally expects to see them."
           />
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -375,7 +375,7 @@ export default function DemoPage() {
                     </div>
                     <div className="mt-5 flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                       <CheckCircle2 className="h-4 w-4 text-[#9a5b00]" />
-                      Review-ready output with no extra admin work.
+                      Review-ready output with no extra setup.
                     </div>
                   </article>
                 </div>
@@ -539,23 +539,23 @@ export default function DemoPage() {
 
         <section className="mt-6 grid gap-4 lg:grid-cols-[1.08fr_.92fr]">
           <article className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10 dark:border-white/10">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">What the reviewer gets</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">What the demo shows</p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-white/75">
               <p>• A live product story instead of a static screenshot deck.</p>
               <p>• A student profile that is clearly tied to the feature outputs.</p>
-              <p>• A clean handoff from demo to account creation or workspace access.</p>
+              <p>• A clean handoff from demo to account creation or dashboard access.</p>
             </div>
           </article>
 
           <article className="rounded-[2rem] border border-slate-900/10 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#9a5b00]">Save time</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">The same demo should open the full workspace when needed.</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">The same demo should open the full dashboard when needed.</h2>
             <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-              If the reviewer wants to keep going, open the main dashboard. If they want pricing, send them there next. If they want to start, route them to onboarding.
+              If the visitor wants to keep going, open the main dashboard. If they want pricing, send them there next. If they want to start, route them to onboarding.
             </p>
             <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold">
               <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
-                Open workspace <ArrowRight className="h-4 w-4" />
+                Open dashboard <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/pricing" className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 px-4 py-2.5 text-slate-700 transition hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:text-slate-200 dark:hover:text-white">
                 Pricing

@@ -3,6 +3,7 @@ import { Geist, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/layout/Providers'
 import { getAppUrl } from '@/lib/app-url'
+import { getSessionOrDemo } from '@/lib/auth/session'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -17,7 +18,7 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://elevateos.org'),
-  title: 'ElevateOS | Student Planning and Tutoring Workspace',
+  title: 'ElevateOS | Student Planning and Tutoring Dashboard',
   description: 'ElevateOS combines college planning, activity tracking, internship discovery, and tutoring execution across elevateos.org and tutoring.elevateos.org.',
   applicationName: 'ElevateOS',
   authors: [{ name: 'Howard' }],
@@ -39,11 +40,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSessionOrDemo()
+
   return (
     <html lang="en" suppressHydrationWarning className={`${geist.variable} ${instrumentSerif.variable} h-full`}>
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   )

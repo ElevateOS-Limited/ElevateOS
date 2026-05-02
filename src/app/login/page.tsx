@@ -68,20 +68,20 @@ export default function LoginPage() {
             </div>
             <div>
               <p className="text-lg font-semibold">ElevateOS</p>
-              <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Student planning and tutoring workspace</p>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Student planning and tutoring dashboard</p>
             </div>
           </Link>
 
           <h1 className="font-display mt-8 text-5xl leading-[0.95] tracking-tight sm:text-6xl">
-            Sign in and go straight to the right workspace.
+            Sign in and go straight to the right dashboard.
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-8 text-slate-600 dark:text-slate-300">
-            Students land on planning, tutors land on the execution view, parents land on the report view, and admins land on the management panel.
+            Students go to planning, tutors go to the tutor area, parents go to the family summary, and admins go to admin tools.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">
-            {['Role routing', 'Parent visibility', 'Tutor workflow', 'AI-assisted summaries'].map((item) => (
+            {['Student planning', 'Tutor tools', 'Family summaries', 'Admin tools'].map((item) => (
               <span key={item} className="rounded-full border border-slate-900/10 bg-white/80 px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
                 {item}
               </span>
@@ -146,7 +146,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 rounded-[1.5rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-            New families should start with onboarding so we can capture the right role, the right contact path, and the right tutoring context.
+            New families should start with onboarding so we can capture the right role, contact details, and student context.
           </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">

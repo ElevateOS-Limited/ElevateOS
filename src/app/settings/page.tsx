@@ -148,7 +148,7 @@ export default function SettingsPage() {
             <div>
               <h1 className="font-display text-4xl tracking-tight text-slate-950 dark:text-white">Profile & planner</h1>
               <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Keep the student profile, goals, and weekly availability in one place. The dashboard reads this data back into the live workspace.
+                Keep the student profile, goals, and weekly availability in one place. The dashboard uses this data to stay in sync.
               </p>
             </div>
           </div>
@@ -158,8 +158,8 @@ export default function SettingsPage() {
               Back to dashboard
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/student-dashboard" className="inline-flex items-center gap-2 text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-300 dark:hover:text-white">
-              Student view
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-300 dark:hover:text-white">
+              Dashboard
               <User className="h-4 w-4" />
             </Link>
           </div>

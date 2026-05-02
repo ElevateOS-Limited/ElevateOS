@@ -13,7 +13,7 @@ export default function TutoringCommunicationPage() {
   const threads = data?.messages ?? tutoringThreads
   const [selectedThreadId, setSelectedThreadId] = useState(threads[0].id)
   const [draft, setDraft] = useState('')
-  const parentView = activePov === 'Parent POV'
+  const parentView = activePov === 'Parent view'
   const visibleThreads = parentView ? threads.filter((thread) => thread.channel === 'Parent') : threads
   const selectedThread = useMemo(
     () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? visibleThreads[0],
@@ -21,7 +21,9 @@ export default function TutoringCommunicationPage() {
   )
 
   const queueLabel = parentView ? 'Parent updates' : 'Queue summary'
-  const helperLabel = parentView ? 'Reply in parent-friendly language and keep the next step clear.' : 'Replies are local-only in this MVP, but the route is real so each sidebar action can own its own workflow page.'
+  const helperLabel = parentView
+    ? 'Reply in parent-friendly language and keep the next step clear.'
+    : 'Replies stay organized here, and each sidebar action has its own page.'
 
   return (
     <div className="grid gap-4 xl:grid-cols-[1.05fr_.95fr]">
@@ -37,7 +39,7 @@ export default function TutoringCommunicationPage() {
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Only household-facing messages are shown here so a parent can review progress without tutor-only noise.'
-              : 'Keep parent, tutor, and student conversations in one place. Active view: Tutor POV.'}
+              : 'Keep parent, tutor, and student conversations in one place. Active view: Tutor view.'}
           </p>
         </div>
 

@@ -9,7 +9,7 @@ const sections = [
   },
   {
     title: 'Payments and subscriptions',
-    body: 'Paid plans renew according to the billing interval selected at checkout unless canceled through the billing portal or as required by law. Plan limits, trial periods, and features may change as the MVP evolves.',
+    body: 'Paid plans renew according to the billing interval selected at checkout unless canceled through the billing portal or as required by law. Plan limits, trial periods, and features may change as the product evolves.',
   },
   {
     title: 'Acceptable conduct',
@@ -17,7 +17,7 @@ const sections = [
   },
   {
     title: 'Service changes',
-    body: 'ElevateOS is an actively developed product. We may add, remove, or modify features as we improve reliability, safety, and fit for the tutoring MVP.',
+    body: 'ElevateOS is an actively developed product. We may add, remove, or modify features as we improve reliability, safety, and fit for the tutoring platform.',
   },
 ]
 

@@ -4,9 +4,9 @@ export const ROLE_HOME_PATHS = {
   OWNER: '/admin',
   ADMIN: '/admin',
   TUTOR: '/tutor-dashboard',
-  PARENT: '/student-dashboard',
-  STUDENT: '/student-dashboard',
-  USER: '/student-dashboard',
+  PARENT: '/dashboard',
+  STUDENT: '/dashboard',
+  USER: '/dashboard',
 } as const
 
 export type RoleHomePath = (typeof ROLE_HOME_PATHS)[keyof typeof ROLE_HOME_PATHS] | '/home'

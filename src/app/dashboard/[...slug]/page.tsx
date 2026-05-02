@@ -28,8 +28,8 @@ const MAIN_ROUTE_MAP: Record<string, string> = {
   demo: '/demo',
   pricing: '/pricing',
   home: '/home',
-  student: '/student-dashboard',
-  'student-dashboard': '/student-dashboard',
+  student: '/dashboard',
+  'student-dashboard': '/dashboard',
 }
 
 function resolveLegacyTarget(slug: string[], isTutoringSite: boolean) {

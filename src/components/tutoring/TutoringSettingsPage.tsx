@@ -41,12 +41,12 @@ export default function TutoringSettingsPage() {
             Settings
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Family notification preferences' : 'Tutor preferences and workspace options'}
+            {parentView ? 'Family notification preferences' : 'Tutor preferences and dashboard settings'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents can control how often they get updates and through which channel they want them delivered.'
-              : 'Set the default tutor preferences and workspace options for the tutoring dashboard.'}
+              : 'Set the default tutor preferences and dashboard settings for the tutoring dashboard.'}
           </p>
         </div>
 
@@ -173,11 +173,11 @@ export default function TutoringSettingsPage() {
 
       <aside className="space-y-4">
         <div className="rounded-[1.25rem] border border-slate-900/10 bg-slate-950 p-5 text-white shadow-lg shadow-slate-950/10">
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c06d]">Default POV</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c06d]">Default view</div>
           <p className="mt-3 text-sm leading-7 text-white/75">
             {parentView
               ? 'Parents see a family snapshot: progress, next sessions, and message history.'
-              : 'Tutors see the editable workspace: profile, recaps, and scheduling settings.'}
+              : 'Tutors see the editable dashboard: profile, recaps, and scheduling settings.'}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {tutoringPovItems.map((pov) => (
@@ -197,11 +197,11 @@ export default function TutoringSettingsPage() {
         </div>
 
         <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Workspace notes</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Dashboard notes</div>
           <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
             <li>• Update notifications before each session if the schedule changes.</li>
             <li>• Keep profile details current so the dashboard stays useful.</li>
-            <li>• Each sidebar item has a dedicated route.</li>
+            <li>• Each sidebar item opens its own page.</li>
           </ul>
           <Link href="/auth/login" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[#f8f5ef]">
             Sign out

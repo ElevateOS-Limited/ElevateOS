@@ -75,7 +75,7 @@ export default function TutoringResourcesPage() {
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents only need a high-level view of what is supporting the current week. Resource access stays simple and legible.'
-              : 'Tutors can switch between lesson files, practice banks, model answers, and tutor notes without leaving the workspace.'}
+              : 'Tutors can switch between lesson files, practice banks, model answers, and tutor notes without leaving the dashboard.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">

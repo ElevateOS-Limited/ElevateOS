@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   if (!message) return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
 
   if (shouldUseStaticDemoResponses()) {
-    return NextResponse.json({ reply: 'Demo response: keep the study loop moving with one focused next step.' })
+    return NextResponse.json({ reply: 'Demo response: keep progress moving with one focused next step.' })
   }
 
   try {

@@ -12,7 +12,7 @@ export type TutoringNavId =
   | 'communication'
   | 'settings'
 
-export type TutoringPov = 'Student POV' | 'Tutor POV' | 'Parent POV'
+export type TutoringPov = 'Student view' | 'Tutor view' | 'Parent view'
 export type TutoringTaskStatus = 'assigned' | 'submitted' | 'reviewed' | 'overdue' | 'completed'
 export type TutoringResourceKind = 'lesson_file' | 'question_bank' | 'model_answer' | 'tutor_resource'
 export type TutoringAccessTier = 'free' | 'ai_premium' | 'tutoring_premium' | 'tutor_only'
@@ -208,18 +208,18 @@ export const tutoringNavItems: Array<{ id: TutoringNavId; href: string; label: s
   { id: 'settings', href: '/tutor-dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
-export const tutoringPovItems: TutoringPov[] = ['Student POV', 'Tutor POV', 'Parent POV']
+export const tutoringPovItems: TutoringPov[] = ['Student view', 'Tutor view', 'Parent view']
 
 export function isStudentPov(pov: TutoringPov) {
-  return pov === 'Student POV'
+  return pov === 'Student view'
 }
 
 export function isTutorPov(pov: TutoringPov) {
-  return pov === 'Tutor POV'
+  return pov === 'Tutor view'
 }
 
 export function isParentPov(pov: TutoringPov) {
-  return pov === 'Parent POV'
+  return pov === 'Parent view'
 }
 
 export const tutoringSectionMeta: Record<TutoringNavId, { title: string; description: string }> = {
@@ -261,7 +261,7 @@ export const tutoringSectionMeta: Record<TutoringNavId, { title: string; descrip
   },
   settings: {
     title: 'Settings',
-    description: 'Pov defaults, notifications, and workspace preferences.',
+    description: 'View defaults, notifications, and dashboard preferences.',
   },
 }
 

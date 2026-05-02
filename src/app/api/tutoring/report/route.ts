@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     const student = snapshot.students.find((item) => item.id === selectedStudentId)
     if (!student) {
-      return NextResponse.json({ error: 'Student not found in workspace snapshot' }, { status: 404 })
+      return NextResponse.json({ error: 'Student not found in tutoring snapshot' }, { status: 404 })
     }
 
     const tasks = snapshot.tasks.filter((task) => task.studentId === selectedStudentId)

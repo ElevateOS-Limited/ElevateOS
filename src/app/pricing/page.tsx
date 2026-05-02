@@ -4,7 +4,7 @@ import { BILLING_PLANS } from '@/lib/billing/plans'
 
 const highlights = [
   'Demo access is public and does not require a login.',
-  'Free sign-up starts the student workspace without a payment step.',
+  'Free sign-up starts the student dashboard without a payment step.',
   'Paid plans route through the normal sign-in and checkout flow.',
 ]
 
@@ -27,7 +27,7 @@ export default function PricingPage() {
             Demo
           </Link>
           <Link href="/dashboard" className="hover:text-slate-950 dark:hover:text-white">
-            Workspace
+            Dashboard
           </Link>
           <Link href="/login" className="hover:text-slate-950 dark:hover:text-white">
             Login
@@ -57,7 +57,7 @@ export default function PricingPage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-              Start with the public demo, move into the free workspace, and upgrade only when the student actually needs the heavier workflow.
+              Start with the public demo, move into the free dashboard, and upgrade only when the student actually needs the heavier workflow.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3 text-sm font-semibold">

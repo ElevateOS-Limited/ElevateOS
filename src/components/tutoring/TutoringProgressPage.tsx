@@ -46,7 +46,7 @@ export default function TutoringProgressPage() {
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'See how each student is moving, what is coming up next, and which class needs a nudge at home.'
-              : 'Track growth across the roster, isolate students who need a reset, and keep the current view aligned with Tutor POV.'}
+              : 'Track growth across the roster, isolate students who need a reset, and keep the current view aligned with Tutor view.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">

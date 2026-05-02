@@ -34,7 +34,7 @@ export default function TutoringOverviewPage() {
         { href: '/dashboard/students', label: 'Students', desc: 'Roster, filters, and student notes.' },
         { href: '/dashboard/tasks', label: 'Tasks', desc: 'Weekly assignments, deadlines, and submission flow.' },
         { href: '/dashboard/feedback', label: 'Feedback', desc: 'Reviewed work, weak areas, and next steps.' },
-        { href: '/dashboard/reports', label: 'Reports', desc: 'Build the weekly parent summary from the current loop.' },
+        { href: '/dashboard/reports', label: 'Reports', desc: 'Build the weekly parent summary from the latest session notes.' },
         { href: '/dashboard/recaps', label: 'Recaps', desc: 'Recent session summaries and parent-ready notes.' },
         { href: '/dashboard/progress', label: 'Progress', desc: 'Track movers, intervention flags, and growth.' },
         { href: '/dashboard/resources', label: 'Resources', desc: 'Lesson files, question banks, and tutor notes.' },

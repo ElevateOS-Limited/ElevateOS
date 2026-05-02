@@ -76,7 +76,7 @@ export default async function AdminPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#9a5b00]">Admin dashboard</p>
             <h1 className="font-display mt-3 text-4xl tracking-tight">Keep the tutoring business operational.</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              This surface is intentionally small: manage leads, correct roles, and keep the canonical user store clean.
+              Keep this surface focused: manage leads, update roles, and keep user records clean.
             </p>
           </div>
 
@@ -200,9 +200,9 @@ export default async function AdminPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#f2c06d]">Operational links</p>
           </div>
           <div className="mt-4 space-y-3 text-sm leading-7 text-white/75">
-            <p>Use lead capture on the public pages to bring families into the tutoring loop.</p>
-            <p>Use the tutor workspace to assign tasks, review submissions, and generate parent summaries.</p>
-            <p>Use the admin role only for canonical user and lead management.</p>
+            <p>Use the public pages to bring families into the tutoring flow.</p>
+            <p>Use tutor tools to assign tasks, review submissions, and generate parent summaries.</p>
+            <p>Use the admin role only for user and lead management.</p>
           </div>
         </article>
 
@@ -217,7 +217,7 @@ export default async function AdminPage() {
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/tutors" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-slate-950">
-              Tutor workspace <ArrowRight className="h-4 w-4" />
+              Tutor area <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/parent-dashboard" className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:text-slate-200 dark:hover:text-white">
               Parent view

@@ -10,7 +10,7 @@ async function fetchTutoringWorkspace(): Promise<TutoringWorkspaceSnapshot> {
   const data = await response.json().catch(() => null)
 
   if (!response.ok) {
-    throw new Error(data?.error || 'Failed to load tutoring workspace')
+    throw new Error(data?.error || 'Failed to load tutoring dashboard')
   }
 
   return data as TutoringWorkspaceSnapshot

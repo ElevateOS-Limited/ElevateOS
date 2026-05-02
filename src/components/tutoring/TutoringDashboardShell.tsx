@@ -92,7 +92,7 @@ function TutoringSidebar({
 
       <div className="border-t border-[#334155] px-[10px] py-[12px]">
         <div className="mb-3 rounded-[12px] border border-[#334155] bg-[#111827] p-3">
-          <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.7px] text-[#9B9B9B]">POV</div>
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.7px] text-[#9B9B9B]">View</div>
           <div className="flex flex-col gap-2">
             {tutoringPovItems.map((label) => {
               const isActive = label === activePov
@@ -129,11 +129,11 @@ function TutoringSidebar({
 export default function TutoringDashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [activePov, setActivePov] = useState<TutoringPov>('Tutor POV')
+  const [activePov, setActivePov] = useState<TutoringPov>('Tutor view')
 
   const activeNav = useMemo(() => getTutoringNavId(pathname), [pathname])
   const section = tutoringSectionMeta[activeNav]
-  const povLabel = isParentPov(activePov) ? 'Parent view' : 'Tutor workspace'
+  const povLabel = isParentPov(activePov) ? 'Parent view' : 'Tutor view'
 
   return (
     <TutoringUiContext.Provider value={{ activePov, setActivePov, activeNav }}>

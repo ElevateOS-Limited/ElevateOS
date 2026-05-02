@@ -5,7 +5,7 @@ const sections = [
   },
   {
     title: 'How we use data',
-    body: 'We use your data to authenticate you, save your work, personalize recommendations, process billing, support tutoring workflows, and improve product reliability.',
+    body: 'We use your data to authenticate you, save your work, personalize recommendations, process billing, support tutoring services, and improve product reliability.',
   },
   {
     title: 'AI processing',

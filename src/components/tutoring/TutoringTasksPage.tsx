@@ -257,7 +257,7 @@ export default function TutoringTasksPage() {
 
           <div className="mt-4 rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
             {submittedTaskId === selectedTask?.id
-              ? 'Submission saved locally in the workspace. Connect the POST route when you are ready to persist student uploads.'
+              ? 'Submission saved locally for now.'
               : selectedSubmission
                 ? `Last submission: ${formatDateTimeLabel(selectedSubmission.submittedAt)}`
                 : 'No submission yet for this task.'}

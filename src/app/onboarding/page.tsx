@@ -16,7 +16,7 @@ type OnboardingPageProps = {
 const steps = [
   'Tell us who needs support and what subject matters most.',
   'We route the family to the correct role view and intake path.',
-  'Tutor notes, student tasks, and parent summaries stay in one loop.',
+  'Tutor notes, student tasks, and parent summaries stay connected in one flow.',
 ]
 
 export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {

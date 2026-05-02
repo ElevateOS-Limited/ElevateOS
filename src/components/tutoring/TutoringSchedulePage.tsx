@@ -56,7 +56,7 @@ export default function TutoringSchedulePage() {
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'View confirmed appointments, upcoming time blocks, and who to contact if a session needs to move.'
-              : 'Manage open days, blocked dates, and upcoming tutoring slots without leaving the dashboard. Active view: Tutor POV.'}
+              : 'Manage open days, blocked dates, and upcoming tutoring slots without leaving the dashboard. Active view: Tutor view.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
