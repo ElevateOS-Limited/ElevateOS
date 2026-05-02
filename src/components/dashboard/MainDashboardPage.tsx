@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
+import { demoDashboardProfile } from '@/lib/dashboard/demo-profile'
 import {
   ArrowRight,
   BarChart3,
@@ -23,6 +24,9 @@ type WeeklyAvailability = {
 }
 
 type DashboardProfile = {
+  id?: string | null
+  email?: string | null
+  image?: string | null
   name?: string | null
   role?: string | null
   gradeLevel?: string | null
@@ -66,6 +70,10 @@ type InternshipIdea = {
   fit: string
   why: string
   nextStep: string
+}
+
+type DashboardPageProps = {
+  initialProfile?: DashboardProfile | null
 }
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -287,13 +295,19 @@ function loadingCard() {
   )
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ initialProfile }: DashboardPageProps) {
   const profileQuery = useQuery<DashboardProfile | null>({
     queryKey: ['main-dashboard-profile'],
+    initialData: initialProfile ?? undefined,
+    staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const response = await fetch('/api/profile', { cache: 'no-store' })
+      if (response.status === 401 || response.status === 403) {
+        return demoDashboardProfile as DashboardProfile
+      }
       if (!response.ok) throw new Error('Unable to load profile')
-      return response.json()
+      const data = await response.json()
+      return (data ?? demoDashboardProfile) as DashboardProfile
     },
     retry: false,
     refetchOnWindowFocus: false,
@@ -303,7 +317,7 @@ export default function DashboardPage() {
     return loadingCard()
   }
 
-  if (profileQuery.isError || !profileQuery.data) {
+  if (profileQuery.isError) {
     return (
       <div className="flex min-h-[100svh] items-center justify-center bg-[#f8f5ef] px-6 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
         <div className="max-w-lg rounded-[1.5rem] border border-slate-900/10 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
@@ -326,7 +340,7 @@ export default function DashboardPage() {
     )
   }
 
-  const profile = profileQuery.data
+  const profile = profileQuery.data ?? demoDashboardProfile
   const subjects = asStringList(profile?.subjects)
   const targets = asStringList(profile?.targetUniversities)
   const interests = asStringList(profile?.careerInterests)
@@ -339,6 +353,7 @@ export default function DashboardPage() {
   const activeBlockedDates = blockedDates.filter((day) => day >= todayIso)
   const currentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
   const openSlots = openDays.length
+  const isGuestPreview = profile?.id === demoDashboardProfile.id || profile?.email === demoDashboardProfile.email
   const profileSignals = [
     profile?.curriculum,
     profile?.gradeLevel,
@@ -378,6 +393,32 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 text-slate-950 dark:text-white sm:px-6 lg:px-8">
+      {isGuestPreview ? (
+        <section className="rounded-[2rem] border border-[#f2c06d]/35 bg-[#f8f0d6]/70 p-5 shadow-sm dark:border-[#f2c06d]/20 dark:bg-[#f2c06d]/10">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a5b00]">Guest preview</p>
+              <h2 className="mt-2 text-xl font-semibold text-slate-950 dark:text-white">This workspace is in demo mode.</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">
+                You can scan the full product now. Create an account to save your own planner, target schools, and application history.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm font-semibold">
+              <Link href="/demo" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
+                Open demo
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/pricing" className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 px-4 py-2.5 text-slate-700 transition hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:text-slate-200 dark:hover:text-white">
+                Pricing
+              </Link>
+              <Link href="/onboarding" className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 px-4 py-2.5 text-slate-700 transition hover:border-slate-900/20 hover:text-slate-950 dark:border-white/10 dark:text-slate-200 dark:hover:text-white">
+                Create account
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="rounded-[2rem] border border-slate-900/10 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
@@ -744,7 +785,7 @@ export default function DashboardPage() {
             { href: '/settings', label: 'Edit profile', desc: 'Update courses, targets, and weekly availability.', icon: Users },
             { href: '#planner', label: 'Open planner', desc: 'Review open days, blocked dates, and focus blocks.', icon: CalendarClock },
             { href: '#universities', label: 'Target schools', desc: 'Check fit, readiness, and next steps.', icon: GraduationCap },
-            { href: '/student-dashboard', label: 'Student view', desc: 'Open the simpler task-first dashboard.', icon: Sparkles },
+            { href: '/demo', label: 'Open demo', desc: 'See the pitch-friendly walkthrough view.', icon: Sparkles },
           ].map((action) => (
             <Link
               key={action.label}

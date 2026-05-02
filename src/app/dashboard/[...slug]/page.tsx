@@ -25,6 +25,8 @@ const MAIN_ROUTE_MAP: Record<string, string> = {
   admissions: '/dashboard#universities',
   profile: '/settings',
   settings: '/settings',
+  demo: '/demo',
+  pricing: '/pricing',
   home: '/home',
   student: '/student-dashboard',
   'student-dashboard': '/student-dashboard',

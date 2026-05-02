@@ -87,6 +87,8 @@ export default function HomePage() {
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex">
           <a href="#how-it-works" className="hover:text-slate-950 dark:hover:text-white">How it works</a>
           <a href="#tutors" className="hover:text-slate-950 dark:hover:text-white">Our tutors</a>
+          <Link href="/demo" className="hover:text-slate-950 dark:hover:text-white">Demo</Link>
+          <Link href="/pricing" className="hover:text-slate-950 dark:hover:text-white">Pricing</Link>
           <a href="#parent-visibility" className="hover:text-slate-950 dark:hover:text-white">For parents</a>
           <a href="#book" className="hover:text-slate-950 dark:hover:text-white">Book trial</a>
         </nav>
@@ -119,6 +121,9 @@ export default function HomePage() {
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link href="/demo" className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/80 px-7 py-3.5 text-sm font-semibold text-slate-700 backdrop-blur hover:border-slate-900/20 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+              Open student demo <ArrowRight className="h-4 w-4" />
+            </Link>
             <Link href="/onboarding" className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-slate-950/10 transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-950">
               Book your free trial lesson <ArrowRight className="h-4 w-4" />
             </Link>
@@ -329,6 +334,8 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:px-6 dark:text-slate-400">
           <p>© 2026 ElevateOS. All rights reserved.</p>
           <div className="flex gap-6">
+            <Link href="/demo" className="hover:text-slate-950 dark:hover:text-white">Demo</Link>
+            <Link href="/pricing" className="hover:text-slate-950 dark:hover:text-white">Pricing</Link>
             <Link href="/login" className="hover:text-slate-950 dark:hover:text-white">Login</Link>
             <Link href="/onboarding" className="hover:text-slate-950 dark:hover:text-white">Get started</Link>
           </div>

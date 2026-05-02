@@ -2,45 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma, DATABASE_URL_CONFIGURED } from '@/lib/prisma'
 import { getSessionOrDemo } from '@/lib/auth/session'
 import { DEMO_MODE } from '@/lib/auth/demo'
+import { demoDashboardProfile as demoProfile } from '@/lib/dashboard/demo-profile'
 import { refreshUserStripeState } from '@/lib/stripe/reconcile'
-
-const demoProfile = {
-  id: 'demo-user',
-  name: 'ElevateOS Demo Student',
-  email: 'demo@thinkcollegelevel.com',
-  image: null,
-  role: 'STUDENT',
-  gradeLevel: 'Grade 11',
-  curriculum: 'IB',
-  subjects: ['Mathematics', 'Biology', 'English'],
-  gpa: 3.92,
-  satScore: 1490,
-  actScore: null,
-  intendedMajor: 'Computer Science',
-  targetUniversities: ['Stanford', 'MIT', 'UCL'],
-  careerInterests: ['AI', 'Entrepreneurship', 'Community impact'],
-  location: 'Remote',
-  bio: 'Demo profile for host-standardized preview mode.',
-  coursesTaking: ['IB Math AA HL', 'IB Biology HL', 'IB English SL'],
-  activitiesDone: ['Robotics club lead', 'Peer tutoring', 'Hackathon finalist'],
-  goals: ['Raise timed exam accuracy', 'Finalize summer applications'],
-  customPreferences: null,
-  weeklyAvailability: {
-    weekly: {
-      Monday: 'open',
-      Tuesday: 'busy',
-      Wednesday: 'open',
-      Thursday: 'open',
-      Friday: 'busy',
-      Saturday: 'open',
-      Sunday: 'busy',
-    },
-    blockedDates: [],
-  },
-  subscriptionStatus: 'demo',
-  subscriptionEnds: null,
-  trialEnds: null,
-}
 
 export async function GET() {
   const session = await getSessionOrDemo()
