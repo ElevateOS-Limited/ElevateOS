@@ -1,30 +1,53 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { Save, Settings, User } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { isParentPov, tutoringPovItems } from './tutoring-data'
+import { isParentPov, isStudentPov, tutoringPovItems, type TutoringPov } from './tutoring-data'
+
+function buildInitialForm(activePov: TutoringPov): Record<string, string | boolean> {
+  if (isParentPov(activePov)) {
+    return {
+      primaryContact: 'Chak Hang Chan',
+      emailReports: true,
+      smsReminders: false,
+      updateFrequency: 'Weekly',
+      preferredChannel: 'Email',
+    } as Record<string, string | boolean>
+  }
+
+  if (isStudentPov(activePov)) {
+    return {
+      studentName: 'Aiko Tanaka',
+      emailReports: true,
+      smsReminders: false,
+      studyFocus: 'Physics',
+      quietHours: '9:00 PM - 7:00 AM',
+      weeklySummary: 'Weekly',
+    } as Record<string, string | boolean>
+  }
+
+  return {
+    tutorName: 'Avery Park',
+    emailReports: true,
+    smsReminders: false,
+    defaultSubject: 'Physics',
+    signature: 'Avery Park · Tutor',
+  } as Record<string, string | boolean>
+}
 
 export default function TutoringSettingsPage() {
   const { activePov, setActivePov } = useTutoringUi()
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
   const [saved, setSaved] = useState(false)
-  const [form, setForm] = useState<Record<string, string | boolean>>(parentView
-    ? {
-        primaryContact: 'Chak Hang Chan',
-        emailReports: true,
-        smsReminders: false,
-        updateFrequency: 'Weekly',
-        preferredChannel: 'Email',
-      }
-    : {
-        tutorName: 'Avery Park',
-        emailReports: true,
-        smsReminders: false,
-        defaultSubject: 'Physics',
-        signature: 'Avery Park · Tutor',
-      })
+  const [form, setForm] = useState<Record<string, string | boolean>>(() => buildInitialForm(activePov))
+
+  useEffect(() => {
+    setForm(buildInitialForm(activePov))
+    setSaved(false)
+  }, [activePov])
 
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -41,19 +64,21 @@ export default function TutoringSettingsPage() {
             Settings
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Family notification preferences' : 'Tutor preferences and dashboard settings'}
+            {parentView ? 'Family notification preferences' : studentView ? 'Student preferences and reminders' : 'Tutor preferences and dashboard settings'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents can control how often they get updates and through which channel they want them delivered.'
-              : 'Set the default tutor preferences and dashboard settings for the tutoring dashboard.'}
+              : studentView
+                ? 'Students can adjust reminder timing, quiet hours, and the study focus that should appear first.'
+                : 'Set the default tutor preferences and dashboard settings for the tutoring dashboard.'}
           </p>
         </div>
 
         <form onSubmit={handleSave} className="space-y-4 rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
             <User className="h-4 w-4" />
-            {parentView ? 'Household' : 'Profile'}
+            {parentView ? 'Household' : studentView ? 'Student' : 'Profile'}
           </div>
 
           {parentView ? (
@@ -109,6 +134,70 @@ export default function TutoringSettingsPage() {
                   className="w-full rounded-[0.9rem] border border-slate-900/10 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#3B82F6]"
                 />
               </label>
+            </>
+          ) : studentView ? (
+            <>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Student name</span>
+                <input
+                  value={(form as typeof form & { studentName: string }).studentName}
+                  onChange={(event) => setForm((current) => ({ ...current, studentName: event.target.value }))}
+                  className="w-full rounded-[0.9rem] border border-slate-900/10 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#3B82F6]"
+                />
+              </label>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex items-center justify-between gap-3 rounded-[1rem] border border-slate-900/10 px-4 py-3">
+                  <span className="text-sm text-slate-700">Study reminders</span>
+                  <input
+                    type="checkbox"
+                    checked={(form as typeof form & { emailReports: boolean }).emailReports}
+                    onChange={(event) => setForm((current) => ({ ...current, emailReports: event.target.checked }))}
+                    className="h-4 w-4 accent-[#3B82F6]"
+                  />
+                </label>
+                <label className="flex items-center justify-between gap-3 rounded-[1rem] border border-slate-900/10 px-4 py-3">
+                  <span className="text-sm text-slate-700">SMS reminders</span>
+                  <input
+                    type="checkbox"
+                    checked={(form as typeof form & { smsReminders: boolean }).smsReminders}
+                    onChange={(event) => setForm((current) => ({ ...current, smsReminders: event.target.checked }))}
+                    className="h-4 w-4 accent-[#3B82F6]"
+                  />
+                </label>
+              </div>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Study focus</span>
+                <input
+                  value={(form as typeof form & { studyFocus: string }).studyFocus}
+                  onChange={(event) => setForm((current) => ({ ...current, studyFocus: event.target.value }))}
+                  className="w-full rounded-[0.9rem] border border-slate-900/10 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#3B82F6]"
+                />
+              </label>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700">Quiet hours</span>
+                  <input
+                    value={(form as typeof form & { quietHours: string }).quietHours}
+                    onChange={(event) => setForm((current) => ({ ...current, quietHours: event.target.value }))}
+                    className="w-full rounded-[0.9rem] border border-slate-900/10 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#3B82F6]"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700">Weekly summary</span>
+                  <select
+                    value={(form as typeof form & { weeklySummary: string }).weeklySummary}
+                    onChange={(event) => setForm((current) => ({ ...current, weeklySummary: event.target.value }))}
+                    className="w-full rounded-[0.9rem] border border-slate-900/10 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#3B82F6]"
+                  >
+                    <option>After every session</option>
+                    <option>Weekly</option>
+                    <option>Only when there is a concern</option>
+                  </select>
+                </label>
+              </div>
             </>
           ) : (
             <>
@@ -177,7 +266,9 @@ export default function TutoringSettingsPage() {
           <p className="mt-3 text-sm leading-7 text-white/75">
             {parentView
               ? 'Parents see a family snapshot: progress, next sessions, and message history.'
-              : 'Tutors see the editable dashboard: profile, recaps, and scheduling settings.'}
+              : studentView
+                ? 'Students see a focused view: reminders, study goals, and the next session.'
+                : 'Tutors see the editable dashboard: profile, recaps, and scheduling settings.'}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {tutoringPovItems.map((pov) => (

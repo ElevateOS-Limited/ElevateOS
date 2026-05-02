@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CheckCircle2, Download, FileText, RefreshCw, Sparkles, TrendingUp } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
-import { demoTutoringWorkspace, isParentPov, tutoringSectionMeta } from './tutoring-data'
+import { demoTutoringWorkspace, isParentPov, isStudentPov, tutoringSectionMeta } from './tutoring-data'
 import type { WeeklyParentReport } from '@/lib/tutoring/report'
 
 async function fetchWeeklyReport(studentId: string): Promise<WeeklyParentReport> {
@@ -34,6 +34,7 @@ export default function TutoringReportsPage() {
   const { activePov } = useTutoringUi()
   const { data, isLoading, error } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
   const students = data?.students ?? demoTutoringWorkspace.students
   const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || '')
   const [report, setReport] = useState<WeeklyParentReport | null>(null)
@@ -94,12 +95,14 @@ export default function TutoringReportsPage() {
             {tutoringSectionMeta.reports.title}
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Family-ready weekly report' : 'Weekly report with parent-facing summary'}
+            {parentView ? 'Family-ready weekly report' : studentView ? 'Student weekly report' : 'Weekly report with parent-facing summary'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'This page compresses weekly execution into a short family update: what moved, what needs attention, and what should happen next.'
-              : 'Tutors can review a deterministic weekly report and an AI-compressed parent summary before sharing updates.'}
+              : studentView
+                ? 'Students can review the weekly report, the headline, and the next steps before the next session.'
+                : 'Tutors can review a deterministic weekly report and an AI-compressed parent summary before sharing updates.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -191,7 +194,7 @@ export default function TutoringReportsPage() {
 
       <aside className="space-y-4">
         <div className="rounded-[1.5rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">Parent summary</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">{parentView ? 'Parent summary' : studentView ? 'Student summary' : 'Parent summary'}</p>
           {report ? (
             <div className="mt-4 space-y-4">
               <div className="flex items-start justify-between gap-4">
@@ -207,7 +210,7 @@ export default function TutoringReportsPage() {
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7 text-white/75">
-                {report.aiSummary || report.summary}
+                {studentView ? report.summary : report.aiSummary || report.summary}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -216,7 +219,7 @@ export default function TutoringReportsPage() {
                   <p className="mt-2 text-sm font-semibold">{report.student.parentNames.length ? report.student.parentNames.join(', ') : 'No parent link set'}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-white/45">Tutors</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/45">{studentView ? 'Tutors' : 'Tutors'}</p>
                   <p className="mt-2 text-sm font-semibold">{report.student.tutorNames.length ? report.student.tutorNames.join(', ') : 'No tutor link set'}</p>
                 </div>
               </div>
@@ -255,11 +258,11 @@ export default function TutoringReportsPage() {
               <div className="flex gap-2">
                 <button type="button" className="inline-flex flex-1 items-center justify-center gap-2 rounded-[0.9rem] bg-white px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:opacity-95">
                   <Download className="h-4 w-4" />
-                  Export
+                  {studentView ? 'Download' : 'Export'}
                 </button>
                 <div className="inline-flex flex-1 items-center justify-center gap-2 rounded-[0.9rem] border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white/80">
                   <CheckCircle2 className="h-4 w-4" />
-                  Ready to share
+                  {studentView ? 'Ready to review' : 'Ready to share'}
                 </div>
               </div>
             </div>

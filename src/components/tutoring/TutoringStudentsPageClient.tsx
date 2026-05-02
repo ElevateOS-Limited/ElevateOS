@@ -8,6 +8,7 @@ import {
   initialStudents,
   initialsForName,
   isParentPov,
+  isStudentPov,
   nextSessionKey,
   progressColor,
   progressLabel,
@@ -52,6 +53,7 @@ export default function TutoringStudentsPageClient() {
   const { activePov } = useTutoringUi()
   const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
   const roster = data?.students ?? initialStudents
   const [students, setStudents] = useState<Student[]>(roster)
   const [query, setQuery] = useState('')
@@ -167,7 +169,7 @@ export default function TutoringStudentsPageClient() {
         <div>
           <div className="text-[10.5px] font-semibold uppercase tracking-[0.7px] text-[#9B9B9B]">Students</div>
           <div className="mt-1 font-display text-[20px] tracking-[-0.3px] text-[#1A1A1A]">
-            {parentView ? 'Family roster snapshot' : 'Your current roster'}
+            {parentView ? 'Family roster snapshot' : studentView ? 'Student roster snapshot' : 'Your current roster'}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#4A4A4A]">
             <span className="rounded-full border border-[#E9ECEF] bg-white px-3 py-1">Viewing: {activePov}</span>
@@ -199,6 +201,10 @@ export default function TutoringStudentsPageClient() {
             <MessageSquare className="h-4 w-4" />
             Request update
           </Link>
+        ) : studentView ? (
+          <div className="rounded-[8px] border border-[#E9ECEF] bg-[#F8F9FA] px-3 py-2 text-[11px] font-medium text-[#4A4A4A]">
+            Read-only student view
+          </div>
         ) : (
           <button
             type="button"
@@ -211,7 +217,7 @@ export default function TutoringStudentsPageClient() {
         )}
       </section>
 
-      {!parentView && addOpen ? (
+      {!parentView && !studentView && addOpen ? (
         <section className="rounded-[16px] border border-[#E9ECEF] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
@@ -273,9 +279,9 @@ export default function TutoringStudentsPageClient() {
         <section className="overflow-hidden rounded-[16px] border border-[#E9ECEF] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9ECEF] px-[18px] py-[15px]">
             <div className="font-display text-[14px] text-[#1E293B]">
-              {parentView ? `Family roster (${visibleStudents.length})` : `All Students (${visibleStudents.length})`}
+              {parentView ? `Family roster (${visibleStudents.length})` : studentView ? `Student roster (${visibleStudents.length})` : `All Students (${visibleStudents.length})`}
             </div>
-            {!parentView ? (
+            {!parentView && !studentView ? (
               <div className="flex items-center gap-[7px]">
                 <div className="relative">
                   <MenuButton
@@ -395,6 +401,10 @@ export default function TutoringStudentsPageClient() {
                           >
                             Recap
                           </Link>
+                        ) : studentView ? (
+                          <button type="button" onClick={() => setSelectedId(student.id)} className="rounded-[8px] border border-[#E9ECEF] bg-white px-[11px] py-[6px] text-[12px] font-medium text-[#1E293B] transition-colors hover:bg-[#F8F9FA]">
+                            View progress
+                          </button>
                         ) : (
                           <button type="button" onClick={() => setSelectedId(student.id)} className="rounded-[8px] border border-[#E9ECEF] bg-white px-[11px] py-[6px] text-[12px] font-medium text-[#1E293B] transition-colors hover:bg-[#F8F9FA]">
                             View
@@ -408,12 +418,14 @@ export default function TutoringStudentsPageClient() {
                     <td className="px-[18px] py-[24px]" colSpan={8}>
                       <div className="rounded-[12px] border border-dashed border-[#E9ECEF] bg-[#F8F9FA] p-6 text-center">
                         <p className="text-[14px] font-semibold text-[#1E293B]">
-                          {parentView ? 'No family-visible sessions match the current search.' : 'No students match the current filter.'}
+                          {parentView ? 'No family-visible sessions match the current search.' : studentView ? 'No student-visible sessions match the current search.' : 'No students match the current filter.'}
                         </p>
                         <p className="mt-1 text-[12px] text-[#6B6B6B]">
                           {parentView
                             ? 'Try another search term or open Communication to request a tutor update.'
-                            : 'Try a broader search or clear the filter to restore the full roster.'}
+                            : studentView
+                              ? 'Try a broader search or clear the filter to restore the student roster.'
+                              : 'Try a broader search or clear the filter to restore the full roster.'}
                         </p>
                         <div className="mt-4 flex flex-wrap justify-center gap-2">
                           <button type="button" onClick={clearFilters} className="inline-flex items-center gap-2 rounded-[8px] bg-[#3B82F6] px-[15px] py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-[#60A5FA]">

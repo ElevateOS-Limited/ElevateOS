@@ -4,13 +4,15 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, TrendingUp } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { initialStudents, isParentPov, progressColor, progressLabel, statusClasses } from './tutoring-data'
+import { initialStudents, isParentPov, isStudentPov, isTutorPov, progressColor, progressLabel, statusClasses } from './tutoring-data'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 export default function TutoringProgressPage() {
   const { activePov } = useTutoringUi()
   const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
+  const tutorView = isTutorPov(activePov)
   const students = data?.students ?? initialStudents
   const [selectedId, setSelectedId] = useState(students[0].id)
 
@@ -26,11 +28,23 @@ export default function TutoringProgressPage() {
         { label: 'Needs support', value: intervention },
         { label: 'Average', value: `${averageProgress}%` },
       ]
-    : [
-        { label: 'Average', value: `${averageProgress}%` },
-        { label: 'Improving', value: accelerating },
-        { label: 'Intervention', value: intervention },
-      ]
+    : studentView
+      ? [
+          { label: 'Your progress', value: `${selectedStudent?.progress ?? averageProgress}%` },
+          { label: 'Sessions', value: selectedStudent?.sessions ?? 0 },
+          { label: 'Focus areas', value: selectedStudent?.weakTopics.length ?? 0 },
+        ]
+      : tutorView
+        ? [
+            { label: 'Average', value: `${averageProgress}%` },
+            { label: 'Improving', value: accelerating },
+            { label: 'Intervention', value: intervention },
+          ]
+        : [
+            { label: 'Average', value: `${averageProgress}%` },
+            { label: 'Improving', value: accelerating },
+            { label: 'Intervention', value: intervention },
+          ]
 
   return (
     <div className="grid gap-4 xl:grid-cols-[1.05fr_.95fr]">
@@ -41,12 +55,14 @@ export default function TutoringProgressPage() {
             Progress
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Parent progress snapshot' : 'Trend lines and intervention signals'}
+            {parentView ? 'Parent progress snapshot' : studentView ? 'Student progress snapshot' : 'Trend lines and intervention signals'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'See how each student is moving, what is coming up next, and which class needs a nudge at home.'
-              : 'Track growth across the roster, isolate students who need a reset, and keep the current view aligned with Tutor view.'}
+              : studentView
+                ? 'Track your growth, review the next session, and keep the current view aligned with Student view.'
+                : 'Track growth across the roster, isolate students who need a reset, and keep the current view aligned with Tutor view.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -66,7 +82,7 @@ export default function TutoringProgressPage() {
               <h2 className="mt-1 text-xl font-semibold text-slate-950">{parentView ? 'How the week looks at a glance' : 'Sorted by progress'}</h2>
             </div>
             <Link href="/dashboard/students" className="text-sm font-medium text-slate-600 hover:text-slate-950">
-              {parentView ? 'Open family roster' : 'Open roster'}
+              {parentView ? 'Open family roster' : studentView ? 'Open tasks' : 'Open roster'}
             </Link>
           </div>
 
@@ -104,7 +120,7 @@ export default function TutoringProgressPage() {
 
       <aside className="space-y-4">
         <div className="rounded-[1.25rem] border border-slate-900/10 bg-slate-950 p-5 text-white shadow-lg shadow-slate-950/10">
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c06d]">{parentView ? 'Family snapshot' : 'Selected student'}</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f2c06d]">{parentView ? 'Family snapshot' : studentView ? 'Student snapshot' : 'Selected student'}</div>
           {selectedStudent ? (
             <div className="mt-4 space-y-4">
               <div>
@@ -112,7 +128,7 @@ export default function TutoringProgressPage() {
                 <p className="text-sm text-white/65">{selectedStudent.subject} · {selectedStudent.grade}</p>
               </div>
               <div className="rounded-[1rem] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-white/75">
-                {parentView ? `At-home snapshot: ${selectedStudent.recap}` : selectedStudent.recap}
+                {parentView ? `At-home snapshot: ${selectedStudent.recap}` : studentView ? `Student snapshot: ${selectedStudent.recap}` : selectedStudent.recap}
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-[1rem] border border-white/10 bg-white/5 p-3">
@@ -125,7 +141,7 @@ export default function TutoringProgressPage() {
                 </div>
               </div>
               <div className="rounded-[1rem] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-white/75">
-                <span className="font-semibold text-white">{parentView ? 'Family note:' : 'Next note:'}</span> {selectedStudent.note}
+                <span className="font-semibold text-white">{parentView ? 'Family note:' : studentView ? 'Study note:' : 'Next note:'}</span> {selectedStudent.note}
               </div>
             </div>
           ) : null}
@@ -148,6 +164,46 @@ export default function TutoringProgressPage() {
             <Link href="/dashboard/communication" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#60A5FA]">
               <ArrowRight className="h-4 w-4" />
               Message tutor
+            </Link>
+          </div>
+        ) : studentView ? (
+          <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <TrendingUp className="h-4 w-4" />
+              Your next steps
+            </div>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4">
+                <p className="text-sm font-semibold text-slate-950">Keep going</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{selectedStudent?.weakTopics[0] ? `Review ${selectedStudent.weakTopics[0]} before the next session.` : 'Review the latest recap before the next session.'}</p>
+              </div>
+              <div className="rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4">
+                <p className="text-sm font-semibold text-slate-950">Open work</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{selectedStudent?.nextSession ? `Bring one question and be ready for ${selectedStudent.nextSession}.` : 'Bring one question to the next class.'}</p>
+              </div>
+            </div>
+            <Link href="/dashboard/tasks" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#60A5FA]">
+              <ArrowRight className="h-4 w-4" />
+              Open tasks
+            </Link>
+          </div>
+        ) : tutorView ? (
+          <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <AlertTriangle className="h-4 w-4" />
+              Intervention queue
+            </div>
+            <div className="mt-4 space-y-3">
+              {sortedStudents.filter((student) => student.status === 'Declining').map((student) => (
+                <div key={student.id} className="rounded-[1rem] border border-rose-200 bg-rose-50 p-4">
+                  <p className="text-sm font-semibold text-rose-900">{student.name}</p>
+                  <p className="mt-1 text-sm leading-6 text-rose-800">{student.note}</p>
+                </div>
+              ))}
+            </div>
+            <Link href="/dashboard/communication" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#60A5FA]">
+              <ArrowRight className="h-4 w-4" />
+              Notify parents
             </Link>
           </div>
         ) : (

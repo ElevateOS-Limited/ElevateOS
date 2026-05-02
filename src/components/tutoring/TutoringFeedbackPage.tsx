@@ -8,6 +8,7 @@ import {
   demoTutoringWorkspace,
   formatDateTimeLabel,
   isParentPov,
+  isStudentPov,
   taskStatusClasses,
   taskStatusLabel,
   tutoringSectionMeta,
@@ -20,6 +21,7 @@ export default function TutoringFeedbackPage() {
   const submissions = data?.submissions ?? demoTutoringWorkspace.submissions
   const feedback = data?.feedback ?? demoTutoringWorkspace.feedback
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
   const [selectedFeedbackId, setSelectedFeedbackId] = useState<string>('')
 
   useEffect(() => {
@@ -68,12 +70,14 @@ export default function TutoringFeedbackPage() {
             {tutoringSectionMeta.feedback.title}
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Parent-friendly review snapshots' : 'Reviewed work, weak areas, and next steps'}
+            {parentView ? 'Parent-friendly review snapshots' : studentView ? 'Reviewed work and next steps' : 'Reviewed work, weak areas, and next steps'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents see the short version: what was strong, what still needs work, and what the next action is.'
-              : 'Tutors see the full review context here so feedback stays specific, actionable, and easy to reuse in the next session.'}
+              : studentView
+                ? 'Students see the reviewed work, the score, and the next action before the next session.'
+                : 'Tutors see the full review context here so feedback stays specific, actionable, and easy to reuse in the next session.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -117,7 +121,7 @@ export default function TutoringFeedbackPage() {
                     <div className="text-xs uppercase tracking-[0.18em] text-slate-500">Score</div>
                   </div>
                 </div>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{parentView ? item.nextAction : item.comments}</p>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{parentView ? item.nextAction : studentView ? item.nextAction : item.comments}</p>
               </button>
             )
           })}
@@ -126,7 +130,7 @@ export default function TutoringFeedbackPage() {
 
       <aside className="space-y-4">
         <div className="rounded-[1.5rem] border border-slate-900/10 bg-slate-950 p-6 text-white shadow-lg shadow-slate-950/10">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">Review detail</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#f2c06d]">{parentView ? 'Review detail' : studentView ? 'Student review detail' : 'Review detail'}</p>
           {selectedFeedback ? (
             <div className="mt-4 space-y-4">
               <div className="flex items-start justify-between gap-4">
@@ -149,7 +153,7 @@ export default function TutoringFeedbackPage() {
               ) : null}
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7 text-white/75">
-                {selectedFeedback.comments}
+                {studentView ? selectedFeedback.nextAction : selectedFeedback.comments}
               </div>
 
               {selectedSubmission ? (
@@ -179,7 +183,7 @@ export default function TutoringFeedbackPage() {
         <div className="rounded-[1.5rem] border border-slate-900/10 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
             <CheckCircle2 className="h-4 w-4" />
-            Feedback summary
+            {studentView ? 'Student summary' : 'Feedback summary'}
           </div>
           <div className="mt-4 space-y-3">
             {metrics.weakTopics.length ? (
@@ -197,7 +201,7 @@ export default function TutoringFeedbackPage() {
           <div className="mt-5 rounded-[1rem] border border-slate-900/10 bg-white p-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
               <Star className="h-4 w-4 text-[#d97706]" />
-              Next action
+              {studentView ? 'Next step' : 'Next action'}
             </div>
             <p className="mt-2 text-sm leading-7 text-slate-600">
               {selectedFeedback?.nextAction || 'No next action is recorded for the selected review.'}

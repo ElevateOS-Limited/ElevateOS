@@ -8,6 +8,8 @@ import {
   demoTutoringWorkspace,
   accessTierLabel,
   isParentPov,
+  isStudentPov,
+  isTutorPov,
   resourceKindLabel,
   tutoringSectionMeta,
   type TutoringAccessTier,
@@ -22,6 +24,8 @@ export default function TutoringResourcesPage() {
   const { data, isLoading, error } = useTutoringWorkspace()
   const resources = data?.resources ?? demoTutoringWorkspace.resources
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
+  const tutorView = isTutorPov(activePov)
   const [selectedResourceId, setSelectedResourceId] = useState<string>('')
   const [kindFilter, setKindFilter] = useState<TutoringResourceKind | 'all'>('all')
   const [tierFilter, setTierFilter] = useState<TutoringAccessTier | 'all'>('all')
@@ -46,12 +50,20 @@ export default function TutoringResourcesPage() {
   )
 
   const summary = useMemo(() => {
+    if (studentView) {
+      return [
+        { label: 'Resources', value: resources.length },
+        { label: 'Lesson files', value: resources.filter((resource) => resource.kind === 'lesson_file').length },
+        { label: 'Practice sets', value: resources.filter((resource) => resource.kind === 'question_bank').length },
+      ]
+    }
+
     return [
       { label: 'Resources', value: resources.length },
       { label: 'Lesson files', value: resources.filter((resource) => resource.kind === 'lesson_file').length },
       { label: 'Tutor-only', value: resources.filter((resource) => resource.accessTier === 'tutor_only').length },
     ]
-  }, [resources])
+  }, [resources, studentView])
 
   if (isLoading && !data) {
     return <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-6 text-sm text-slate-500 shadow-sm">Loading resources…</div>
@@ -70,12 +82,14 @@ export default function TutoringResourcesPage() {
             {tutoringSectionMeta.resources.title}
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Resources visible to families and students' : 'Lesson files, question banks, and tutor notes'}
+            {parentView ? 'Resources visible to families and students' : studentView ? 'Study files and practice banks' : 'Lesson files, question banks, and tutor notes'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'Parents only need a high-level view of what is supporting the current week. Resource access stays simple and legible.'
-              : 'Tutors can switch between lesson files, practice banks, model answers, and tutor notes without leaving the dashboard.'}
+              : studentView
+                ? 'Students can open the same files their tutor uses, with a lighter view focused on what is due next.'
+                : 'Tutors can switch between lesson files, practice banks, model answers, and tutor notes without leaving the dashboard.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -234,11 +248,19 @@ export default function TutoringResourcesPage() {
           <p className="mt-3 text-sm leading-7 text-slate-600">
             {parentView
               ? 'Families do not upload here, but this panel shows the same structure the tutor uses to add lesson files, answer keys, or study notes.'
-              : 'Keep uploads simple: choose the access tier, link the task, and store the file in one place.'}
+              : studentView
+                ? 'Students can browse and open files here. Uploads stay with the tutor.'
+                : 'Keep uploads simple: choose the access tier, link the task, and store the file in one place.'}
           </p>
-          <div className="mt-4 rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
-            Choose a file, pick who can see it, and link it to the task before saving.
-          </div>
+          {tutorView ? (
+            <div className="mt-4 rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
+              Choose a file, pick who can see it, and link it to the task before saving.
+            </div>
+          ) : (
+            <div className="mt-4 rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
+              Read-only in this view. Open a file to review the next session plan.
+            </div>
+          )}
         </div>
       </aside>
     </div>

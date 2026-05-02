@@ -7,6 +7,7 @@ import { useTutoringUi } from './TutoringDashboardShell'
 import {
   initialStudents,
   isParentPov,
+  isStudentPov,
   progressLabel,
   statusClasses,
   tutoringStudentFilterOptions,
@@ -18,6 +19,7 @@ export default function TutoringRecapsPage() {
   const { activePov } = useTutoringUi()
   const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
   const students = data?.students ?? initialStudents
   const [query, setQuery] = useState('')
   const [filterKey, setFilterKey] = useState<FilterKey>('all')
@@ -49,12 +51,14 @@ export default function TutoringRecapsPage() {
                 Recaps
               </div>
               <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-                {parentView ? 'Recent family-friendly updates' : 'Recent session summaries'}
+                {parentView ? 'Recent family-friendly updates' : studentView ? 'Recent session summaries' : 'Recent session summaries'}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
                 {parentView
                   ? 'Read the short version of each recap before the next family check-in. The text stays simple and parent-facing.'
-                  : 'Keep tutor notes ready for a parent update, a follow-up message, or the next session plan. Active view: Tutor view.'}
+                  : studentView
+                    ? 'Read the short version of each recap, review the next note, and keep the view aligned with Student view.'
+                    : 'Keep tutor notes ready for a parent update, a follow-up message, or the next session plan. Active view: Tutor view.'}
               </p>
             </div>
 
@@ -89,6 +93,10 @@ export default function TutoringRecapsPage() {
             {parentView ? (
               <div className="rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] px-4 py-3 text-sm leading-7 text-slate-600">
                 These summaries are trimmed for parent viewing. Use Communication for the full thread.
+              </div>
+            ) : studentView ? (
+              <div className="rounded-[1rem] border border-slate-900/10 bg-[#f8f5ef] px-4 py-3 text-sm leading-7 text-slate-600">
+                These recaps are written for student use. Use Communication to message your tutor.
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#4A4A4A]">
@@ -136,7 +144,7 @@ export default function TutoringRecapsPage() {
               <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
                 <span>{student.sessions} sessions</span>
                 <span>{student.progress}% progress</span>
-                <span>{parentView ? 'Review with family' : student.note}</span>
+                <span>{parentView ? 'Review with family' : studentView ? 'Review before class' : student.note}</span>
               </div>
             </button>
           ))}
@@ -153,10 +161,10 @@ export default function TutoringRecapsPage() {
                 <p className="text-sm text-slate-500">{selectedStudent.subject} · {selectedStudent.grade}</p>
               </div>
               <div className="rounded-[1rem] bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-700">
-                {parentView ? `What parents should know: ${selectedStudent.recap}` : selectedStudent.recap}
+                {parentView ? `What parents should know: ${selectedStudent.recap}` : studentView ? `What you should review: ${selectedStudent.recap}` : selectedStudent.recap}
               </div>
               <div className="rounded-[1rem] border border-slate-900/10 p-4 text-sm leading-7 text-slate-700">
-                <span className="font-semibold text-slate-950">{parentView ? 'Next family note:' : 'Next note:'}</span> {selectedStudent.note}
+                <span className="font-semibold text-slate-950">{parentView ? 'Next family note:' : studentView ? 'Next study note:' : 'Next note:'}</span> {selectedStudent.note}
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-[1rem] border border-slate-900/10 p-3">
@@ -171,7 +179,7 @@ export default function TutoringRecapsPage() {
               <div className="flex gap-2">
                 <Link href="/dashboard/communication" className="inline-flex flex-1 items-center justify-center gap-2 rounded-[0.9rem] bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#60A5FA]">
                   <ArrowRight className="h-4 w-4" />
-                  {parentView ? 'Message tutor' : 'Send update'}
+                  {parentView ? 'Message tutor' : studentView ? 'Message tutor' : 'Send update'}
                 </Link>
                 <Link href="/dashboard/schedule" className="inline-flex flex-1 items-center justify-center rounded-[0.9rem] border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[#f8f5ef]">
                   {parentView ? 'Check next session' : 'Review schedule'}

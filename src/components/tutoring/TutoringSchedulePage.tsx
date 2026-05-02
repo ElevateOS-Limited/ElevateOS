@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CalendarClock, CheckCircle2, Clock3 } from 'lucide-react'
 import { useTutoringUi } from './TutoringDashboardShell'
-import { initialStudents, isParentPov, nextSessionKey } from './tutoring-data'
+import { initialStudents, isParentPov, isStudentPov, isTutorPov, nextSessionKey } from './tutoring-data'
 import { useTutoringWorkspace } from './useTutoringWorkspace'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -31,6 +31,8 @@ export default function TutoringSchedulePage() {
   const { activePov } = useTutoringUi()
   const { data } = useTutoringWorkspace()
   const parentView = isParentPov(activePov)
+  const studentView = isStudentPov(activePov)
+  const tutorView = isTutorPov(activePov)
   const [viewMonth, setViewMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
   const [availability, setAvailability] = useState<Record<string, 'busy' | 'open'>>(
     Object.fromEntries(DAYS.map((day) => [day, day === 'Monday' || day === 'Thursday' ? 'open' : 'busy'])) as Record<string, 'busy' | 'open'>,
@@ -51,19 +53,21 @@ export default function TutoringSchedulePage() {
             Schedule
           </div>
           <h1 className="font-display mt-4 text-3xl tracking-tight text-slate-950">
-            {parentView ? 'Family calendar and next sessions' : 'Weekly availability and session timing'}
+            {parentView ? 'Family calendar and next sessions' : studentView ? 'Your sessions and upcoming deadlines' : 'Weekly availability and session timing'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
             {parentView
               ? 'View confirmed appointments, upcoming time blocks, and who to contact if a session needs to move.'
-              : 'Manage open days, blocked dates, and upcoming tutoring slots without leaving the dashboard. Active view: Tutor view.'}
+              : studentView
+                ? 'Review confirmed sessions, upcoming deadlines, and what to prep before the next class. Active view: Student view.'
+                : 'Manage open days, blocked dates, and upcoming tutoring slots without leaving the dashboard. Active view: Tutor view.'}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {[
-              ['Open days', parentView ? upcoming.length : openDays],
+              ['Open days', parentView ? upcoming.length : studentView ? upcoming.length : openDays],
               ['Upcoming', upcoming.length],
-              [parentView ? 'Reminder items' : 'Blocked dates', parentView ? blockedDates.length + (upcoming.length > 0 ? 1 : 0) : blockedDates.length],
+              [parentView ? 'Reminder items' : studentView ? 'Prep items' : 'Blocked dates', parentView ? blockedDates.length + (upcoming.length > 0 ? 1 : 0) : studentView ? upcoming.length : blockedDates.length],
             ].map(([label, value]) => (
               <div key={label as string} className="rounded-[1.25rem] border border-slate-900/10 bg-[#f8f5ef] p-4 text-center">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</p>
@@ -73,7 +77,7 @@ export default function TutoringSchedulePage() {
           </div>
         </div>
 
-        {!parentView ? (
+        {tutorView ? (
           <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -104,12 +108,18 @@ export default function TutoringSchedulePage() {
           <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Next appointments</p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-950">Confirmed sessions only</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">{parentView ? 'Next appointments' : 'Next sessions'}</p>
+                <h2 className="mt-1 text-xl font-semibold text-slate-950">{parentView ? 'Confirmed sessions only' : 'What to prepare before class'}</h2>
               </div>
-              <Link href="/dashboard/communication" className="text-sm font-medium text-slate-600 hover:text-slate-950">
-                Request a change
-              </Link>
+              {studentView ? (
+                <Link href="/dashboard/tasks" className="text-sm font-medium text-slate-600 hover:text-slate-950">
+                  Open tasks
+                </Link>
+              ) : (
+                <Link href="/dashboard/communication" className="text-sm font-medium text-slate-600 hover:text-slate-950">
+                  Request a change
+                </Link>
+              )}
             </div>
 
             <div className="mt-4 space-y-3">
@@ -122,14 +132,18 @@ export default function TutoringSchedulePage() {
                     </div>
                     <span className="text-sm font-semibold text-[#d97706]">{student.nextSession}</span>
                   </div>
-                  <p className="mt-2 text-sm leading-7 text-slate-600">Bring a question for the recap and expect a short family update after class.</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                    {parentView
+                      ? 'Bring a question for the recap and expect a short family update after class.'
+                      : 'Keep this time open, review the recap, and bring one question to class.'}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {!parentView ? (
+        {tutorView ? (
           <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Monthly calendar</p>
@@ -177,7 +191,7 @@ export default function TutoringSchedulePage() {
           <div className="rounded-[1.25rem] border border-slate-900/10 bg-white p-5 shadow-sm">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Calendar notes</div>
             <div className="mt-4 rounded-[1rem] bg-[#f8f5ef] p-4 text-sm leading-7 text-slate-600">
-              Family view is read-only. Use Communication if a date needs to move.
+              {parentView ? 'Family view is read-only. Use Communication if a date needs to move.' : 'Student view is read-only. Use Communication if a date needs to move.'}
             </div>
           </div>
         )}
@@ -215,10 +229,12 @@ export default function TutoringSchedulePage() {
           <p className="mt-3 text-sm leading-7 text-white/75">
             {parentView
               ? 'If a session needs to move, send a note to the tutor and ask for the next available slot.'
-              : `Keep ${openDays} day(s) open for new sessions and move blocked dates into the calendar above when plans change.`}
+              : studentView
+                ? 'Keep your upcoming sessions visible and review the task list before class.'
+                : `Keep ${openDays} day(s) open for new sessions and move blocked dates into the calendar above when plans change.`}
           </p>
           <Link href="/dashboard/communication" className="mt-4 inline-flex items-center gap-2 rounded-[0.9rem] bg-[#3B82F6] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#60A5FA]">
-            {parentView ? 'Message tutor' : 'Send scheduling update'}
+            {parentView ? 'Message tutor' : studentView ? 'Open tasks' : 'Send scheduling update'}
           </Link>
         </div>
       </aside>

@@ -7,7 +7,6 @@ import { LogOut, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   getTutoringNavId,
-  isParentPov,
   tutoringNavItems,
   tutoringPovItems,
   tutoringSectionMeta,
@@ -133,7 +132,7 @@ export default function TutoringDashboardShell({ children }: { children: ReactNo
 
   const activeNav = useMemo(() => getTutoringNavId(pathname), [pathname])
   const section = tutoringSectionMeta[activeNav]
-  const povLabel = isParentPov(activePov) ? 'Parent view' : 'Tutor view'
+  const povLabel = activePov
 
   return (
     <TutoringUiContext.Provider value={{ activePov, setActivePov, activeNav }}>
